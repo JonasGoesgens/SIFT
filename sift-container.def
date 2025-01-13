@@ -1,0 +1,35 @@
+Bootstrap: docker
+From: python:3.11
+
+%post
+    # Update und installiere benötigte Pakete
+    apt-get update && apt-get install -y \
+        build-essential \
+        cmake \
+        procps \
+        time \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Installiere die Python-Pakete aus den Anforderungen
+    pip install --root-user-action=ignore --upgrade pip
+    pip install --root-user-action=ignore -r /graph-separator/requirements.txt
+
+%environment
+    export PYTHONPATH=/usr/local/lib/python3.11/site-packages:$PYTHONPATH
+
+%runscript
+    date
+    start_time=$(date +%s)
+    start_date=$(date)
+    resource_file="resource_usage_$(echo "$@" | sed 's/[^a-zA-Z0-9_-]/_/g').txt"
+    /usr/bin/time -v --output="$resource_file" python3.11 "$@"
+    end_time=$(date +%s)
+    end_date=$(date)
+    duration=$(( end_time - start_time ))
+    echo "Process started at: $start_date"
+    echo "Process ended at: $end_date"
+    echo "Runtime: $duration Seconds."
+    echo "Resource usage:"
+    cat "$resource_file"
+%files
+    ./requirements.txt /graph-separator/requirements.txt
