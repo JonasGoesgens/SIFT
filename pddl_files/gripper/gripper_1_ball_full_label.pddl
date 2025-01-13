@@ -1,0 +1,22 @@
+(define (problem gripper-1)
+(:domain gripper-strips)
+(:objects  left right ball1 rooma roomb)
+(:init
+(room rooma)
+(room roomb)
+(gripper left)
+(gripper right)
+(ball ball1)
+(free left)
+(free right)
+(at ball1 rooma)
+(at-robby rooma)
+(eq rooma rooma)
+(eq roomb roomb)
+)
+(:goal
+(and
+(at ball1 roomb)
+)
+)
+)

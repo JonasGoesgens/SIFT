@@ -1,0 +1,8 @@
+(define (problem storage-ring2)
+	(:domain storage-ring)
+	(:objects cell1 cell2)
+	(:init (next cell1 cell2)
+		(next cell2 cell1)
+		(at cell1))
+	(:goal (and (data cell1)
+		(at cell2))))

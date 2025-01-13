@@ -1,0 +1,67 @@
+(define (domain switches)
+(:requirements :negative-preconditions :equality :strips)
+(:predicates (sw1 ?x)
+             (sw2 ?x)
+             (sw3 ?x)
+             (sw4 ?x)
+             (sw5 ?x))
+
+(:action turn-on-1
+:parameters (?this)
+:precondition (and (not (sw1 ?this)))
+:effect  (and (sw1 ?this))
+ )
+(:action turn-off-1
+:parameters (?this)
+:precondition (and (sw1 ?this) )
+:effect  (and (not (sw1 ?this)))
+ )
+(:action turn-on-2
+:parameters (?this)
+:precondition (and (sw1 ?this) 
+                   (not (sw2 ?this)))
+:effect  (and (sw2 ?this))
+ )
+(:action turn-off-2
+:parameters (?this)
+:precondition (and (sw2 ?this) 
+                   (not (sw1 ?this)))
+:effect  (and (not (sw2 ?this)))
+ )
+(:action turn-on-3
+:parameters (?this)
+:precondition (and (sw2 ?this) 
+                   (not (sw3 ?this)))
+:effect  (and (sw3 ?this))
+ )
+(:action turn-off-3
+:parameters (?this)
+:precondition (and (sw3 ?this) 
+                   (not (sw2 ?this)))
+:effect  (and (not (sw3 ?this)))
+ )
+(:action turn-on-4
+:parameters (?this)
+:precondition (and (sw3 ?this) 
+                   (not (sw4 ?this)))
+:effect  (and (sw4 ?this))
+ )
+(:action turn-off-4
+:parameters (?this)
+:precondition (and (sw4 ?this) 
+                   (not (sw3 ?this)))
+:effect  (and (not (sw4 ?this)))
+ )
+(:action turn-on-5
+:parameters (?this)
+:precondition (and (sw4 ?this) 
+                   (not (sw5 ?this)))
+:effect  (and (sw5 ?this))
+ )
+(:action turn-off-5
+:parameters (?this)
+:precondition (and (sw5 ?this) 
+                   (not (sw4 ?this)))
+:effect  (and (not (sw5 ?this)))
+ ))
+ 
