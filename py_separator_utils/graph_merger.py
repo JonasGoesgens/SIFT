@@ -11,7 +11,6 @@ class Graph_Holder:
         self.locm_types = locm_types
         self.simple_merged_graphs = dict()
         self.final_merged_graphs = dict()
-        self.dead_patterns = dict()
         self.zeronary_graph = None
 
     @classmethod
@@ -137,12 +136,6 @@ class Graph_Holder:
         grounding_key = frozenset(grounding)
         return self.get_simple_graph_for_grounding_key(grounding_key)
 
-    def get_dead_patterns_for_typecombination(self, type_combination : pt.TypeCombi):
-        if not type_combination in self.dead_patterns:
-            return set()
-        else:
-            return set(self.dead_patterns[type_combination])
-
     @classmethod
     def get_compatible_patterns_from_edge_label(cls,
         edge_labels : pt.Edge_LabelT,
@@ -220,12 +213,14 @@ class Graph_Holder:
 
     def set_final_graph_and_dead_pattern_for_grounding(
         self, grounding : pt.GroundingT, type_combination : pt.TypeCombi,
-        graph : pt.GraphT, dead_patterns : pt.PatternTSetLike
+        graph : pt.GraphT
     ) -> None:
-        if type_combination not in self.dead_patterns:
-            self.dead_patterns[type_combination] = set()
-        self.dead_patterns[type_combination].update(dead_patterns)
         self.final_merged_graphs[grounding] = graph
+
+    def has_final_graph_for_grounding(
+        self, grounding : pt.GroundingT
+    ) -> bool:
+        return grounding in self.final_merged_graphs
 
     def get_final_graph_for_grounding(
         self, grounding : pt.GroundingT,
@@ -234,18 +229,15 @@ class Graph_Holder:
         if grounding in self.final_merged_graphs:
             return self.final_merged_graphs[grounding]
         else:
-            if not type_combination in self.dead_patterns:
-                #self.dead_patterns[type_combination] = set()
-                self.dead_patterns[type_combination] = set()
             #make a deep copy as we need the old graph intact as intermediate result.
             graph = copy.deepcopy(self.get_simple_graph_for_grounding(grounding))
             all_patterns = self.locm_types.get_all_patterns_for_typecombination(type_combination)
 
-            graph, dead_patterns = self.__class__.merge_graph_for_dead_patterns(
+            graph, _ = self.__class__.merge_graph_for_dead_patterns(
                 graph, grounding, all_patterns,
-                self.dead_patterns[type_combination]
+                set()
             )
             self.set_final_graph_and_dead_pattern_for_grounding(
-                grounding, type_combination, graph, dead_patterns
+                grounding, type_combination, graph
             )
             return graph
