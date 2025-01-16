@@ -1,11 +1,13 @@
 import typing
 import networkx as nx
 import py_separator_utils.hashable_multiset as hm
+ActionT = typing.Union[int, str]
+#ActtionT is the identifier of an action, represented by an int or string
 TypeT = int
 #TypeT is the type of an object or action argument represented by an int
 TypeCombi = hm.Multiset[TypeT]
 #An ArgPos consist of the action id and the index of the argument
-ArgPosT = typing.Tuple[int,int]
+ArgPosT = typing.Tuple[ActionT,int]
 #An Object is represented by an int as id
 ObjectT = int
 #ObjectInstT combines an object id with its instance id as a tuple (inst,obj)
@@ -17,11 +19,11 @@ GroundingKeyT = typing.FrozenSet[ObjectT]
 #pattern is a tuple holding an int and a tuple of ints
 #the first in represents the action
 #the other int represent the ordered objects that are relevant arguments
-PatternT = typing.Tuple[int,typing.Tuple[int]]
+PatternT = typing.Tuple[ActionT,typing.Tuple[int]]
 #Ground_Edge_Info is a tupel holding an int for the action 
 #and a tuple of ints for the grounded objects that were used as arguments
 #It has different usecases as PatterT
-Ground_Edge_Info = typing.Tuple[int,typing.Tuple[int]]
+Ground_Edge_Info = typing.Tuple[ActionT,typing.Tuple[int]]
 #Edge_Label is a set of Ground_Edge_Info holding all actions that caused this edge
 Edge_LabelT = set[Ground_Edge_Info]
 #Graph is a nx.digraph

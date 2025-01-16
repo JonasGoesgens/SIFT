@@ -79,7 +79,7 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
         for node in list(G.nodes()):
             if cur_id in successor_dict[node].keys():
                 _act = successor_dict[node][cur_id]
-                action_name = action_mapping[_act.get_name()]
+                action_name = _act.get_name()
                 action_objects = tuple([object_mapping[_obj.get_name()] for _obj in _act.get_objects()])
                 current_action = (action_name, action_objects)
                 mapped_action_to_mimir_action[current_action] = _act
@@ -87,7 +87,7 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
                 G.add_edge(node, cur_id, action={current_action})
             if node in successor_dict[cur_id].keys():
                 _act = successor_dict[cur_id][node]
-                action_name = action_mapping[_act.get_name()]
+                action_name = _act.get_name()
                 action_objects = tuple([object_mapping[_obj.get_name()] for _obj in _act.get_objects()])
                 current_action = (action_name, action_objects)
                 all_actions.add(current_action)
@@ -169,7 +169,7 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
             # get succeor state for applicable action
             succ_state = mimir_stuff.get_successor_state(cur_state, _act)
 
-            action_name = action_mapping[_act.get_name()]
+            action_name = _act.get_name()
             action_objects = tuple([object_mapping[_obj.get_name()] for _obj in _act.get_objects()])
             current_action = (action_name, action_objects)
 
@@ -255,7 +255,7 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
         
         node_and_corrensponding_state[next_state_index] = succ_state 
 
-        action_name = action_mapping[applied_action.get_name()]
+        action_name = applied_action.get_name()
         action_objects = tuple([object_mapping[_obj.get_name()] for _obj in applied_action.get_objects()])
         current_action = (action_name, action_objects)
 
@@ -333,7 +333,7 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
     # for each transition create a edge in the graph which is labeled with the corresponding grounded action
     for state in states:
         for trans in state_space.get_forward_transitions(state):
-            action_name = action_mapping[trans.get_creating_action().get_name()]
+            action_name = trans.get_creating_action().get_name()
             action_objects = tuple([object_mapping[_obj.get_name()] for _obj in trans.get_creating_action().get_objects()])
             current_action = (action_name, action_objects)
             if G.has_edge(trans.get_source_state(), trans.get_target_state()):

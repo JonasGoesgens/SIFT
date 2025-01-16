@@ -107,7 +107,7 @@ class Feature:
             matching_unselected_pattens)
 
     def add_color_constraint(self, pattern_colors : list):
-        #pattern_colors is a list of two sets of patterns
+        #pattern_colors is a list of four sets of patterns
         if self.is_invalid():
             return None
         #new_split will grow with any old split it connects
