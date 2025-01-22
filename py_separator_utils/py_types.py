@@ -29,8 +29,10 @@ Edge_LabelT = set[Ground_Edge_Info]
 #Graph is a nx.digraph
 GraphT = nx.DiGraph
 #Graph edges are annotated with the key action
+#Nodes are represented as int
+NodeT = int
 #an edge is a 3 tuple [start, end, Edge_LabelT]
-EdgeT = typing.Tuple[int,int,Edge_LabelT]
+EdgeT = typing.Tuple[NodeT,NodeT,Edge_LabelT]
 #Sets of used types
 T = typing.TypeVar('T')
 SetLike = typing.Union[typing.Set[T], typing.FrozenSet[T]]

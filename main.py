@@ -57,18 +57,18 @@ if __name__ == '__main__':
 
         for num_input in range(number_inputs):
             if mode == 'fg':
-                G, _ = get_nx_graph_from_state_space(pddl_holder, False)
+                G, init = get_nx_graph_from_state_space(pddl_holder, False)
             elif mode == 'pg':
-                G, _, _ = bfs_state_space(pddl_holder, number_edges, num_input, False)
+                G, init = bfs_state_space(pddl_holder, number_edges, num_input, False)
             elif mode == 'rl':
-                G, _, _ = get_trace_rl(pddl_holder, number_edges, num_input, False)
+                G, init = get_trace_rl(pddl_holder, number_edges, num_input, False)
             elif mode == 'st':
-                G, _, _ = get_trace_simple(pddl_holder, number_edges, num_input, False)
+                G, init = get_trace_simple(pddl_holder, number_edges, num_input, False)
             else:
                 #return None
                 continue
 
-            instance_list.append(G)
+            instance_list.append((G,init))
 
             if mode == 'fg':
                 break

@@ -19,7 +19,7 @@ class Feature:
             #all patterns will appear sometimes
             #color splits need to be a list to allow ordered removal
             self.color_splits = [
-                [{pat},set(),set(),set()] for pat in selected_patterns
+                [{pat},set(),set(),set(),set(),set()] for pat in selected_patterns
             ]
         else:
             #extends a feature by unseen patterns
@@ -44,7 +44,7 @@ class Feature:
             #all patterns will appear sometimes
             #color splits need to be a list to allow ordered removal
             self.color_splits = other.color_splits.extend(
-                [[{pat},set(),set(),set()]
+                [[{pat},set(),set(),set(),set(),set()]
                 for pat in selected_patterns.difference(
                     set().union(*(other.color_splits[0]))
                     .union(*(other.color_splits[1]))
@@ -112,7 +112,8 @@ class Feature:
             return None
         #new_split will grow with any old split it connects
         new_split = [set(pattern_colors[0]),set(pattern_colors[1]),
-            set(pattern_colors[2]),set(pattern_colors[3])]
+            set(pattern_colors[2]),set(pattern_colors[3]),
+            set(pattern_colors[4]),set(pattern_colors[5])]
         if (
             (not new_split[0].issubset(self.selected_patterns)) or 
             (not new_split[1].issubset(self.selected_patterns))
@@ -135,6 +136,8 @@ class Feature:
                 new_split[1].update(color_split[1])
                 new_split[2].update(color_split[2])
                 new_split[3].update(color_split[3])
+                new_split[4].update(color_split[4])
+                new_split[5].update(color_split[5])
                 if (
                     new_split[0].intersection(color_split[1]) or 
                     new_split[1].intersection(color_split[0])
@@ -151,6 +154,8 @@ class Feature:
                 new_split[1].update(color_split[0])
                 new_split[2].update(color_split[3])
                 new_split[3].update(color_split[2])
+                new_split[4].update(color_split[5])
+                new_split[5].update(color_split[4])
                 del self.color_splits[i]
         if new_split[0] or new_split[1]:
             self.color_splits.append(new_split)
@@ -158,16 +163,15 @@ class Feature:
             self.undefined_preconditions = None
         return new_split
 
-    def color_graph(self, Graph : pt.GraphT,
+    def color_graph(self, instance : int, Graph : pt.GraphT, initial_state : pt.NodeT,
         grounding : pt.GroundingT
     ):
         if self.is_invalid():
             return None
         node_color = {i: None for i in Graph.nodes()}
-        initial_node = list(Graph.nodes())[0]
-        node_color[initial_node] = 0
-        pattern_colors = [set(),set(),set(),set()]
-        open_nodes = [initial_node]
+        node_color[initial_state] = 0
+        pattern_colors = [set(),set(),set(),set(),{(instance, grounding)},set()]
+        open_nodes = [initial_state]
         while len(open_nodes) > 0:
             node = open_nodes.pop(0)
             for edges, a, b in [
@@ -270,7 +274,7 @@ class Feature:
         output_lines.append(f"Type Combination: {self.type_combination}")
 
         for i in range(self.get_number_of_split_combinations()):
-            add_list, del_list, pos_precs, neg_precs, undefined_precs = self.get_color_split_combination(i)
+            add_list, del_list, pos_precs, neg_precs, undefined_precs, init_true_atoms, init_false_atoms = self.get_color_split_combination(i)
             if not self.has_unique_colouring():
                 output_lines.append(f"Kombination {i + 1}:")
             output_lines.append(f"  Add List: {add_list}")
@@ -278,6 +282,8 @@ class Feature:
             output_lines.append(f"  Positive Preconditions: {pos_precs}")
             output_lines.append(f"  Negative Preconditions: {neg_precs}")
             output_lines.append(f"  Undecided Preconditions: {undefined_precs}")
+            output_lines.append(f"  True initial Atoms: {init_true_atoms}")
+            output_lines.append(f"  False initial Atoms: {init_false_atoms}")
             output_lines.append("")
 
         return "\n".join(output_lines)
@@ -349,7 +355,7 @@ class Feature:
         undefined_precs = self.unselected_patterns.difference(defined_prec)
         precondition_split = list()
         for color_split in self.color_splits:
-            precondition_split.append([color_split[0],color_split[1],color_split[2].difference(impossible_prec),color_split[3].difference(impossible_prec)])
+            precondition_split.append([color_split[0],color_split[1],color_split[2].difference(impossible_prec),color_split[3].difference(impossible_prec),color_split[4],color_split[5]])
         #chache the results until splits are changed again
         self.precondition_splits = precondition_split
         self.undefined_preconditions = undefined_precs
@@ -367,6 +373,8 @@ class Feature:
         del_list = set()
         pos_precs = set()
         neg_precs = set()
+        init_true_atoms = set()
+        init_false_atoms = set()
         precondition_split, undefined_precs = self.extract_precondition_splits()
 
         for i, color_split in enumerate(precondition_split):
@@ -376,11 +384,13 @@ class Feature:
             del_list.update(color_split[1-color_flip])
             pos_precs.update(color_split[2 + color_flip])
             neg_precs.update(color_split[3 - color_flip])
+            init_true_atoms.update(color_split[4 + color_flip])
+            init_false_atoms.update(color_split[5 - color_flip])
 
         remove_list = pos_precs.intersection(neg_precs)
         pos_precs.difference_update(remove_list)
         neg_precs.difference_update(remove_list)
-        return add_list, del_list, pos_precs, neg_precs, undefined_precs
+        return add_list, del_list, pos_precs, neg_precs, undefined_precs, init_true_atoms, init_false_atoms
 
     @classmethod
     def extend_features(cls, feature_list : list['Feature'],

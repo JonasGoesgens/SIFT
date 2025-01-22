@@ -7,7 +7,7 @@ import copy
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 
 class SIFT:
-    def __init__(self, graphs : list[pt.GraphT], num_max_worker : int = 8):
+    def __init__(self, graphs : list[tuple[pt.GraphT,pt.NodeT]], num_max_worker : int = 8):
         self.all_graphs = dict()
         self.all_ground_edges = dict()
         self.LOCM_types = LOCM_Types()
@@ -18,10 +18,10 @@ class SIFT:
         self.process_pool = ProcessPoolExecutor(max_workers=num_max_worker)
         self._add_graphs(graphs)
 
-    def _add_graphs(self, graphs : list[pt.GraphT]):
-        for graph in graphs:
+    def _add_graphs(self, graphs : list[tuple[pt.GraphT, pt.NodeT]]):
+        for graph, init in graphs:
             instance_id = self.instance_id_gen.take_free_id()
-            self.all_graphs[instance_id] = Graph_Holder(graph, self.LOCM_types)
+            self.all_graphs[instance_id] = Graph_Holder(graph, init, self.LOCM_types)
             self.all_ground_edges[instance_id] = set()
             edges = graph.out_edges(graph.nodes(),data='action')
             for edge in edges:
@@ -33,10 +33,10 @@ class SIFT:
     @classmethod
     def _check_feature(
         cls, feature : Feature,
-        check_list : list[tuple[pt.GraphT, pt.GroundingT]]
+        check_list : list[tuple[int, pt.GraphT, pt.NodeT, pt.GroundingT]]
     ):
-        for graph, grounding in check_list:
-            feature.color_graph(graph, grounding)
+        for instance, graph, initial_state, grounding in check_list:
+            feature.color_graph(instance, graph, initial_state, grounding)
             if feature.is_invalid():
                 break
         return feature
@@ -51,11 +51,11 @@ class SIFT:
             type_combination
         ).items():
             for grounding in groundings:
-                graph = self.all_graphs[instance].get_final_graph_for_grounding(
+                graph, initial_state = self.all_graphs[instance].get_final_graph_for_grounding(
                     grounding,
                     type_combination
                 )
-                check_list.append((graph, grounding))
+                check_list.append((instance, graph, initial_state, grounding))
         return check_list
 
     def update_dead_patterns_for_typecombination(
@@ -114,20 +114,21 @@ class SIFT:
                     classtype = type(graphholder)
                     new_obj = next(iter(grounding_key))
                     smaller_grounding_key = classtype.get_sub_grounding_key(grounding_key, new_obj)
-                    smaller_graph = self.all_graphs[instance].get_simple_graph_for_grounding_key(smaller_grounding_key)
+                    smaller_graph, smaller_initial_state = self.all_graphs[instance].get_simple_graph_for_grounding_key(smaller_grounding_key)
 
                     runs[(arity,instance,grounding_key)] = self.process_pool.submit(
                         classtype.merge_graph_for_missing_arg,
                         smaller_graph,
+                        smaller_initial_state,
                         new_obj
                     )
             #wait for intermediate results to be available
             wait(runs.values(), return_when=ALL_COMPLETED)
             for (arity,instance,grounding_key), future in runs.items():
                 try:
-                    result = future.result()
+                    graph, initial_state = future.result()
                     self.all_graphs[instance].set_simple_graph_for_grounding_key(
-                        grounding_key, result
+                        grounding_key, graph, initial_state
                     )
                 except Exception as e:
                     print(f"Error processing {(arity,instance,grounding_key)}: {e}")
@@ -160,12 +161,14 @@ class SIFT:
                             if not graphholder.has_final_graph_for_grounding(grounding):
                                 #we dont have complex merged yet for this grounding, take simple merge as start.
                                 #make a deep copy as we need the old graph intact as intermediate result.
-                                graph = copy.deepcopy(graphholder.get_simple_graph_for_grounding(grounding))
+
+                                graph, initial_state = graphholder.get_simple_graph_for_grounding(grounding)
+                                graph = copy.deepcopy(graph)
                             else:
-                                graph = graphholder.get_final_graph_for_grounding(grounding, type_combination)
+                                graph, initial_state = graphholder.get_final_graph_for_grounding(grounding, type_combination)
                             runs[(arity,type_combination,instance,grounding)] = self.process_pool.submit(
                                 classtype.merge_graph_for_dead_patterns,
-                                graph, grounding, all_patterns,
+                                graph, initial_state, grounding, all_patterns,
                                 dead_patterns
                             )
             #wait for intermediate results to be available
@@ -173,9 +176,9 @@ class SIFT:
 
             for (arity,type_combination,instance,grounding), future in runs.items():
                 try:
-                    graph, dead_patterns = future.result()
-                    self.all_graphs[instance].set_final_graph_and_dead_pattern_for_grounding(
-                        grounding, type_combination, graph
+                    graph, initial_state, dead_patterns = future.result()
+                    self.all_graphs[instance].set_final_graph_for_grounding(
+                        grounding, type_combination, graph, initial_state
                     )
                     self.update_dead_patterns_for_typecombination(type_combination, dead_patterns)
                     local_dead_patterns[(type_combination, instance, grounding)] = dead_patterns

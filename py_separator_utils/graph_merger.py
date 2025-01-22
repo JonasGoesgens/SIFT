@@ -1,13 +1,15 @@
 import py_separator_utils.py_types as pt
 from py_separator_utils.object_types import LOCM_Types
 from multiprocessing import Manager
-from typing import Optional
+from typing import Optional, Tuple
 import copy
 class Graph_Holder:
     def __init__(self, graph : pt.GraphT,
+        initial_state : pt.NodeT,
         locm_types : LOCM_Types
     ):
         self.base_graph = graph
+        self.initial_state = initial_state
         self.locm_types = locm_types
         self.simple_merged_graphs = dict()
         self.final_merged_graphs = dict()
@@ -80,8 +82,8 @@ class Graph_Holder:
 
     @classmethod
     def merge_graph_for_missing_arg(
-        cls, graph : pt.GraphT, arg : pt.ObjectT
-    ) -> pt.GraphT:
+        cls, graph : pt.GraphT, initial_state : pt.NodeT, arg : pt.ObjectT
+    ) -> Tuple[pt.GraphT, pt.NodeT]:
         new_graph = copy.deepcopy(graph)
         for node in list(new_graph.nodes()):
             if not new_graph.has_node(node):
@@ -101,38 +103,41 @@ class Graph_Holder:
                     if not new_graph.has_node(other_node):
                         continue
                     if cls.check_label_needs_merge_simple(new_graph[edge[0]][edge[1]].get('action'), arg):
+                        if other_node == initial_state:
+                            initial_state = node
                         cls.merge_nodes(new_graph, node, other_node)
                         merged = True
-        return new_graph
+        return new_graph, initial_state
 
     def set_simple_graph_for_grounding_key(
-        self, grounding_key : pt.GroundingKeyT, graph : pt.GraphT
+        self, grounding_key : pt.GroundingKeyT, graph : pt.GraphT, initial_state : pt.NodeT
     ) -> None:
-        self.simple_merged_graphs[grounding_key] = graph
+        self.simple_merged_graphs[grounding_key] = (graph, initial_state)
 
     def get_simple_graph_for_grounding_key(
         self, grounding_key : pt.GroundingKeyT
-    ) -> pt.GraphT:
+    ) -> Tuple[pt.GraphT, pt.NodeT]:
         if grounding_key in self.simple_merged_graphs:
             return self.simple_merged_graphs[grounding_key]
         elif len(grounding_key) < 1:
-            return self.base_graph
+            return self.base_graph, self.initial_state
         else:
             new_obj = next(iter(grounding_key))
             smaller_grounding_key = self.__class__.get_sub_grounding_key(grounding_key, new_obj)
-            smaller_graph = self.get_simple_graph_for_grounding_key(smaller_grounding_key)
-            graph = self.__class__.merge_graph_for_missing_arg(
+            smaller_graph, smaller_initial_state = self.get_simple_graph_for_grounding_key(smaller_grounding_key)
+            graph, initial_state = self.__class__.merge_graph_for_missing_arg(
                 smaller_graph,
+                smaller_initial_state,
                 new_obj
             )
             self.set_simple_graph_for_grounding_key(
                 grounding_key, graph
             )
-            return graph
+            return graph, initial_state
 
     def get_simple_graph_for_grounding(
         self, grounding : pt.GroundingT
-    ) -> pt.GraphT:
+    ) -> Tuple[pt.GraphT, pt.NodeT]:
         grounding_key = frozenset(grounding)
         return self.get_simple_graph_for_grounding_key(grounding_key)
 
@@ -162,10 +167,11 @@ class Graph_Holder:
 
     @classmethod
     def merge_graph_for_dead_patterns(
-        cls, graph : pt.GraphT, grounding : pt.GroundingT,
+        cls, graph : pt.GraphT, initial_state : pt.NodeT,
+        grounding : pt.GroundingT,
         all_patterns : pt.PatternTSetLike,
         dead_patterns : Optional[pt.PatternTSetLike]
-    ) -> (pt.GraphT, pt.PatternTSetLike):
+    ) -> Tuple[pt.GraphT, pt.NodeT, pt.PatternTSetLike]:
         if dead_patterns is None:
             dead_patterns = set()
 
@@ -206,16 +212,18 @@ class Graph_Holder:
                             all_patterns
                         )
                         if dead_patterns.intersection(pat):
+                            if neighbor == initial_state:
+                                initial_state = node
                             cls.merge_nodes(graph, node, neighbor)
                             merged = True
 
-        return graph, dead_patterns
+        return graph, initial_state, dead_patterns
 
-    def set_final_graph_and_dead_pattern_for_grounding(
+    def set_final_graph_for_grounding(
         self, grounding : pt.GroundingT, type_combination : pt.TypeCombi,
-        graph : pt.GraphT
+        graph : pt.GraphT, initial_state : pt.NodeT
     ) -> None:
-        self.final_merged_graphs[grounding] = graph
+        self.final_merged_graphs[grounding] = (graph, initial_state)
 
     def has_final_graph_for_grounding(
         self, grounding : pt.GroundingT
@@ -225,19 +233,20 @@ class Graph_Holder:
     def get_final_graph_for_grounding(
         self, grounding : pt.GroundingT,
         type_combination : pt.TypeCombi
-    ) -> pt.GraphT:
+    ) -> Tuple[pt.GraphT, pt.NodeT]:
         if grounding in self.final_merged_graphs:
             return self.final_merged_graphs[grounding]
         else:
             #make a deep copy as we need the old graph intact as intermediate result.
-            graph = copy.deepcopy(self.get_simple_graph_for_grounding(grounding))
+            graph, initial_state = self.get_simple_graph_for_grounding(grounding)
+            graph = copy.deepcopy(graph)
             all_patterns = self.locm_types.get_all_patterns_for_typecombination(type_combination)
 
-            graph, _ = self.__class__.merge_graph_for_dead_patterns(
-                graph, grounding, all_patterns,
+            graph, initial_state, _ = self.__class__.merge_graph_for_dead_patterns(
+                graph, initial_state, grounding, all_patterns,
                 set()
             )
-            self.set_final_graph_and_dead_pattern_for_grounding(
-                grounding, type_combination, graph
+            self.set_final_graph_for_grounding(
+                grounding, type_combination, graph, initial_state
             )
-            return graph
+            return graph, initial_state

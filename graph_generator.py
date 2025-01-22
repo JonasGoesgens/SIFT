@@ -53,8 +53,9 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
     # set that contains all possible actions
     all_actions, seen = set(), set()
     
-    seen.add(initial_node.get_id())
-    G.add_node(initial_node.get_id())
+    init_id = initial_node.get_id()
+    seen.add(init_id)
+    G.add_node(init_id)
 
     # while the graph is smaller than the threshold, exapan an node
     while len(G.edges) < num_edges and len(queue) > 0:
@@ -119,7 +120,7 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
 
         G.add_edge(node, new_id, action={negative_action_mapping})
 
-    return G, all_actions, object_mapping
+    return G, init_id
 
 # create a rl style trace
 def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, introduce_false_edge: bool):
@@ -150,6 +151,8 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
     next_state_index = 0
     cur_node_index = None
     cur_number_nodes = 1
+
+    init_id = next_state_index
 
     all_actions = set()
 
@@ -207,7 +210,7 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
 
         G.add_edge(node, cur_number_nodes, action={negative_action_mapped})
 
-    return G, all_actions, object_mapping
+    return G, init_id
 
 # create a simple trace in random style
 def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introduce_false_edge: bool):
@@ -231,6 +234,8 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
     print("initial state: ", mimir_stuff.print_state(next_state))
 
     next_state_index = 1
+
+    init_id = next_state_index - 1
 
     all_actions = set()
 
@@ -290,7 +295,7 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
 
         G.add_edge(node, next_state_index, action={negative_action_mapped})
 
-    return G, all_actions, object_mapping
+    return G, init_id
 
 
 
@@ -329,6 +334,8 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
 
     # add all states to the graph 
     G.add_nodes_from(states)
+
+    init_id = mimir_stuff.get_SSG().get_or_create_initial_state().get_id()
 
     # for each transition create a edge in the graph which is labeled with the corresponding grounded action
     for state in states:
@@ -379,5 +386,5 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
             G.add_edge(manipulated_node, reached_node, action={negative_action})
 
     # return created graph
-    return G, all_possible_actions
+    return G, init_id
 
