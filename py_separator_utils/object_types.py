@@ -120,7 +120,7 @@ class LOCM_Types:
                 self.type_combinations[len(arg_combi)].add(type_combi)
         return self.type_combinations
 
-    def get_all_patterns_for_typecombination(self, type_combination):
+    def get_all_patterns_for_typecombination(self, type_combination) -> set[pt.PatternT]:
         if type_combination in self.all_patterns_per_type_combination:
             return self.all_patterns_per_type_combination[type_combination]
         else:

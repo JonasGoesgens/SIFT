@@ -1,6 +1,7 @@
 from py_separator_utils.feature import Feature
 from py_separator_utils.object_types import LOCM_Types
 from py_separator_utils.graph_merger import Graph_Holder
+from py_separator_utils.equivalence_classes import EquivalenceClasses
 import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 import copy
@@ -16,6 +17,7 @@ class SIFT:
         self.dead_patterns = dict()
         self.instance_id_gen = ut.UniqueIDAllocator()
         self.process_pool = ProcessPoolExecutor(max_workers=num_max_worker)
+        self.equivalent_patterns = EquivalenceClasses[pt.PatternT]()
         self._add_graphs(graphs)
 
     def _add_graphs(self, graphs : list[tuple[pt.GraphT, pt.NodeT]]):
@@ -169,19 +171,20 @@ class SIFT:
                             runs[(arity,type_combination,instance,grounding)] = self.process_pool.submit(
                                 classtype.merge_graph_for_dead_patterns,
                                 graph, initial_state, grounding, all_patterns,
-                                dead_patterns
+                                dead_patterns, self.equivalent_patterns
                             )
             #wait for intermediate results to be available
             wait(runs.values(), return_when=ALL_COMPLETED)
 
             for (arity,type_combination,instance,grounding), future in runs.items():
                 try:
-                    graph, initial_state, dead_patterns = future.result()
+                    graph, initial_state, dead_patterns, equivalent_patterns = future.result()
                     self.all_graphs[instance].set_final_graph_for_grounding(
                         grounding, type_combination, graph, initial_state
                     )
                     self.update_dead_patterns_for_typecombination(type_combination, dead_patterns)
                     local_dead_patterns[(type_combination, instance, grounding)] = dead_patterns
+                    self.equivalent_patterns.update(equivalent_patterns)
                 except Exception as e:
                     print(f"Error processing {(arity,type_combination,instance,grounding)}: {e}")
 
@@ -193,19 +196,25 @@ class SIFT:
                     merge = True
                     break
 
+        print(self.equivalent_patterns)
         #generate all features, typecombinations for zeronary features included
         for arity, type_combinations in sorted(
             self.LOCM_types.get_all_type_combinations().items()
             #, key=lambda item: item[0]
         ):
             for type_combination in type_combinations:
-                patterns = set(self.LOCM_types.get_all_patterns_for_typecombination(type_combination))
+                all_patterns = self.LOCM_types.get_all_patterns_for_typecombination(type_combination)
+                patterns = set(all_patterns)
                 patterns.difference_update(self.get_dead_patterns_for_typecombination(type_combination))
+                patterns.difference_update(self.equivalent_patterns.get_listed_elements())
+                patterns = ut.pack_into_frozensets(patterns)
+                patterns.update(self.equivalent_patterns.filter_valid_related_groups(all_patterns))
                 feature_candidates = ut.power_set_without_empty_set(patterns)
+                feature_candidates = ut.extract_from_double_packed_frozensets(feature_candidates)
                 for pats in feature_candidates:
                     self.all_features.add(Feature(
                         type_combination,
-                        self.LOCM_types.get_all_patterns_for_typecombination(type_combination),
+                        all_patterns,
                         pats
                     ))
 

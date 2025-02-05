@@ -1,5 +1,6 @@
 import py_separator_utils.py_types as pt
 from py_separator_utils.object_types import LOCM_Types
+from py_separator_utils.equivalence_classes import EquivalenceClasses
 from multiprocessing import Manager
 from typing import Optional, Tuple
 import copy
@@ -170,11 +171,15 @@ class Graph_Holder:
         cls, graph : pt.GraphT, initial_state : pt.NodeT,
         grounding : pt.GroundingT,
         all_patterns : pt.PatternTSetLike,
-        dead_patterns : Optional[pt.PatternTSetLike]
+        dead_patterns : Optional[pt.PatternTSetLike],
+        equivalent_patterns : Optional[EquivalenceClasses[pt.PatternT]]
     ) -> Tuple[pt.GraphT, pt.NodeT, pt.PatternTSetLike]:
         if dead_patterns is None:
             dead_patterns = set()
 
+        if equivalent_patterns is None:
+            equivalent_patterns = EquivalenceClasses[pt.PatternT]()
+        
         merged = True
         while merged:
             merged = False
@@ -184,20 +189,54 @@ class Graph_Holder:
                 pat_out = set()
                 for predecessor in graph.predecessors(node):
                     edge_label = graph[predecessor][node].get('action')
-                    pat_in.update(cls.get_compatible_patterns_from_edge_label(
+                    if edge_label is None:
+                        raise ValueError(f"Edge label not found for edge from {predecessor} to {node}")
+       
+                    local_pat_in = cls.get_compatible_patterns_from_edge_label(
                         edge_label,
                         grounding,
                         all_patterns
-                    ))
+                    )
+                    pat_in.update(local_pat_in)
+                    equivalent_patterns.add_relation((local_pat_in, set()))
                 for neighbor in graph.successors(node):
                     edge_label = graph[node][neighbor].get('action')
-                    pat_out.update(cls.get_compatible_patterns_from_edge_label(
+                    if edge_label is None:
+                        raise ValueError(f"Edge label not found for edge from {node} to {neighbor}")
+                    local_pat_out = cls.get_compatible_patterns_from_edge_label(
                         edge_label,
                         grounding,
                         all_patterns
-                    ))
+                    )
+                    pat_out.update(local_pat_out)
+                    equivalent_patterns.add_relation((local_pat_out, set()))
                 #a patter dies if it is both on an in and an out edge of the same (merged) node.
                 dead_patterns.update(pat_in.intersection(pat_out))
+
+                #link patterns on opposing edges
+                for common_node in set(graph.predecessors(node)).intersection(graph.successors(node)):
+                    #actually better to not exclude as it may be actually helpful.
+                    #if node == common_node:
+                    #    #self edges are handled by dead patterns.
+                    #    continue
+                    edge_label_in = graph[common_node][node].get('action')
+                    if edge_label_in is None:
+                        raise ValueError(f"Edge label not found for edge from {common_node} to {node}")
+                    edge_label_out = graph[node][common_node].get('action')
+                    if edge_label_out is None:
+                        raise ValueError(f"Edge label not found for edge from {node} to {common_node}")
+                    local_pat_in = cls.get_compatible_patterns_from_edge_label(
+                        edge_label_in,
+                        grounding,
+                        all_patterns
+                    )
+                    local_pat_out = cls.get_compatible_patterns_from_edge_label(
+                        edge_label_out,
+                        grounding,
+                        all_patterns
+                    )
+                    equivalent_patterns.add_relation((local_pat_in, local_pat_out))
+                dead_patterns.update(equivalent_patterns.get_invalid_elements().intersection(all_patterns))
 
             #merge dead pattern
             for node in list(graph.nodes()):
@@ -217,7 +256,7 @@ class Graph_Holder:
                             cls.merge_nodes(graph, node, neighbor)
                             merged = True
 
-        return graph, initial_state, dead_patterns
+        return graph, initial_state, dead_patterns, equivalent_patterns
 
     def set_final_graph_for_grounding(
         self, grounding : pt.GroundingT, type_combination : pt.TypeCombi,
@@ -242,9 +281,9 @@ class Graph_Holder:
             graph = copy.deepcopy(graph)
             all_patterns = self.locm_types.get_all_patterns_for_typecombination(type_combination)
 
-            graph, initial_state, _ = self.__class__.merge_graph_for_dead_patterns(
+            graph, initial_state, _ , _ = self.__class__.merge_graph_for_dead_patterns(
                 graph, initial_state, grounding, all_patterns,
-                set()
+                set(), None
             )
             self.set_final_graph_for_grounding(
                 grounding, type_combination, graph, initial_state
