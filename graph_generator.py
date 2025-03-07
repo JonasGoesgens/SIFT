@@ -35,7 +35,7 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
     initial_node = mimir_stuff.get_SSG().get_or_create_initial_state()
     if number_of_input != 0:
         initial_node = create_random_initial_state(mimir_stuff,initial_node,num_edges)
-    print("initial state: ", mimir_stuff.print_state(initial_node))
+    #print("initial state: ", mimir_stuff.print_state(initial_node))
     successor_dict[initial_node.get_id()] = dict() 
 
     queue = []
@@ -141,7 +141,7 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
     next_state = mimir_stuff.get_SSG().get_or_create_initial_state()
     if number_of_input != 0:
         next_state = create_random_initial_state(mimir_stuff,next_state,number_edges)
-    print("initial state: ", mimir_stuff.print_state(next_state))
+    #print("initial state: ", mimir_stuff.print_state(next_state))
 
     node_and_corrensponding_state = dict()
     node_and_corrensponding_state[0] = next_state
@@ -231,7 +231,7 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
     next_state = mimir_stuff.get_SSG().get_or_create_initial_state()
     if number_of_input != 0:
         next_state = create_random_initial_state(mimir_stuff,next_state,length)
-    print("initial state: ", mimir_stuff.print_state(next_state))
+    #print("initial state: ", mimir_stuff.print_state(next_state))
 
     next_state_index = 1
 

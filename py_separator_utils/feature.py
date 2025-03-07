@@ -259,7 +259,7 @@ class Feature:
 
     def get_identifier(self):
         #returns the frozenset to use as key in dicts
-        #in theory a feature is completly determined by the selected features
+        #in theory a feature is completly determined by the selected patterns
         #all other vars are merly computional caches
         #converging into the same form for the same input no matter the order
         return self.selected_patterns
