@@ -16,6 +16,15 @@ class LOCM_Types:
         self.all_patterns_per_type_combination = dict()
         self.all_groundings_per_type_combination = dict()
 
+    def clear_instance_information(self):
+        #deletes all information about instances and their objects
+        #but preserves info over arguments
+        self.obj_types = dict()
+        for key in self.type_objs.keys():
+            self.type_objs[key] = set()
+        self.known_instances = set()
+        self.all_groundings_per_type_combination = dict()
+
     def add_obj_to_type(self, arg : pt.ArgPosT, obj : pt.ObjectInstT):
         changed_arg_type = False
         type_arg = self.arg_types.get(arg)

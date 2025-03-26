@@ -8,15 +8,15 @@ import copy
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 
 class SIFT:
-    def __init__(self, graphs : list[tuple[pt.GraphT,pt.NodeT]], num_max_worker : int = 8):
+    def __init__(self, graphs : list[tuple[pt.GraphT,pt.NodeT]]):
         self.all_graphs = dict()
         self.all_ground_edges = dict()
         self.LOCM_types = LOCM_Types()
         self.admissible_features = set()
         self.all_features = set()
         self.dead_patterns = dict()
+        #TODO class attribute
         self.instance_id_gen = ut.UniqueIDAllocator()
-        self.process_pool = ProcessPoolExecutor(max_workers=num_max_worker)
         self.equivalent_patterns = EquivalenceClasses[pt.PatternT]()
         self._add_graphs(graphs)
 
@@ -31,6 +31,15 @@ class SIFT:
             _ = self.LOCM_types.update_LOCM_types_from_groundings(
                 self.all_ground_edges[instance_id], instance_id
             )
+
+    def replace_graphs(self, graphs : list[tuple[pt.GraphT, pt.NodeT]]):
+        self.all_graphs = dict()
+        self.all_ground_edges = dict()
+        self.LOCM_types.clear_instance_information()
+        for feature in self.admissible_features:
+            feature.delete_initial_atoms()
+        self.admissible_features = set()
+        self._add_graphs(graphs)
 
     @classmethod
     def _check_feature(
@@ -75,7 +84,7 @@ class SIFT:
         else:
             return set(self.dead_patterns[type_combination])
 
-    def run(self) -> set[Feature]:
+    def run(self, process_pool : ProcessPoolExecutor) -> set[Feature]:
         #premerge graphs parallel to speed up things
         for arity, type_combinations in sorted(
             self.LOCM_types.get_all_type_combinations().items()
@@ -118,7 +127,7 @@ class SIFT:
                     smaller_grounding_key = classtype.get_sub_grounding_key(grounding_key, new_obj)
                     smaller_graph, smaller_initial_state = self.all_graphs[instance].get_simple_graph_for_grounding_key(smaller_grounding_key)
 
-                    runs[(arity,instance,grounding_key)] = self.process_pool.submit(
+                    runs[(arity,instance,grounding_key)] = process_pool.submit(
                         classtype.merge_graph_for_missing_arg,
                         smaller_graph,
                         smaller_initial_state,
@@ -168,7 +177,7 @@ class SIFT:
                                 graph = copy.deepcopy(graph)
                             else:
                                 graph, initial_state = graphholder.get_final_graph_for_grounding(grounding, type_combination)
-                            runs[(arity,type_combination,instance,grounding)] = self.process_pool.submit(
+                            runs[(arity,type_combination,instance,grounding)] = process_pool.submit(
                                 classtype.merge_graph_for_dead_patterns,
                                 graph, initial_state, grounding, all_patterns,
                                 dead_patterns, self.equivalent_patterns
@@ -225,7 +234,7 @@ class SIFT:
         runs = dict()
         for feature in self.all_features:
             check_list = self._get_graph_list_for_feature(feature)
-            runs[feature] = self.process_pool.submit(
+            runs[feature] = process_pool.submit(
                 self.__class__._check_feature,
                 feature, check_list
             )

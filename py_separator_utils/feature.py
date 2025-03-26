@@ -56,6 +56,13 @@ class Feature:
         self.precondition_splits = None
         self.undefined_preconditions = None
 
+    def delete_initial_atoms(self):
+        if not self.is_invalid():
+            for split in self.color_splits:
+                split[4] = set()
+                split[5] = set()
+            self.precondition_splits = None
+
     def parse_edge_label(self, edge_label : pt.Edge_LabelT,
         grounding : pt.GroundingT
     ):
@@ -241,6 +248,8 @@ class Feature:
 
     def invalitate(self):
         self.color_splits = None
+        self.precondition_splits = None
+        self.undefined_preconditions = None
 
     def is_invalid(self):
         return self.color_splits == None
