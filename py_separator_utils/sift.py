@@ -84,7 +84,7 @@ class SIFT:
         else:
             return set(self.dead_patterns[type_combination])
 
-    def run(self, process_pool : ProcessPoolExecutor) -> set[Feature]:
+    def run(self, process_pool_args : dict) -> set[Feature]:
         #premerge graphs parallel to speed up things
         for arity, type_combinations in sorted(
             self.LOCM_types.get_all_type_combinations().items()
@@ -119,30 +119,31 @@ class SIFT:
                             else:
                                 groundingkeys_sets[instance] = {grounding_key}
 
-            for instance, grounding_keys in groundingkeys_sets.items():
-                for grounding_key in grounding_keys:
-                    graphholder = self.all_graphs[instance]
-                    classtype = type(graphholder)
-                    new_obj = next(iter(grounding_key))
-                    smaller_grounding_key = classtype.get_sub_grounding_key(grounding_key, new_obj)
-                    smaller_graph, smaller_initial_state = self.all_graphs[instance].get_simple_graph_for_grounding_key(smaller_grounding_key)
+            with ProcessPoolExecutor(**process_pool_args) as process_pool:
+                for instance, grounding_keys in groundingkeys_sets.items():
+                    for grounding_key in grounding_keys:
+                        graphholder = self.all_graphs[instance]
+                        classtype = type(graphholder)
+                        new_obj = next(iter(grounding_key))
+                        smaller_grounding_key = classtype.get_sub_grounding_key(grounding_key, new_obj)
+                        smaller_graph, smaller_initial_state = self.all_graphs[instance].get_simple_graph_for_grounding_key(smaller_grounding_key)
 
-                    runs[(arity,instance,grounding_key)] = process_pool.submit(
-                        classtype.merge_graph_for_missing_arg,
-                        smaller_graph,
-                        smaller_initial_state,
-                        new_obj
-                    )
-            #wait for intermediate results to be available
-            wait(runs.values(), return_when=ALL_COMPLETED)
-            for (arity,instance,grounding_key), future in runs.items():
-                try:
-                    graph, initial_state = future.result()
-                    self.all_graphs[instance].set_simple_graph_for_grounding_key(
-                        grounding_key, graph, initial_state
-                    )
-                except Exception as e:
-                    print(f"Error processing {(arity,instance,grounding_key)}: {e}")
+                        runs[(arity,instance,grounding_key)] = process_pool.submit(
+                            classtype.merge_graph_for_missing_arg,
+                            smaller_graph,
+                            smaller_initial_state,
+                            new_obj
+                        )
+                #wait for intermediate results to be available
+                wait(runs.values(), return_when=ALL_COMPLETED)
+                for (arity,instance,grounding_key), future in runs.items():
+                    try:
+                        graph, initial_state = future.result()
+                        self.all_graphs[instance].set_simple_graph_for_grounding_key(
+                            grounding_key, graph, initial_state
+                        )
+                    except Exception as e:
+                        print(f"Error processing {(arity,instance,grounding_key)}: {e}")
 
         #as the simple merges are all done the complex merges all
         #only require local data and can run all in parallel
@@ -150,52 +151,53 @@ class SIFT:
         local_dead_patterns = dict()
         while merge:
             merge = False
-            runs = dict()
-            for arity, type_combinations in sorted(
-                self.LOCM_types.get_all_type_combinations().items()
-                #, key=lambda item: item[0]
-            ):
-                for type_combination in type_combinations:
-                    for instance, groundings in self.LOCM_types.get_all_groundings_for_typecombination(
-                        type_combination
-                    ).items():
-                        for grounding in groundings:
-                            graphholder = self.all_graphs[instance]
-                            classtype = type(graphholder)
-                            all_patterns = self.LOCM_types.get_all_patterns_for_typecombination(type_combination)
-                            dead_patterns = self.get_dead_patterns_for_typecombination(type_combination)
-                            if (type_combination, instance, grounding) in local_dead_patterns:
-                                #graph was merged for local dead patterns, check if update is needed
-                                if not dead_patterns.difference(local_dead_patterns[(type_combination, instance, grounding)]):
-                                    #there are no additionally dead patterns, graph not updated
-                                    continue
-                            if not graphholder.has_final_graph_for_grounding(grounding):
-                                #we dont have complex merged yet for this grounding, take simple merge as start.
-                                #make a deep copy as we need the old graph intact as intermediate result.
+            with ProcessPoolExecutor(**process_pool_args) as process_pool:
+                runs = dict()
+                for arity, type_combinations in sorted(
+                    self.LOCM_types.get_all_type_combinations().items()
+                    #, key=lambda item: item[0]
+                ):
+                    for type_combination in type_combinations:
+                        for instance, groundings in self.LOCM_types.get_all_groundings_for_typecombination(
+                            type_combination
+                        ).items():
+                            for grounding in groundings:
+                                graphholder = self.all_graphs[instance]
+                                classtype = type(graphholder)
+                                all_patterns = self.LOCM_types.get_all_patterns_for_typecombination(type_combination)
+                                dead_patterns = self.get_dead_patterns_for_typecombination(type_combination)
+                                if (type_combination, instance, grounding) in local_dead_patterns:
+                                    #graph was merged for local dead patterns, check if update is needed
+                                    if not dead_patterns.difference(local_dead_patterns[(type_combination, instance, grounding)]):
+                                        #there are no additionally dead patterns, graph not updated
+                                        continue
+                                if not graphholder.has_final_graph_for_grounding(grounding):
+                                    #we dont have complex merged yet for this grounding, take simple merge as start.
+                                    #make a deep copy as we need the old graph intact as intermediate result.
 
-                                graph, initial_state = graphholder.get_simple_graph_for_grounding(grounding)
-                                graph = copy.deepcopy(graph)
-                            else:
-                                graph, initial_state = graphholder.get_final_graph_for_grounding(grounding, type_combination)
-                            runs[(arity,type_combination,instance,grounding)] = process_pool.submit(
-                                classtype.merge_graph_for_dead_patterns,
-                                graph, initial_state, grounding, all_patterns,
-                                dead_patterns, self.equivalent_patterns
-                            )
-            #wait for intermediate results to be available
-            wait(runs.values(), return_when=ALL_COMPLETED)
+                                    graph, initial_state = graphholder.get_simple_graph_for_grounding(grounding)
+                                    graph = copy.deepcopy(graph)
+                                else:
+                                    graph, initial_state = graphholder.get_final_graph_for_grounding(grounding, type_combination)
+                                runs[(arity,type_combination,instance,grounding)] = process_pool.submit(
+                                    classtype.merge_graph_for_dead_patterns,
+                                    graph, initial_state, grounding, all_patterns,
+                                    dead_patterns, self.equivalent_patterns
+                                )
+                #wait for intermediate results to be available
+                wait(runs.values(), return_when=ALL_COMPLETED)
 
-            for (arity,type_combination,instance,grounding), future in runs.items():
-                try:
-                    graph, initial_state, dead_patterns, equivalent_patterns = future.result()
-                    self.all_graphs[instance].set_final_graph_for_grounding(
-                        grounding, type_combination, graph, initial_state
-                    )
-                    self.update_dead_patterns_for_typecombination(type_combination, dead_patterns)
-                    local_dead_patterns[(type_combination, instance, grounding)] = dead_patterns
-                    self.equivalent_patterns.update(equivalent_patterns)
-                except Exception as e:
-                    print(f"Error processing {(arity,type_combination,instance,grounding)}: {e}")
+                for (arity,type_combination,instance,grounding), future in runs.items():
+                    try:
+                        graph, initial_state, dead_patterns, equivalent_patterns = future.result()
+                        self.all_graphs[instance].set_final_graph_for_grounding(
+                            grounding, type_combination, graph, initial_state
+                        )
+                        self.update_dead_patterns_for_typecombination(type_combination, dead_patterns)
+                        local_dead_patterns[(type_combination, instance, grounding)] = dead_patterns
+                        self.equivalent_patterns.update(equivalent_patterns)
+                    except Exception as e:
+                        print(f"Error processing {(arity,type_combination,instance,grounding)}: {e}")
 
             for (type_combination, instance, grounding), dead_patterns in local_dead_patterns.items():
                 if self.get_dead_patterns_for_typecombination(type_combination).difference(dead_patterns):
@@ -232,20 +234,21 @@ class SIFT:
 
         #print(f"Num Features to test: {len(self.all_features)}")
         #run sift
-        runs = dict()
-        for feature in self.all_features:
-            check_list = self._get_graph_list_for_feature(feature)
-            runs[feature] = process_pool.submit(
-                self.__class__._check_feature,
-                feature, check_list
-            )
-        wait(runs.values(), return_when=ALL_COMPLETED)
-        for feature, future in runs.items():
-            try:
-                checked_feature = future.result()
-                feature.overwrite_feature(checked_feature)
-            except Exception as e:
-                print(f"Error processing {feature}: {e}")
+        with ProcessPoolExecutor(**process_pool_args) as process_pool:
+            runs = dict()
+            for feature in self.all_features:
+                check_list = self._get_graph_list_for_feature(feature)
+                runs[feature] = process_pool.submit(
+                    self.__class__._check_feature,
+                    feature, check_list
+                )
+            wait(runs.values(), return_when=ALL_COMPLETED)
+            for feature, future in runs.items():
+                try:
+                    checked_feature = future.result()
+                    feature.overwrite_feature(checked_feature)
+                except Exception as e:
+                    print(f"Error processing {feature}: {e}")
 
         for feature in self.all_features:
             if not feature.is_invalid():

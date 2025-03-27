@@ -239,10 +239,10 @@ if __name__ == '__main__':
             args.learning_number_inputs, False
         )
     #print(instance_list)
-    process_pool = ProcessPoolExecutor(max_workers=args.processes)
+    process_pool_args = {'max_workers' : args.processes}
     sift = SIFT(instance_list)
     print("sift initialized")
-    features = sift.run(process_pool)
+    features = sift.run(process_pool_args)
     print("sift main run completed")
     verification_val = 0
     if args.verification_instance is not None:
@@ -260,7 +260,7 @@ if __name__ == '__main__':
                     graph = [graph]
                     local_verifier = copy.deepcopy(verifier)
                     local_verifier.replace_graphs(graph)
-                    local_features = local_verifier.run(process_pool)
+                    local_features = local_verifier.run(process_pool_args)
                     failure_servity = compare_features(
                         features, local_features
                     )
@@ -271,7 +271,7 @@ if __name__ == '__main__':
             else:
                 local_verifier = copy.deepcopy(verifier)
                 local_verifier.replace_graphs(graphs)
-                local_features = local_verifier.run(process_pool)
+                local_features = local_verifier.run(process_pool_args)
                 failure_servity = compare_features(
                     features, local_features
                 )
