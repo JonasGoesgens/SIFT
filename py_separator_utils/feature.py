@@ -246,6 +246,9 @@ class Feature:
     def get_type_combination(self):
         return self.type_combination
 
+    def set_type_combination(self, type_combination : pt.TypeCombi):
+        self.type_combination = type_combination
+
     def invalitate(self):
         self.color_splits = None
         self.precondition_splits = None

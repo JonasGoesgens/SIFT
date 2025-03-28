@@ -91,6 +91,16 @@ class LOCM_Types:
         self.all_patterns_per_type_combination = dict()
         return changed_arg_type
 
+    def update_type_combination(
+        self, type_combination : pt.TypeCombi
+    ) -> pt.TypeCombi:
+        new_type_combination = pt.TypeCombi()
+        for types, uses in type_combination.items():
+            new_type_combination.add(
+                self.get_current_id_of_type(types), uses
+            )
+        return new_type_combination
+
     def get_arg_type(self, arg : pt.ArgPosT):
         if arg in self.arg_types:
             return self.arg_types[arg]
@@ -130,6 +140,7 @@ class LOCM_Types:
         return self.type_combinations
 
     def get_all_patterns_for_typecombination(self, type_combination) -> set[pt.PatternT]:
+        type_combination = self.update_type_combination(type_combination)
         if type_combination in self.all_patterns_per_type_combination:
             return self.all_patterns_per_type_combination[type_combination]
         else:

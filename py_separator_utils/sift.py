@@ -47,9 +47,9 @@ class SIFT:
         check_list : list[tuple[int, pt.GraphT, pt.NodeT, pt.GroundingT]]
     ):
         for instance, graph, initial_state, grounding in check_list:
-            feature.color_graph(instance, graph, initial_state, grounding)
             if feature.is_invalid():
                 break
+            feature.color_graph(instance, graph, initial_state, grounding)
         return feature
 
     def _get_graph_list_for_feature(self, feature : Feature) -> list[tuple[pt.GraphT, pt.GroundingT]]:
@@ -207,6 +207,13 @@ class SIFT:
                     merge = True
                     break
 
+        #check for already existing features to update their typing if necessary
+        for feature in self.all_features:
+            feature.set_type_combination(
+                self.LOCM_types.update_type_combination(
+                    feature.get_type_combination()
+                )
+            )
         #print(self.equivalent_patterns)
         #generate all features, typecombinations for zeronary features included
         for arity, type_combinations in sorted(

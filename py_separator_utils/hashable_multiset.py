@@ -9,21 +9,29 @@ class Multiset(Generic[T]):
             if isinstance(elements, (list, set, tuple)):
                 for element in elements:
                     self.add(element)
+            elif isinstance(elements, (dict)):
+                for element, count in elements:
+                    if not isinstance(count, (int)):
+                        raise RuntimeError("Cannot add non integer many elements.")
+                    self.add(element, count)
+            elif isinstance(elements, Multiset):
+                for element, count in elements.items():
+                    self.add(element, count)
 
-    def add(self, element):
+    def add(self, element, count : int = 1):
         if self.is_frozen:
             raise RuntimeError("Cannot modify a frozen multiset.")
         if element in self.elements:
-            self.elements[element] += 1
+            self.elements[element] += count
         else:
-            self.elements[element] = 1
+            self.elements[element] = count
 
-    def remove(self, element):
+    def remove(self, element, count : int = 1):
         if self.is_frozen:
             raise RuntimeError("Cannot modify a frozen multiset.")
         if element in self.elements:
-            if self.elements[element] > 1:
-                self.elements[element] -= 1
+            if self.elements[element] > count:
+                self.elements[element] -= count
             else:
                 del self.elements[element]
 
