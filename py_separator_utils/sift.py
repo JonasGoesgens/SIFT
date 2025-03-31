@@ -40,6 +40,7 @@ class SIFT:
             feature.delete_initial_atoms()
         self.admissible_features = set()
         self._add_graphs(graphs)
+        self.update_type_combination_keys()
 
     @classmethod
     def _check_feature(
@@ -68,6 +69,14 @@ class SIFT:
                 )
                 check_list.append((instance, graph, initial_state, grounding))
         return check_list
+
+    def update_type_combination_keys(self):
+        dead_patterns = dict()
+        for type_combination, dead_pats in self.dead_patterns.items():
+            dead_patterns[
+                self.LOCM_types.update_type_combination(type_combination)
+            ] = dead_pats
+        self.dead_patterns = dead_patterns
 
     def update_dead_patterns_for_typecombination(
         self, type_combination : pt.TypeCombi,
