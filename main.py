@@ -2,6 +2,10 @@ from py_separator_utils.sift import SIFT
 from py_separator_utils.feature import Feature
 import py_separator_utils.py_types as pt
 import os
+import io
+import sys
+import time
+from contextlib import redirect_stderr
 import argparse
 import typing
 import copy
@@ -12,9 +16,18 @@ from graph_generator import get_trace_rl, get_trace_simple
 from graph_generator import bfs_state_space, get_nx_graph_from_state_space
 from concurrent.futures import ProcessPoolExecutor
 
+def get_batch_run_parser():
+    parser = argparse.ArgumentParser(
+        description='This parser parses all arguments for a batch run execution of the sift arlgorithm and followup verifications.'
+    )
+    parser.add_argument("-br", "--batch-run", type=Path, required=True, help="specify a txt document containing the arguments of the individual runs.")
+    parser.add_argument("-p", "--processes", type=int, required=True, help="number of max. parallel processes, 1 means sequential algorihtm")
+    return parser
 
-def get_arguments(): 
-    parser = argparse.ArgumentParser('graph_generator.py')  
+def get_single_instance_argparser():
+    parser = argparse.ArgumentParser(
+        description='This parser parses all arguments for a single execution of the sift arlgorithm and a followup verification.'
+    )
     parser.add_argument("-d", "--domain", type=Path, required=True, help="specify domain that is in the pddl_files folder.")
     parser.add_argument("-i", "--instance", type=Path, nargs='+', required=True, help="specify list of instances that is in the pddl_files folder.")
     parser.add_argument("-v", "--verification_instance", type=str, action='append', required=False, help="specify list of instances that is in the pddl_files folder.")
@@ -29,10 +42,55 @@ def get_arguments():
     parser.add_argument("-ln", "--learning_number_inputs", type=int, required=False, default=1, help="number of sampled inputs if mode is not fg")
     # parser.add_argument("-vn", "--verification_number_inputs", type=int, required=False, default=1, help="number of sampled inputs if mode is not fg")
     # parser.add_argument("-vt", "--verification_termination", action=argparse.BooleanOptionalAction, required=False, help="If set the verification stops at the first wrong predicate.")
+    return parser
 
+def get_arguments():
+    batch_run_parser = get_batch_run_parser()
+    single_run_parser = get_single_instance_argparser()
     # parse arguments
-    args = parser.parse_args()
-    return args
+    batch_mode = False
+    parse_err = io.StringIO()
+    try:
+        #block argparse from writing error messages directly.
+        with redirect_stderr(parse_err):
+            batch_args = batch_run_parser.parse_args()
+        batch_file = batch_args.batch_run
+        processes = batch_args.processes
+        batch_mode = True
+    except SystemExit:
+        pass
+    if batch_mode:
+        benchmark_name = os.path.splitext(os.path.basename(batch_file))[0]
+        parsed_args = list()
+        with open(batch_file) as file:
+            for i, line in enumerate(file):
+                arguments = line.strip().split()
+                runs_str = arguments.pop(0)
+                arguments.extend(['-p', str(processes)])
+                try:
+                    runs = int(runs_str)
+                except ValueError:
+                    sys.stderr.write(f"Invalid number of runs: {runs_str}")
+                    continue
+                try:
+                    args = single_run_parser.parse_args(arguments)
+                except SystemExit:
+                    sys.stderr.write(f"Invalid arguments in line {str(i)}.")
+                    continue
+                parsed_args.append((runs,args))
+    else:
+
+        try:
+            #block argparse from writing error messages directly.
+            with redirect_stderr(parse_err):
+                parsed_args = single_run_parser.parse_args()
+        except SystemExit:
+            parse_err.seek(0)
+            sys.stderr.write("All parsing attempts failed. Errors:\n")
+            sys.stderr.write(parse_err.getvalue())
+            sys.exit(1)
+        benchmark_name = ''
+    return batch_mode, benchmark_name, parsed_args
 
 def create_graphs_from_input(
     domain_path : str,
@@ -218,14 +276,12 @@ def compare_features(
 
     return failure_servity
 
-if __name__ == '__main__':
-    # get domain and instance 
-    args = get_arguments()
-    
-    # create domain paths 
+def process_instance(args: argparse.Namespace):
+    # create domain paths
     domain_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.domain)
     
     instance_list = list()
+    meta_info = dict()
 
     #print(args.instance)
 
@@ -240,10 +296,22 @@ if __name__ == '__main__':
         )
     #print(instance_list)
     process_pool_args = {'max_workers' : args.processes}
+    number_samples = args.learning_number_inputs
+    if args.learning_mode == 'fg':
+        number_samples = 1
+    graph_size = 0
+    graph_number = len(instance_list)
+    for instance in instance_list:
+        graph_size += instance[0].number_of_edges()
+    meta_info['graph_size'] = graph_size
+    meta_info['graph_number'] = graph_number
+    meta_info['number_samples'] = number_samples
     sift = SIFT(instance_list)
-    print("sift initialized")
+    #print("sift initialized")
     features = sift.run(process_pool_args)
-    print("sift main run completed")
+    meta_info['all_features'] = len(sift.all_features)
+    meta_info['admissible_features'] = len(features)
+    #print("sift main run completed")
     verification_val = 0
     if args.verification_instance is not None:
         verifier = copy.deepcopy(sift)
@@ -277,16 +345,104 @@ if __name__ == '__main__':
                 )
                 if failure_servity > 0:
                     verification_val += 1
+    return (
+        sift.LOCM_types,
+        features,
+        verification_val,
+        meta_info
+    )
 
-    if verification_val == 0:
-        print("Verification successfull.")
+if __name__ == '__main__':
+    # get domain and instance
+    batch_mode, benchmark_name, parsed_args = get_arguments()
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    if batch_mode:
+        if not os.path.exists(dir_path+"/output/"):
+            os.makedirs(dir_path+"/output/")
+        if not os.path.exists(dir_path+"/output/tables/"):
+            os.makedirs(dir_path+"/output/tables/")
+        stats_table_out = ""
+        max_all_features = 0
+        for line_num, (runs, args) in enumerate(parsed_args):
+            successful_runs = 0
+            sum_admissible_features = 0
+            sum_graph_size = 0
+            sum_time = 0
+            max_number_samples = 1
+            for run in range(runs):
+                start_time = time.time()
+                (
+                    LOCM_types,
+                    features,
+                    verification_val,
+                    meta_info
+                ) = process_instance(args)
+                end_time = time.time()
+                sum_time += end_time - start_time
+                if verification_val == 0:
+                    successful_runs += 1
+                sum_admissible_features += meta_info['admissible_features']
+                sum_graph_size += meta_info['graph_size']
+                max_number_samples = meta_info['number_samples']
+                max_all_features = max(max_all_features, meta_info['all_features'])
+                output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
+                output_path = 'output/{}.txt'.format(output_file)
+                with open(output_path, "w") as out_file:
+                    out_file.write(str(LOCM_types))
+                    feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
+                    for i, (feature, _) in enumerate(
+                        sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
+                    ):
+                        if feature.has_unique_colouring():
+                            out_file.write(f"Feature {i+1}:\n")
+                            out_file.write(str(feature))
+                    if verification_val == 0:
+                        out_file.write("Verification successfull.\n")
+                    else:
+                        out_file.write(f"Verification failed on {verification_val} instances.\n")
+                    out_file.write("Meta informations: " + str(meta_info) + "\n")
+            success_rate = 100*successful_runs/runs
+            avg_admissible_features = sum_admissible_features/runs
+            avg_graph_size = sum_graph_size/runs
+            avg_time = sum_time/runs
+            if max_number_samples <= 1:
+                stats_table_out += '&${:3.1f}$&${:6.0f} $&${:5.0f}\seconds$&${:3.0f}\%$'.format(
+                    avg_admissible_features,
+                    avg_graph_size,
+                    avg_time,
+                    success_rate
+                )
+            else:
+                stats_table_out += '&${:3.1f}$&${:2} \\times {:6.0f} $&${:5.0f}\seconds$&${:3.0f}\%$'.format(
+                    avg_admissible_features,
+                    max_number_samples,
+                    avg_graph_size/max_number_samples,
+                    avg_time,
+                    success_rate
+                )
+        stats_table_out = '&${:5}$   {}'.format(max_all_features, stats_table_out)
+        stats_table_out = stats_table_out+'\n'
+        output_table_path = 'output/tables/{}_table.txt'.format(benchmark_name)
+        with open(output_table_path, "w") as output_table:
+            output_table.write(stats_table_out)
     else:
-        print(f"Verification failed on {verification_val} instances.")
-    print(sift.LOCM_types)
-    feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
-    for i, (feature, _) in enumerate(
-        sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
-    ):
-        if feature.has_unique_colouring():
-            print(f"Feature {i+1}:")
-            print(feature)
+        args = parsed_args
+        (
+            LOCM_types,
+            features,
+            verification_val,
+            meta_info
+        ) = process_instance(args)
+        if verification_val == 0:
+            print("Verification successfull.")
+        else:
+            print(f"Verification failed on {verification_val} instances.")
+        print(LOCM_types)
+        print("Meta informations: " + str(meta_info))
+        feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
+        for i, (feature, _) in enumerate(
+            sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
+        ):
+            if feature.has_unique_colouring():
+                print(f"Feature {i+1}:")
+                print(feature)

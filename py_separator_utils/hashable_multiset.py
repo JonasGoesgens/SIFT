@@ -80,5 +80,5 @@ class Multiset(Generic[T]):
         
         return NotImplemented
 
-    def __repr__(self):
+    def __str__(self):
         return f"Multiset({self.elements})"

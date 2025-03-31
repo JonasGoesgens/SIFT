@@ -119,7 +119,7 @@ class LOCM_Types:
         else:
             return type_var
 
-    def __repr__(self):
+    def __str__(self):
         return f"LOCM_Types args: ({self.type_args}) objs: ({self.type_objs})"
 
     def get_all_type_combinations(self):
