@@ -225,11 +225,11 @@ class SIFT:
                 patterns = set(all_patterns)
                 dead_patterns = self.get_dead_patterns_for_typecombination(type_combination)
                 patterns.difference_update(dead_patterns)
-                patterns.difference_update(self.equivalent_patterns.get_listed_elements())
+                #patterns.difference_update(self.equivalent_patterns.get_listed_elements())
                 patterns = ut.pack_into_frozensets(patterns)
-                patterns.update(self.equivalent_patterns.filter_valid_related_groups(
-                    all_patterns.difference(dead_patterns))
-                )
+                #patterns.update(self.equivalent_patterns.filter_valid_related_groups(
+                #    all_patterns.difference(dead_patterns))
+                #)
                 feature_candidates = ut.power_set_without_empty_set(patterns)
                 feature_candidates = ut.extract_from_double_packed_frozensets(feature_candidates)
                 for pats in feature_candidates:

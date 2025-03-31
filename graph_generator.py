@@ -6,7 +6,8 @@ from py_separator_utils.mimir_holder import mimir_holder
 
 def create_random_initial_state(mimir_stuff: mimir_holder,cur,distance):
 
-    random_number = int(math.pow(2,random.randint(1, math.ceil(math.log2(5 * distance)))))
+    random_number = random.randint(2 * distance, 5 * distance)
+    #random_number = int(math.pow(2,random.randint(1, math.ceil(math.log2(5 * distance)))))
     for _ in range(random_number):
         applicable_actions = mimir_stuff.get_applicable_actions(cur)
         random_action = random.choice(applicable_actions)

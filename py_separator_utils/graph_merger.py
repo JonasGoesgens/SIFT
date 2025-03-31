@@ -236,7 +236,7 @@ class Graph_Holder:
                         all_patterns
                     )
                     equivalent_patterns.add_relation((local_pat_in, local_pat_out))
-                dead_patterns.update(equivalent_patterns.get_invalid_elements().intersection(all_patterns))
+                #dead_patterns.update(equivalent_patterns.get_invalid_elements().intersection(all_patterns))
 
             #merge dead pattern
             for node in list(graph.nodes()):
