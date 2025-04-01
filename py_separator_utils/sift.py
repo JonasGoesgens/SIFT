@@ -73,9 +73,11 @@ class SIFT:
     def update_type_combination_keys(self):
         dead_patterns = dict()
         for type_combination, dead_pats in self.dead_patterns.items():
-            dead_patterns[
-                self.LOCM_types.update_type_combination(type_combination)
-            ] = dead_pats
+            new_type_combination = self.LOCM_types.update_type_combination(type_combination)
+            if new_type_combination in dead_patterns:
+                dead_patterns[new_type_combination].update(dead_pats)
+            else:
+                dead_patterns[new_type_combination] = dead_pats
         self.dead_patterns = dead_patterns
 
     def update_dead_patterns_for_typecombination(
