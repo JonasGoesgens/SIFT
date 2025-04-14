@@ -146,7 +146,7 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
         instance_edges = 100
         instance_samples = 1
         instance_neg_sample = False
-        instance_early_term = True
+        instance_early_term = False
 
         if not os.path.exists(instance_path):
             print('For input {} the path {} does not exist'.format(instance, split_input[0]))
