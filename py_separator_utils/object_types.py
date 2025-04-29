@@ -70,6 +70,7 @@ class LOCM_Types:
                 self.type_updates[type_arg].update(self.type_updates[type_obj])
                 del self.type_updates[type_obj]
             self.type_updates[type_arg].add(type_obj)
+            self.updated_types[type_obj] = type_arg
         #else arg and obj have same type nothing to do here
 
         return changed_arg_type
@@ -168,6 +169,7 @@ class LOCM_Types:
             return self.all_patterns_per_type_combination[type_combination]
 
     def get_all_groundings_for_typecombination(self, type_combination):
+        type_combination = self.update_type_combination(type_combination)
         if type_combination in self.all_groundings_per_type_combination:
             return self.all_groundings_per_type_combination[type_combination]
         else:
