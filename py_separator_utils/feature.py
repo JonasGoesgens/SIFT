@@ -36,6 +36,7 @@ class Feature:
                 self.type_combination = other.type_combination
             else:
                 self.type_combination = type_combination
+            self.type_combination.freeze()
             self.all_patterns = set(other.all_patterns.union(all_patterns))
             self.selected_patterns = frozenset(
                 other.selected_patterns.union(selected_patterns)
@@ -67,6 +68,7 @@ class Feature:
         grounding : pt.GroundingT
     ):
         #grounding a tupel holding the currently active objects
+        #TODO handle unknown object -2
         found_matching = False
         found_unmatching = False
         matching_selected_pattens = set()
@@ -248,6 +250,7 @@ class Feature:
 
     def set_type_combination(self, type_combination : pt.TypeCombi):
         self.type_combination = type_combination
+        self.type_combination.freeze()
 
     def invalitate(self):
         self.color_splits = None
@@ -280,7 +283,7 @@ class Feature:
 
     def __str__(self):
         if self.is_invalid():
-            return f"Feature is invalid. {self.selected_patterns}"
+            return f"Feature is invalid. {self.get_identifier()}"
 
         output_lines = []
         output_lines.append(f"Type Combination: {self.type_combination}")
@@ -299,6 +302,9 @@ class Feature:
             output_lines.append("")
 
         return "\n".join(output_lines)
+
+    def __repr__(self):
+        return f"Feature({self.get_identifier()}, {not self.is_invalid()})"
 
     def get_not_selected_patterns(self):
         return set(self.unselected_patterns)
@@ -408,7 +414,7 @@ class Feature:
     def extend_features(cls, feature_list : list['Feature'],
         new_patterns : pt.PatternTSetLike,
         type_combination : pt.TypeCombi
-    ):
+    ) -> list['Feature']:
         new_feature_list = list(feature_list)
         powerset = ut.power_set_without_empty_set(new_patterns)
         for feature in feature_list:

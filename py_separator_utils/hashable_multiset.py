@@ -45,8 +45,11 @@ class Multiset(Generic[T]):
     def __iter__(self) -> Iterator[T]:
         return iter(self.elements.keys())
 
-    def __hash__(self):
+    def freeze(self):
         self.is_frozen = True
+
+    def __hash__(self):
+        self.freeze()
         return hash(tuple(sorted(self.elements.items())))
 
     def __eq__(self, other):
@@ -82,3 +85,7 @@ class Multiset(Generic[T]):
 
     def __str__(self):
         return f"Multiset({self.elements})"
+
+    def __repr__(self):
+        type_name = "Frozenmultiset" if self.is_frozen else "Multiset"
+        return f"{type_name}({self.elements})"

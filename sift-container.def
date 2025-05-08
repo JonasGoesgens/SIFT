@@ -21,7 +21,18 @@ From: python:3.11
     date
     start_time=$(date +%s)
     start_date=$(date)
-    resource_file="resource_usage_$(echo "$@" | sed 's/[^a-zA-Z0-9_-]/_/g').txt"
+    processed_args=""
+    for arg in "$@"; do
+        if echo "$arg" | grep -q '/'; then
+            processed_arg=$(basename "$arg")
+            processed_arg=$(echo "$processed_arg" | sed 's/\./_/g; s/[^a-zA-Z0-9_-]/_/g')
+        else
+            processed_arg=$(echo "$arg" | sed 's/\./_/g; s/[^a-zA-Z0-9_-]/_/g')
+        fi
+        processed_args="$processed_args$processed_arg_"
+    done
+    resource_file="resource_usage_${processed_args%_}.txt"
+    #resource_file="resource_usage_$(echo "$@" | sed 's/[^a-zA-Z0-9_-]/_/g').txt"
     /usr/bin/time -v --output="$resource_file" python3.11 "$@"
     end_time=$(date +%s)
     end_date=$(date)

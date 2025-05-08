@@ -13,6 +13,7 @@ class Graph_Holder:
         self.initial_state = initial_state
         self.locm_types = locm_types
         self.simple_merged_graphs = dict()
+        self.switching_merged_graphs = dict()
         self.final_merged_graphs = dict()
         self.zeronary_graph = None
 
@@ -51,6 +52,19 @@ class Graph_Holder:
     def merge_nodes(cls, graph: pt.GraphT, node_keep: int, node_rem: int):
         #Merges node node_rem into node node_keep.
 
+        #Remember merged nodes
+        merged_nodes_rem = graph.nodes[node_rem].get('merged')
+        if merged_nodes_rem is not None:
+            merged_nodes_rem.add(node_rem)
+        else:
+            merged_nodes_rem = {node_rem}
+        merged_nodes_keep = graph.nodes[node_keep].get('merged')
+        if merged_nodes_keep is not None:
+            merged_nodes_keep.update(merged_nodes_rem)
+        else:
+            merged_nodes_keep = merged_nodes_rem
+        graph.nodes[node_keep]['merged'] = merged_nodes_keep
+
         #Generate set of affected edges
         edges_to_migate = set()
         for neighbor in graph.successors(node_rem):
@@ -78,12 +92,17 @@ class Graph_Holder:
         graph.remove_node(node_rem)
 
     @classmethod
-    def check_label_needs_merge_simple(cls, labels : pt.Edge_LabelT, obj : pt.ObjectT) -> bool:
-        return any(obj not in label[1] for label in labels)
+    def check_label_needs_merge_simple(cls,
+        labels : pt.Edge_LabelT, grounding_key : pt.GroundingKeyT
+    ) -> bool:
+        #TODO handle unknown object -2
+        return any(len(grounding_key.difference(label[1])) > label[1].count(pt.ObjectNotKnown)
+            for label in labels
+        )
 
     @classmethod
     def merge_graph_for_missing_arg(
-        cls, graph : pt.GraphT, initial_state : pt.NodeT, arg : pt.ObjectT
+        cls, graph : pt.GraphT, initial_state : pt.NodeT, grounding_key : pt.GroundingKeyT
     ) -> Tuple[pt.GraphT, pt.NodeT]:
         new_graph = copy.deepcopy(graph)
         for node in list(new_graph.nodes()):
@@ -103,7 +122,10 @@ class Graph_Holder:
                     other_node = edge[1] if node == edge[0] else edge[0]
                     if not new_graph.has_node(other_node):
                         continue
-                    if cls.check_label_needs_merge_simple(new_graph[edge[0]][edge[1]].get('action'), arg):
+                    if cls.check_label_needs_merge_simple(
+                        new_graph[edge[0]][edge[1]].get('action'),
+                        grounding_key
+                    ):
                         if other_node == initial_state:
                             initial_state = node
                         cls.merge_nodes(new_graph, node, other_node)
@@ -129,7 +151,7 @@ class Graph_Holder:
             graph, initial_state = self.__class__.merge_graph_for_missing_arg(
                 smaller_graph,
                 smaller_initial_state,
-                new_obj
+                grounding_key
             )
             self.set_simple_graph_for_grounding_key(
                 grounding_key, graph
@@ -172,7 +194,8 @@ class Graph_Holder:
         grounding : pt.GroundingT,
         all_patterns : pt.PatternTSetLike,
         dead_patterns : Optional[pt.PatternTSetLike],
-        equivalent_patterns : Optional[EquivalenceClasses[pt.PatternT]]
+        equivalent_patterns : Optional[EquivalenceClasses[pt.PatternT]],
+        use_weak_constraints : bool = False
     ) -> Tuple[pt.GraphT, pt.NodeT, pt.PatternTSetLike]:
         if dead_patterns is None:
             dead_patterns = set()
@@ -187,6 +210,7 @@ class Graph_Holder:
             for node in graph.nodes():
                 pat_in = set()
                 pat_out = set()
+                self_loop = set()
                 for predecessor in graph.predecessors(node):
                     edge_label = graph[predecessor][node].get('action')
                     if edge_label is None:
@@ -197,6 +221,8 @@ class Graph_Holder:
                         grounding,
                         all_patterns
                     )
+                    if predecessor == node:
+                        self_loop.update(local_pat_in)
                     pat_in.update(local_pat_in)
                     equivalent_patterns.add_relation((local_pat_in, set()))
                 for neighbor in graph.successors(node):
@@ -208,10 +234,20 @@ class Graph_Holder:
                         grounding,
                         all_patterns
                     )
+                    if neighbor == node:
+                        self_loop.update(local_pat_out)
                     pat_out.update(local_pat_out)
                     equivalent_patterns.add_relation((local_pat_out, set()))
+
                 #a patter dies if it is both on an in and an out edge of the same (merged) node.
-                dead_patterns.update(pat_in.intersection(pat_out))
+                #with weak constraints the pattern must be on a self loop.
+                #weak constraints are compatible with switching effects, while strong are not.
+                if self_loop:
+                    equivalent_patterns.add_relation((self_loop,self_loop))
+                if use_weak_constraints:
+                    dead_patterns.update(self_loop)
+                else:
+                    dead_patterns.update(pat_in.intersection(pat_out))
 
                 #link patterns on opposing edges
                 for common_node in set(graph.predecessors(node)).intersection(graph.successors(node)):
@@ -236,7 +272,10 @@ class Graph_Holder:
                         all_patterns
                     )
                     equivalent_patterns.add_relation((local_pat_in, local_pat_out))
-                dead_patterns.update(equivalent_patterns.get_invalid_elements().intersection(all_patterns))
+
+                #switching effects may appear in both directions.
+                if not use_weak_constraints:
+                    dead_patterns.update(equivalent_patterns.get_invalid_elements().intersection(all_patterns))
 
             #merge dead pattern
             for node in list(graph.nodes()):
@@ -258,6 +297,38 @@ class Graph_Holder:
 
         return graph, initial_state, dead_patterns, equivalent_patterns
 
+    def set_switching_graph_for_grounding(
+        self, grounding : pt.GroundingT, type_combination : pt.TypeCombi,
+        graph : pt.GraphT, initial_state : pt.NodeT
+    ) -> None:
+        self.switching_merged_graphs[grounding] = (graph, initial_state)
+
+    def has_switching_graph_for_grounding(
+        self, grounding : pt.GroundingT
+    ) -> bool:
+        return grounding in self.switching_merged_graphs
+
+    def get_switching_graph_for_grounding(
+        self, grounding : pt.GroundingT,
+        type_combination : pt.TypeCombi
+    ) -> Tuple[pt.GraphT, pt.NodeT]:
+        if grounding in self.switching_merged_graphs:
+            return self.switching_merged_graphs[grounding]
+        else:
+            #make a deep copy as we need the old graph intact as intermediate result.
+            graph, initial_state = self.get_simple_graph_for_grounding(grounding)
+            graph = copy.deepcopy(graph)
+            all_patterns = self.locm_types.get_all_patterns_for_typecombination(type_combination)
+
+            graph, initial_state, _ , _ = self.__class__.merge_graph_for_dead_patterns(
+                graph, initial_state, grounding, all_patterns,
+                set(), None, True
+            )
+            self.set_switching_graph_for_grounding(
+                grounding, type_combination, graph, initial_state
+            )
+            return graph, initial_state
+
     def set_final_graph_for_grounding(
         self, grounding : pt.GroundingT, type_combination : pt.TypeCombi,
         graph : pt.GraphT, initial_state : pt.NodeT
@@ -277,13 +348,15 @@ class Graph_Holder:
             return self.final_merged_graphs[grounding]
         else:
             #make a deep copy as we need the old graph intact as intermediate result.
-            graph, initial_state = self.get_simple_graph_for_grounding(grounding)
+            graph, initial_state = self.get_switching_graph_for_grounding(
+                grounding, type_combination
+            )
             graph = copy.deepcopy(graph)
             all_patterns = self.locm_types.get_all_patterns_for_typecombination(type_combination)
 
             graph, initial_state, _ , _ = self.__class__.merge_graph_for_dead_patterns(
                 graph, initial_state, grounding, all_patterns,
-                set(), None
+                set(), None, False
             )
             self.set_final_graph_for_grounding(
                 grounding, type_combination, graph, initial_state

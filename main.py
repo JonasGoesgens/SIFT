@@ -1,4 +1,5 @@
 from py_separator_utils.sift import SIFT
+from py_separator_utils.argument_recovery_sift import Argument_Recovery_Sift as ARSift
 from py_separator_utils.feature import Feature
 import py_separator_utils.py_types as pt
 import os
@@ -42,6 +43,8 @@ def get_single_instance_argparser():
     parser.add_argument("-ln", "--learning_number_inputs", type=int, required=False, default=1, help="number of sampled inputs if mode is not fg")
     # parser.add_argument("-vn", "--verification_number_inputs", type=int, required=False, default=1, help="number of sampled inputs if mode is not fg")
     # parser.add_argument("-vt", "--verification_termination", action=argparse.BooleanOptionalAction, required=False, help="If set the verification stops at the first wrong predicate.")
+    parser.add_argument("-am", "--argument_mask", type=Path, required=False, help="hide certain implicit arguments from sift to test argument recovery.")
+    parser.add_argument("-ai", "--argument_recovery_max_iterations", type=int, default=0, required=False, help="how may iterations to search for implicit arguments.")
     return parser
 
 def get_arguments():
@@ -146,7 +149,7 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
         instance_edges = 100
         instance_samples = 1
         instance_neg_sample = False
-        instance_early_term = False
+        instance_early_term = True
 
         if not os.path.exists(instance_path):
             print('For input {} the path {} does not exist'.format(instance, split_input[0]))
@@ -276,10 +279,37 @@ def compare_features(
 
     return failure_servity
 
+def read_dict_from_file(filename):
+    result = {}
+
+    with open(filename, 'r') as file:
+        for line in file:
+            key, values = line.strip().split(':')
+            key = key.strip()
+            value_set = set(int(v.strip()) for v in values.split(','))
+            result[key] = value_set
+
+    return result
+
 def process_instance(args: argparse.Namespace):
     # create domain paths
-    domain_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.domain)
-    
+    domain_path = os.path.join(
+        os.path.dirname(
+            os.path.realpath(__file__)
+        ), args.domain
+    )
+
+    recover_args_mode = False
+    argument_mask_file = args.argument_mask
+    if argument_mask_file:
+        recover_args_mode = True
+        mask_dict = read_dict_from_file(argument_mask_file)
+        max_iterations = args.argument_recovery_max_iterations
+        find_oi_features_in_last_iteration = False
+        if max_iterations < 0:
+            max_iterations = -max_iterations
+            find_oi_features_in_last_iteration = True
+
     instance_list = list()
     meta_info = dict()
 
@@ -289,11 +319,25 @@ def process_instance(args: argparse.Namespace):
 
         # create problem path
         problem_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), instance)
-        instance_list += create_graphs_from_input(
+        instance = create_graphs_from_input(
             domain_path, problem_path,
             args.learning_mode, args.learning_size,
             args.learning_number_inputs, False
         )
+        if recover_args_mode:
+            for graph, _ in instance:
+                for u, v, data in graph.edges(data=True):
+                    labels = data['action']
+                    new_labels = set()
+                    for label in labels:
+                        if label[0] in mask_dict:
+                            mask = mask_dict[label[0]]
+                            new_label = (label[0],tuple(x for i, x in enumerate(label[1]) if i not in mask))
+                        else:
+                            new_label = label
+                        new_labels.add(new_label)
+                    data['action'] = new_labels
+        instance_list += instance
     #print(instance_list)
     process_pool_args = {'max_workers' : args.processes}
     number_samples = args.learning_number_inputs
@@ -306,51 +350,76 @@ def process_instance(args: argparse.Namespace):
     meta_info['graph_size'] = graph_size
     meta_info['graph_number'] = graph_number
     meta_info['number_samples'] = number_samples
-    sift = SIFT(instance_list)
-    #print("sift initialized")
-    features = sift.run(process_pool_args)
-    meta_info['all_features'] = len(sift.all_features)
-    meta_info['admissible_features'] = len(features)
-    #print("sift main run completed")
-    verification_val = 0
-    if args.verification_instance is not None:
-        verifier = copy.deepcopy(sift)
-        #add empty list on purpose to speed up further deep copies.
-        verifier.replace_graphs(list())
-
-        verification_cases = get_verification_instances(
-            domain_path,
-            args.verification_instance
+    if recover_args_mode:
+        ar_sift = ARSift(instance_list)
+        oi_features, features = ar_sift.run(
+            process_pool_args,
+            max_iterations,
+            find_oi_features_in_last_iteration
         )
-        for (early_termination, neg_mode, graphs) in verification_cases:
-            if neg_mode or not early_termination:
-                for graph in graphs:
-                    graph = [graph]
+        iteration = max(ar_sift.sift_iterations.keys())
+        meta_info['all_features'] = len(ar_sift.sift_iterations[iteration].all_features)
+        meta_info['admissible_features'] = len(features)
+        meta_info['all_oi_features'] = len(ar_sift.order_id_features)
+        meta_info['admissible_oi_features'] = len(oi_features)
+        meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
+        meta_info['action_arities'] = ar_sift.sift_iterations[iteration].LOCM_types.action_arities
+        #TODO Verification
+        return(
+            ar_sift.sift_iterations[iteration].LOCM_types,
+            oi_features,
+            features,
+            0,
+            meta_info
+        )
+    else:
+        sift = SIFT(instance_list)
+        oi_features = set()
+        #print("sift initialized")
+        features = sift.run(process_pool_args)
+        meta_info['all_features'] = len(sift.all_features)
+        meta_info['admissible_features'] = len(features)
+        #print("sift main run completed")
+        verification_val = 0
+        if args.verification_instance is not None:
+            verifier = copy.deepcopy(sift)
+            #add empty list on purpose to speed up further deep copies.
+            verifier.replace_graphs(list())
+
+            verification_cases = get_verification_instances(
+                domain_path,
+                args.verification_instance
+            )
+            for (early_termination, neg_mode, graphs) in verification_cases:
+                if neg_mode or not early_termination:
+                    for graph in graphs:
+                        graph = [graph]
+                        local_verifier = copy.deepcopy(verifier)
+                        local_verifier.replace_graphs(graph)
+                        local_features = local_verifier.run(process_pool_args)
+                        failure_servity = compare_features(
+                            features, local_features
+                        )
+                        if neg_mode and failure_servity < 2:
+                            verification_val += 1
+                        elif not neg_mode and failure_servity > 0:
+                            verification_val += 1
+                else:
                     local_verifier = copy.deepcopy(verifier)
-                    local_verifier.replace_graphs(graph)
+                    local_verifier.replace_graphs(graphs)
                     local_features = local_verifier.run(process_pool_args)
                     failure_servity = compare_features(
                         features, local_features
                     )
-                    if neg_mode and failure_servity < 2:
+                    if failure_servity > 0:
                         verification_val += 1
-                    elif not neg_mode and failure_servity > 0:
-                        verification_val += 1
-            else:
-                local_verifier = copy.deepcopy(verifier)
-                local_verifier.replace_graphs(graphs)
-                local_features = local_verifier.run(process_pool_args)
-                failure_servity = compare_features(
-                    features, local_features
-                )
-                if failure_servity > 0:
-                    verification_val += 1
-    return (
-        sift.LOCM_types,
-        features,
-        verification_val,
-        meta_info
-    )
+        return (
+            sift.LOCM_types,
+            oi_features,
+            features,
+            verification_val,
+            meta_info
+        )
 
 if __name__ == '__main__':
     # get domain and instance
@@ -373,6 +442,7 @@ if __name__ == '__main__':
                 start_time = time.time()
                 (
                     LOCM_types,
+                    oi_features,
                     features,
                     verification_val,
                     meta_info
@@ -389,13 +459,27 @@ if __name__ == '__main__':
                 output_path = 'output/{}.txt'.format(output_file)
                 with open(output_path, "w") as out_file:
                     out_file.write(str(LOCM_types))
+                    feature_numbers = dict()
+                    feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in oi_features]
+                    for i, (feature, _) in enumerate(
+                        sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
+                    ):
+                        feature_numbers[feature] = i+1
+                        out_file.write(f"OI Feature {i+1}:\n")
+                        out_file.write(str(feature))
+
                     feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
                     for i, (feature, _) in enumerate(
                         sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
                     ):
-                        if feature.has_unique_colouring():
-                            out_file.write(f"Feature {i+1}:\n")
-                            out_file.write(str(feature))
+                        #if feature.has_unique_colouring():
+                        out_file.write(f"Feature {i+1}:\n")
+                        out_file.write(str(feature))
+                    for action, assignments in meta_info['action_argument_assignments'].items():
+                        output_line = f"Implicit agruments {action}: "
+                        for index, (oi_feature, pattern) in assignments.items():
+                            output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature)} Pattern {pattern}), "
+                        out_file.write(output_line + "\n")
                     if verification_val == 0:
                         out_file.write("Verification successfull.\n")
                     else:
@@ -426,23 +510,47 @@ if __name__ == '__main__':
         with open(output_table_path, "w") as output_table:
             output_table.write(stats_table_out)
     else:
+        #parse and run
         args = parsed_args
         (
             LOCM_types,
+            oi_features,
             features,
             verification_val,
             meta_info
         ) = process_instance(args)
+
+        #print secondary information
         if verification_val == 0:
             print("Verification successfull.")
         else:
             print(f"Verification failed on {verification_val} instances.")
         print(LOCM_types)
         print("Meta informations: " + str(meta_info))
+
+        #print identifier features
+        feature_numbers = dict()
+        feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in oi_features]
+        for i, (feature, _) in enumerate(
+            sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
+        ):
+            feature_numbers[feature] = i+1
+            #if feature.has_unique_colouring():
+            print(f"OI Feature {i+1}:")
+            print(feature)
+
+        #print features
         feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
         for i, (feature, _) in enumerate(
             sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
         ):
-            if feature.has_unique_colouring():
-                print(f"Feature {i+1}:")
-                print(feature)
+            #if feature.has_unique_colouring():
+            print(f"Feature {i+1}:")
+            print(feature)
+
+        #print arg assignments
+        for action, assignments in meta_info.get('action_argument_assignments',dict()).items():
+            output_line = f"Implicit agruments {action}: "
+            for index, (oi_feature, pattern) in assignments.items():
+                output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature)} Pattern {pattern}), "
+            print(output_line)
