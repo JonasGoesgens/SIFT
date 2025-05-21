@@ -36,10 +36,10 @@ class ConflictManager(Generic[T]):
     def find_non_conflicting_elements(self, element: T, candidates: set[T]) -> set[T]:
         """
         Returns a set of elements from 'candidates' that are non-conflicting with 'element'.
-        
+
         :param element: The element to check conflicts against.
         :param candidates: A set of candidate elements to check.
-        
+
         :return: A set of non-conflicting elements.
         """
         non_conflicting = {candidate for candidate in candidates if not self.has_conflict(element, candidate)}

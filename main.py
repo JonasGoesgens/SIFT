@@ -477,9 +477,11 @@ if __name__ == '__main__':
                         out_file.write(str(feature))
                     for action, assignments in meta_info['action_argument_assignments'].items():
                         output_line = f"Implicit agruments {action}: "
+                        #as action is stated already only pattern[1] is needed
                         for index, (oi_feature, pattern) in assignments.items():
-                            output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature)} Pattern {pattern}), "
+                            output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature,repr(oi_feature))} Pattern {pattern[1]}), "
                         out_file.write(output_line + "\n")
+
                     if verification_val == 0:
                         out_file.write("Verification successfull.\n")
                     else:
@@ -551,6 +553,7 @@ if __name__ == '__main__':
         #print arg assignments
         for action, assignments in meta_info.get('action_argument_assignments',dict()).items():
             output_line = f"Implicit agruments {action}: "
+            #as action is stated already only pattern[1] is needed
             for index, (oi_feature, pattern) in assignments.items():
-                output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature)} Pattern {pattern}), "
+                output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature, repr(oi_feature))} Pattern {pattern[1]}), "
             print(output_line)

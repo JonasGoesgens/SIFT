@@ -89,3 +89,7 @@ class Multiset(Generic[T]):
     def __repr__(self):
         type_name = "Frozenmultiset" if self.is_frozen else "Multiset"
         return f"{type_name}({self.elements})"
+
+    def size(self) -> int:
+        """Returns the number of elements."""
+        return sum(self.elements.values())

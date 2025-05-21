@@ -1,6 +1,9 @@
 import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
+from py_separator_utils.object_types import LOCM_Types
+from itertools import permutations
 from typing import Optional
+import sys
 #features will invalitate themselfs on a color failure
 #remember to deepcopy them for testing unsafe graphs
 #or to use the backup system, not that this will only use shallow copies
@@ -53,6 +56,7 @@ class Feature:
         self.unselected_patterns = set(
             self.all_patterns.difference(self.selected_patterns)
         )
+        self.extend_identifier = None
         self.backup_color_splits = None
         self.precondition_splits = None
         self.undefined_preconditions = None
@@ -270,15 +274,39 @@ class Feature:
         #converging into the same form for the same input no matter the order
         return self.selected_patterns
 
+    def get_extended_identifier(self):
+        #returns a frozenset of all the frozensets
+        #with the same meaning to use as key in dicts
+        #in theory a feature is completly determined by the selected patterns
+        #all other vars are merly computional caches
+        #converging into the same form for the same input no matter the order
+        if self.extend_identifier is not None:
+            return self.extend_identifier
+        arity = self.get_type_combination().size()
+        if arity < 2:
+            self.extend_identifier = frozenset({self.get_identifier()})
+            return self.extend_identifier
+        extend_identifier = set()
+        for permutation in permutations(range(arity)):
+            identifier = set()
+            for pattern in self.get_identifier():
+                identifier.add((pattern[0],tuple(
+                    pattern[1][index]
+                    for index in permutation
+                )))
+            extend_identifier.add(frozenset(identifier))
+        self.extend_identifier = frozenset(extend_identifier)
+        return self.extend_identifier
+
     def __hash__(self):
         #implemented hash to allow direct use in dicts
         #only the first added feature will be present in a set
         #in most cases this should be the desired behaviour
-        return hash(self.get_identifier())
+        return hash(self.get_extended_identifier())
 
     def __eq__(self, other):
         if isinstance(other, Feature):
-            return self.get_identifier() == other.get_identifier()
+            return self.get_extended_identifier() == other.get_extended_identifier()
         return False
 
     def __str__(self):
@@ -409,6 +437,74 @@ class Feature:
         pos_precs.difference_update(remove_list)
         neg_precs.difference_update(remove_list)
         return add_list, del_list, pos_precs, neg_precs, undefined_precs, init_true_atoms, init_false_atoms
+
+    def get_type_sorted_feature(self, locm_types : LOCM_Types):
+        try:
+            if self.type_combination.size() < 2:
+                #We do not need to sort a tuple of size 1 or 0
+                return self
+            #Important notice: ALL used sortings in this function must be STABLE
+            #setup mapping dict
+            pattern_mapping = dict()
+            for pattern in self.all_patterns:
+                new_pattern = (pattern[0],tuple(sorted(
+                    pattern[1],
+                    key=lambda x: locm_types.get_arg_type((pattern[0],x))
+                )))
+                pattern_mapping[pattern] = new_pattern
+
+            all_patterns = set(pattern_mapping[pattern] for pattern in self.all_patterns)
+            selected_patterns = frozenset(pattern_mapping[pattern] for pattern in self.selected_patterns)
+            #in the begining we do not know any relative colour information
+            #all patterns will appear sometimes
+            #color splits need to be a list to allow ordered removal
+            if self.color_splits is not None:
+                color_splits = list()
+                for split in self.color_splits:
+                    new_split = [
+                        set(pattern_mapping[pattern] for pattern in split[0]),
+                        set(pattern_mapping[pattern] for pattern in split[1]),
+                        set(pattern_mapping[pattern] for pattern in split[2]),
+                        set(pattern_mapping[pattern] for pattern in split[3]),
+                        set((instance, tuple(sorted(
+                            grounding,
+                            key=lambda x: locm_types.get_obj_type((instance,x))
+                        ))) for (instance, grounding) in split[4]
+                        ),
+                        set((instance, tuple(sorted(
+                            grounding,
+                            key=lambda x: locm_types.get_obj_type((instance,x))
+                        ))) for (instance, grounding) in split[5]
+                        )
+                    ]
+                    color_splits.append(new_split)
+            else:
+                color_splits = None
+            #ignore this information for now as it can be restored
+            #Constructor will set them to None anyway,
+            #but left as comment to see we are not handling them
+            #backup_color_splits = None
+            #precondition_splits = None
+            #undefined_preconditions = None
+
+            new_feature = Feature(
+                self.type_combination,
+                all_patterns,
+                selected_patterns
+            )
+            new_feature.color_splits = color_splits
+            return new_feature
+        except KeyError as e:
+            sys.stderr.write(f"KeyError sorting {self}: {e}. Using unsorted feature instead.\n")
+        except TypeError as e:
+            sys.stderr.write(f"TypeError sorting {self}: {e}. Using unsorted feature instead.\n")
+        except Exception as e:
+            sys.stderr.write(f"Unexpected error sorting {self}: {e}. Using unsorted feature instead.\n")
+
+        #using the old feature will just decrease performance
+        #as the new feature would later be generated as well
+        #and both duplicates continue to be checked
+        return self
 
     @classmethod
     def extend_features(cls, feature_list : list['Feature'],

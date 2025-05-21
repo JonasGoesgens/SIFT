@@ -25,11 +25,11 @@ From: python:3.11
     for arg in "$@"; do
         if echo "$arg" | grep -q '/'; then
             processed_arg=$(basename "$arg")
-            processed_arg=$(echo "$processed_arg" | sed 's/\./_/g; s/[^a-zA-Z0-9_-]/_/g')
         else
-            processed_arg=$(echo "$arg" | sed 's/\./_/g; s/[^a-zA-Z0-9_-]/_/g')
+            processed_arg="$arg"
         fi
-        processed_args="$processed_args$processed_arg_"
+        processed_arg=$(echo "$processed_arg" | sed 's/\./_/g; s/[^a-zA-Z0-9_-]/_/g')
+        processed_args="${processed_args}${processed_arg}_"
     done
     resource_file="resource_usage_${processed_args%_}.txt"
     #resource_file="resource_usage_$(echo "$@" | sed 's/[^a-zA-Z0-9_-]/_/g').txt"

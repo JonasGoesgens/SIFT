@@ -44,6 +44,54 @@ class Argument_Recovery_Sift:
                 check_list.append((instance, graph, grounding))
         return check_list
 
+    def type_sort_features(self, iteration : int):
+        #regroup arguments in patterns by type if they got merged.
+        features_sorting = dict()
+        for feature in self.sift_iterations[iteration].all_features:
+            features_sorting[feature] = feature.get_type_sorted_feature(
+                self.sift_iterations[iteration].LOCM_types
+            )
+        oi_features_sorting = dict()
+        for oi_feature in self.order_id_features:
+            #there may be errors leading to a feature not being sorted
+            if oi_feature.existence_feature is None:
+                oi_features_sorting[oi_feature] = oi_feature.get_type_sorted_feature(
+                    self.sift_iterations[iteration].LOCM_types,
+                    None
+                )
+            elif oi_feature.existence_feature in features_sorting:
+                if oi_feature.existence_feature is features_sorting[oi_feature.existence_feature]:
+                    #we did not sort existence so dont sort oi either
+                    continue
+                oi_features_sorting[oi_feature] = oi_feature.get_type_sorted_feature(
+                    self.sift_iterations[iteration].LOCM_types,
+                    features_sorting[oi_feature.existence_feature]
+                )
+            else:
+                #we did not sort existence so dont sort oi either
+                continue
+
+        self.sift_iterations[iteration].all_features = set(
+            features_sorting.get(feature,feature)
+            for feature in self.sift_iterations[iteration].all_features
+        )
+        self.sift_iterations[iteration].admissible_features = set(
+            features_sorting.get(feature,feature)
+            for feature in self.sift_iterations[iteration].admissible_features
+        )
+        self.order_id_features = set(
+            oi_features_sorting.get(oi_feature,oi_feature)
+            for oi_feature in self.order_id_features
+        )
+        self.argument_identifier_features = tuple(
+            oi_features_sorting.get(oi_feature,oi_feature)
+            for oi_feature in self.argument_identifier_features
+        )
+        self.updated_oi_features = set(
+            oi_features_sorting.get(oi_feature,oi_feature)
+            for oi_feature in self.updated_oi_features
+        )
+
     def update_type_combination_keys(self, iteration : int):
         #check for already existing features to update their typing if necessary
         for oi_feature in self.order_id_features:
@@ -175,9 +223,11 @@ class Argument_Recovery_Sift:
                 ) + new_oi_features,
                 iteration
             )
-
             self.updated_oi_features = set()
+
+            self.type_sort_features(iteration)
             self.update_type_combination_keys(iteration)
+
             for action, assignments in arg_feature_assignment.items():
                 if action not in self.arg_feature_assignments:
                     self.arg_feature_assignments[action] = assignments

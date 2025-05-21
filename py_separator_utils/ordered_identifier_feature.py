@@ -2,9 +2,12 @@ import itertools
 import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 from py_separator_utils.feature import Feature
+from py_separator_utils.object_types import LOCM_Types
 from py_separator_utils.equivalence_classes import EquivalenceClasses
+from itertools import permutations
 from typing import Optional
 from collections import defaultdict
+import sys
 class Ordered_Identifier_Feature:
     def __init__(self, existence_feature : Optional[Feature],
         add_patterns : pt.PatternTSetLike,
@@ -28,6 +31,7 @@ class Ordered_Identifier_Feature:
         self.del_patterns = frozenset(del_patterns)
         self.pre_patterns = set(pre_patterns)
         self.disabled_pre_patterns = set()
+        self.extend_identifier = None
         #We need an ordered way to iterate over additional arguments in case
         #a single feature indroduce multiple arguments to a single edge.
         self.argument_identifier_patterns = tuple(sorted(
@@ -320,6 +324,38 @@ class Ordered_Identifier_Feature:
         #give the two important sets a distinct order to recognize the sign_switch.
         return (self.add_patterns,self.del_patterns)
 
+    def get_extended_identifier(self):
+        #returns a frozenset of all the frozensets
+        #with the same meaning to use as key in dicts
+        #in theory a feature is completly determined by the selected patterns
+        #all other vars are merly computional caches
+        #converging into the same form for the same input no matter the order
+        if self.extend_identifier is not None:
+            return self.extend_identifier
+        arity = self.get_type_combination().size()
+        if arity < 2:
+            self.extend_identifier = frozenset({self.get_identifier()})
+            return self.extend_identifier
+        extend_identifier = set()
+        for permutation in permutations(range(arity)):
+            identifier = [set(), set()]
+            for pattern in self.get_identifier()[0]:
+                identifier[0].add((pattern[0],tuple(
+                    pattern[1][index]
+                    for index in permutation
+                ) + (pattern[1][-1],)))
+            for pattern in self.get_identifier()[1]:
+                identifier[1].add((pattern[0],tuple(
+                    pattern[1][index]
+                    for index in permutation
+                )))
+            extend_identifier.add(tuple(
+                frozenset(identifier_set)
+                for identifier_set in identifier
+            ))
+        self.extend_identifier = frozenset(extend_identifier)
+        return self.extend_identifier
+
     def get_argument_identifier_patterns(self):
         #returns the identifier patterns to correctly iterate over added arguments.
         return self.argument_identifier_patterns
@@ -328,11 +364,11 @@ class Ordered_Identifier_Feature:
         #implemented hash to allow direct use in dicts
         #only the first added feature will be present in a set
         #in most cases this should be the desired behaviour
-        return hash(self.get_identifier())
+        return hash(self.get_extended_identifier())
 
     def __eq__(self, other):
         if isinstance(other, Ordered_Identifier_Feature):
-            return self.get_identifier() == other.get_identifier()
+            return self.get_extended_identifier() == other.get_extended_identifier()
         return False
 
     def invalitate(self):
@@ -346,6 +382,66 @@ class Ordered_Identifier_Feature:
             if self.existence_feature.is_invalid():
                 return True
         return self.additional_arguments == None
+
+    def get_type_sorted_feature(self,
+        locm_types : LOCM_Types,
+        new_existence_feature : Optional[Feature]
+    ):
+        try:
+            if self.type_combination.size() < 2:
+                #We do not need to sort a tuple of size 1 or 0
+                return self
+            #Important notice: ALL used sortings in this function must be STABLE
+            #setup mapping dict
+            all_patterns = self.pre_patterns.union(self.del_patterns)
+            for pattern in self.add_patterns:
+                #cut of last entry for add patterns as this should not be sorted in
+                all_patterns.add((pattern[0],pattern[1][:-1]))
+            pattern_mapping = dict()
+            for pattern in all_patterns:
+                new_pattern = (pattern[0],tuple(sorted(
+                    pattern[1],
+                    key=lambda x: locm_types.get_arg_type((pattern[0],x))
+                )))
+                pattern_mapping[pattern] = new_pattern
+
+            add_patterns = set()
+            for pattern in self.add_patterns:
+                pattern_key = (pattern[0],pattern[1][:-1])
+                new_pattern = (pattern_mapping[pattern_key][0], pattern_mapping[pattern_key][1] + (pattern[1][-1],))
+                add_patterns.add(new_pattern)
+            add_patterns = frozenset(add_patterns)
+
+            del_patterns = frozenset(pattern_mapping[pattern] for pattern in self.del_patterns)
+            pre_patterns = set(pattern_mapping[pattern] for pattern in self.pre_patterns)
+            new_oi_feature = Ordered_Identifier_Feature(
+                new_existence_feature,
+                add_patterns,
+                del_patterns,
+                pre_patterns,
+                self.type_combination
+            )
+            new_oi_feature.disabled_pre_patterns = set(pattern_mapping[pattern] for pattern in self.disabled_pre_patterns)
+            new_oi_feature.argument_identifier_patterns = tuple(pattern_mapping[pattern] for pattern in self.argument_identifier_patterns)
+            if self.additional_arguments is None:
+                new_oi_feature.additional_arguments = None
+            else:
+                new_oi_feature.additional_arguments = dict()
+                for (instance, state, label, pattern), identified_object in self.additional_arguments.items():
+                    new_oi_feature.additional_arguments[(instance, state, label, pattern_mapping[pattern])] = identified_object
+
+            return new_oi_feature
+        except KeyError as e:
+            sys.stderr.write(f"KeyError sorting {self}: {e}. Using unsorted feature instead.\n")
+        except TypeError as e:
+            sys.stderr.write(f"TypeError sorting {self}: {e}. Using unsorted feature instead.\n")
+        except Exception as e:
+            sys.stderr.write(f"Unexpected error sorting {self}: {e}. Using unsorted feature instead.\n")
+
+        #using the old feature will just decrease performance
+        #as the new feature would later be generated as well
+        #and both duplicates continue to be checked
+        return self
 
     @classmethod
     def expand_adding_patterns(cls, 
