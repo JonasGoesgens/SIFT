@@ -171,8 +171,11 @@ class Graph_Holder:
         all_patterns : pt.PatternTSetLike
     ) -> pt.PatternTSetLike:
         #grounding is a tupel holding the currently active objects
+        #we can not handle cases where one label fits multiple patterns in downstream code
+        #if a single label fits more than one pattern handle it as if it fits none.
         matching_pattens = set()
         for label in edge_labels:
+            found_pat = None
             for pat in all_patterns:
                 mismatch = False
                 if label[0] != pat[0]:
@@ -185,7 +188,13 @@ class Graph_Holder:
                         if object_label != object_pat:
                             mismatch = True
                 if not mismatch:
-                    matching_pattens.add(pat)
+                    if found_pat is not None and found_pat != pat:
+                        found_pat = None
+                        break
+                    else:
+                        found_pat = pat
+            if found_pat is not None:
+                matching_pattens.add(found_pat)
         return matching_pattens
 
     @classmethod
