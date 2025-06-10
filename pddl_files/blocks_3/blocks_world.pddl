@@ -5,19 +5,19 @@
              (on ?x ?y)
              (eq ?x ?y))
 
-(:action STACK
+(:action stack
   :parameters (?bm ?bt)
   :precondition (and (clear ?bm) (clear ?bt) (on-table ?bm) (not (eq ?bm ?bt)))
   :effect (and (not (clear ?bt)) (not (on-table ?bm))
                (on ?bm ?bt)))
                
-(:action NEWTOWER
+(:action newtower
   :parameters (?bm ?bf)
   :precondition (and (clear ?bm) (on ?bm ?bf) (not (eq ?bm ?bf)))
   :effect (and (not (on ?bm ?bf))
                (on-table ?bm) (clear ?bf)))
 
-(:action MOVE
+(:action move
   :parameters (?bm ?bf ?bt)
   :precondition (and (clear ?bm) (clear ?bt) (on ?bm ?bf) (not (eq ?bm ?bt)) (not (eq ?bm ?bf)) (not (eq ?bf ?bt)))
   :effect (and (not (clear ?bt)) (not (on ?bm ?bf))

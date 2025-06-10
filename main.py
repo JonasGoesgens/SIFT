@@ -426,10 +426,8 @@ if __name__ == '__main__':
     batch_mode, benchmark_name, parsed_args = get_arguments()
     dir_path = os.path.dirname(os.path.realpath(__file__))
     if batch_mode:
-        if not os.path.exists(dir_path+"/output/"):
-            os.makedirs(dir_path+"/output/")
-        if not os.path.exists(dir_path+"/output/tables/"):
-            os.makedirs(dir_path+"/output/tables/")
+        os.makedirs(os.path.join(dir_path, "output"          ), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "tables"), exist_ok=True)
         stats_table_out = ""
         max_all_features = 0
         for line_num, (runs, args) in enumerate(parsed_args):
@@ -458,7 +456,7 @@ if __name__ == '__main__':
                 output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
                 output_path = 'output/{}.txt'.format(output_file)
                 with open(output_path, "w") as out_file:
-                    out_file.write(str(LOCM_types))
+                    out_file.write(str(LOCM_types)+"\n")
                     feature_numbers = dict()
                     feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in oi_features]
                     for i, (feature, _) in enumerate(
