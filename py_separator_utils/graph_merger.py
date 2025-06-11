@@ -171,11 +171,13 @@ class Graph_Holder:
         all_patterns : pt.PatternTSetLike
     ) -> pt.PatternTSetLike:
         #grounding is a tupel holding the currently active objects
-        #we can not handle cases where one label fits multiple patterns in downstream code
+        #we can not handle cases where one label fits multiple patterns in equivalence code
         #if a single label fits more than one pattern handle it as if it fits none.
+        #and provide a set of sets stating the multi matches.
         matching_pattens = set()
+        matching_multi_pattens = set()
         for label in edge_labels:
-            found_pat = None
+            found_pat = set()
             for pat in all_patterns:
                 mismatch = False
                 if label[0] != pat[0]:
@@ -188,14 +190,12 @@ class Graph_Holder:
                         if object_label != object_pat:
                             mismatch = True
                 if not mismatch:
-                    if found_pat is not None and found_pat != pat:
-                        found_pat = None
-                        break
-                    else:
-                        found_pat = pat
-            if found_pat is not None:
-                matching_pattens.add(found_pat)
-        return matching_pattens
+                    found_pat.add(pat)
+            if len(found_pat) == 1:
+                matching_pattens.update(found_pat)
+            elif len(found_pat) > 1:
+                matching_multi_pattens.add(frozenset(found_pat))
+        return matching_pattens, matching_multi_pattens
 
     @classmethod
     def merge_graph_for_dead_patterns(
@@ -225,27 +225,35 @@ class Graph_Holder:
                     if edge_label is None:
                         raise ValueError(f"Edge label not found for edge from {predecessor} to {node}")
        
-                    local_pat_in = cls.get_compatible_patterns_from_edge_label(
+                    local_pat_in, local_multi_pats_in = cls.get_compatible_patterns_from_edge_label(
                         edge_label,
                         grounding,
                         all_patterns
                     )
                     if predecessor == node:
                         self_loop.update(local_pat_in)
+                        for pat_group in local_multi_pats_in:
+                            self_loop.update(pat_group)
                     pat_in.update(local_pat_in)
+                    for pat_group in local_multi_pats_in:
+                        pat_in.update(pat_group)
                     equivalent_patterns.add_relation((local_pat_in, set()))
                 for neighbor in graph.successors(node):
                     edge_label = graph[node][neighbor].get('action')
                     if edge_label is None:
                         raise ValueError(f"Edge label not found for edge from {node} to {neighbor}")
-                    local_pat_out = cls.get_compatible_patterns_from_edge_label(
+                    local_pat_out, local_multi_pats_out = cls.get_compatible_patterns_from_edge_label(
                         edge_label,
                         grounding,
                         all_patterns
                     )
                     if neighbor == node:
                         self_loop.update(local_pat_out)
+                        for pat_group in local_multi_pats_out:
+                            self_loop.update(pat_group)
                     pat_out.update(local_pat_out)
+                    for pat_group in local_multi_pats_out:
+                        pat_out.update(pat_group)
                     equivalent_patterns.add_relation((local_pat_out, set()))
 
                 #a patter dies if it is both on an in and an out edge of the same (merged) node.
@@ -259,6 +267,7 @@ class Graph_Holder:
                     dead_patterns.update(pat_in.intersection(pat_out))
 
                 #link patterns on opposing edges
+                #multi matches are incompatible with the equivalence concept.
                 for common_node in set(graph.predecessors(node)).intersection(graph.successors(node)):
                     #actually better to not exclude as it may be actually helpful.
                     #if node == common_node:
@@ -270,12 +279,12 @@ class Graph_Holder:
                     edge_label_out = graph[node][common_node].get('action')
                     if edge_label_out is None:
                         raise ValueError(f"Edge label not found for edge from {node} to {common_node}")
-                    local_pat_in = cls.get_compatible_patterns_from_edge_label(
+                    local_pat_in, _ = cls.get_compatible_patterns_from_edge_label(
                         edge_label_in,
                         grounding,
                         all_patterns
                     )
-                    local_pat_out = cls.get_compatible_patterns_from_edge_label(
+                    local_pat_out, _ = cls.get_compatible_patterns_from_edge_label(
                         edge_label_out,
                         grounding,
                         all_patterns
@@ -293,12 +302,16 @@ class Graph_Holder:
                 for neighbor in list(graph.successors(node)):
                     if neighbor != node:
                         edge_label = graph[node][neighbor].get('action')
-                        pat = cls.get_compatible_patterns_from_edge_label(
+                        pat, multi_pat = cls.get_compatible_patterns_from_edge_label(
                             edge_label,
                             grounding,
                             all_patterns
                         )
-                        if dead_patterns.intersection(pat):
+                        if dead_patterns.intersection(pat) or any(
+                            len(pat_group) > 0 and
+                            len(pat_group.difference(dead_patterns)) == 0
+                            for pat_group in multi_pat
+                        ):
                             if neighbor == initial_state:
                                 initial_state = node
                             cls.merge_nodes(graph, node, neighbor)
