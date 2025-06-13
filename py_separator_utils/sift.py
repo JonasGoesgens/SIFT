@@ -243,7 +243,7 @@ class SIFT:
                 for (arity,type_combination,instance,grounding), future in runs.items():
                     try:
                         graph, initial_state, dead_patterns, equivalent_patterns = future.result()
-                        self.all_graphs[instance].set_final_graph_for_grounding(
+                        self.all_graphs[instance].set_switching_graph_for_grounding(
                             grounding, type_combination, graph, initial_state
                         )
                         self.update_dead_switching_patterns_for_typecombination(type_combination, dead_patterns)
