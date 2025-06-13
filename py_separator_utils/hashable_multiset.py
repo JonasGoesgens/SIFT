@@ -10,12 +10,12 @@ class Multiset(Generic[T]):
                 for element in elements:
                     self.add(element)
             elif isinstance(elements, (dict)):
-                for element, count in elements:
+                for element, count in sorted(elements.items()):
                     if not isinstance(count, (int)):
                         raise RuntimeError("Cannot add non integer many elements.")
                     self.add(element, count)
             elif isinstance(elements, Multiset):
-                for element, count in elements.items():
+                for element, count in sorted(elements.items()):
                     self.add(element, count)
 
     def add(self, element, count : int = 1):
@@ -39,11 +39,11 @@ class Multiset(Generic[T]):
         return self.elements.get(element, 0)
 
     def items(self) -> Iterator[T]:
-        for element, count in self.elements.items():
+        for element, count in sorted(self.elements.items()):
             yield (element, count)
 
     def __iter__(self) -> Iterator[T]:
-        return iter(self.elements.keys())
+        return iter(sorted(self.elements.keys()))
 
     def freeze(self):
         self.is_frozen = True

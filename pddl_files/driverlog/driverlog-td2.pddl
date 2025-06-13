@@ -12,8 +12,8 @@
 	p1-0 - location
 	)
 	(:init
-	(at driver1 s1)
-	(at driver2 s1)
+	(at driver1 s0)
+	(at driver2 s0)
 	(at truck1 s0)
 	(empty truck1)
 	(at truck2 s0)

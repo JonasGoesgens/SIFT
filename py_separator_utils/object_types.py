@@ -107,7 +107,7 @@ class LOCM_Types:
             new_type_combination.add(
                 self.get_current_id_of_type(types), uses
             )
-        return new_type_combination
+        return pt.TypeCombi(new_type_combination)
 
     def get_arg_type(self, arg : pt.ArgPosT):
         if arg in self.arg_types:
@@ -155,7 +155,7 @@ class LOCM_Types:
             res = set()
             for action, arity in self.action_arities.items():
                 options = list()
-                for types, uses in type_combination.items():
+                for types, uses in sorted(type_combination.items()):
                     opt = list()
                     for (act,arg) in self.type_args[types]:
                         if act == action:
@@ -184,7 +184,7 @@ class LOCM_Types:
             self.all_groundings_per_type_combination[type_combination] = dict()
             options = dict()
             summed_uses = 0
-            for types, uses in type_combination.items():
+            for types, uses in sorted(type_combination.items()):
                 summed_uses += uses
                 opt = dict()
                 for (inst, obj) in self.type_objs[types]:
