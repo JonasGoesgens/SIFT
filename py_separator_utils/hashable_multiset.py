@@ -39,11 +39,11 @@ class Multiset(Generic[T]):
         return self.elements.get(element, 0)
 
     def items(self) -> Iterator[T]:
-        for element, count in self.elements.items():
+        for element, count in sorted(self.elements.items()):
             yield (element, count)
 
     def __iter__(self) -> Iterator[T]:
-        return iter(self.elements.keys())
+        return iter(sorted(self.elements.keys()))
 
     def freeze(self):
         self.is_frozen = True
