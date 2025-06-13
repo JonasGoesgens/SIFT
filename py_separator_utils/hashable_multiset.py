@@ -10,12 +10,12 @@ class Multiset(Generic[T]):
                 for element in elements:
                     self.add(element)
             elif isinstance(elements, (dict)):
-                for element, count in elements:
+                for element, count in sorted(elements.items()):
                     if not isinstance(count, (int)):
                         raise RuntimeError("Cannot add non integer many elements.")
                     self.add(element, count)
             elif isinstance(elements, Multiset):
-                for element, count in elements.items():
+                for element, count in sorted(elements.items()):
                     self.add(element, count)
 
     def add(self, element, count : int = 1):

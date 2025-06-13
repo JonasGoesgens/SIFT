@@ -107,7 +107,7 @@ class LOCM_Types:
             new_type_combination.add(
                 self.get_current_id_of_type(types), uses
             )
-        return new_type_combination
+        return pt.TypeCombi(new_type_combination)
 
     def get_arg_type(self, arg : pt.ArgPosT):
         if arg in self.arg_types:
