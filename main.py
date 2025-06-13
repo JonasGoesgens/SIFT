@@ -276,10 +276,26 @@ def compare_features(
 
     return failure_servity
 
+def read_dict_from_file(filename):
+    result = {}
+
+    with open(filename, 'r') as file:
+        for line in file:
+            key, values = line.strip().split(':')
+            key = key.strip()
+            value_set = set(int(v.strip()) for v in values.split(','))
+            result[key] = value_set
+
+    return result
+
 def process_instance(args: argparse.Namespace):
     # create domain paths
-    domain_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.domain)
-    
+    domain_path = os.path.join(
+        os.path.dirname(
+            os.path.realpath(__file__)
+        ), args.domain
+    )
+
     instance_list = list()
     meta_info = dict()
 
@@ -289,11 +305,12 @@ def process_instance(args: argparse.Namespace):
 
         # create problem path
         problem_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), instance)
-        instance_list += create_graphs_from_input(
+        instance = create_graphs_from_input(
             domain_path, problem_path,
             args.learning_mode, args.learning_size,
             args.learning_number_inputs, False
         )
+        instance_list += instance
     #print(instance_list)
     process_pool_args = {'max_workers' : args.processes}
     number_samples = args.learning_number_inputs
@@ -357,10 +374,8 @@ if __name__ == '__main__':
     batch_mode, benchmark_name, parsed_args = get_arguments()
     dir_path = os.path.dirname(os.path.realpath(__file__))
     if batch_mode:
-        if not os.path.exists(dir_path+"/output/"):
-            os.makedirs(dir_path+"/output/")
-        if not os.path.exists(dir_path+"/output/tables/"):
-            os.makedirs(dir_path+"/output/tables/")
+        os.makedirs(os.path.join(dir_path, "output"          ), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "tables"), exist_ok=True)
         stats_table_out = ""
         max_all_features = 0
         for line_num, (runs, args) in enumerate(parsed_args):
@@ -388,14 +403,15 @@ if __name__ == '__main__':
                 output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
                 output_path = 'output/{}.txt'.format(output_file)
                 with open(output_path, "w") as out_file:
-                    out_file.write(str(LOCM_types))
+                    out_file.write(str(LOCM_types)+"\n")
+
                     feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
                     for i, (feature, _) in enumerate(
                         sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
                     ):
-                        if feature.has_unique_colouring():
-                            out_file.write(f"Feature {i+1}:\n")
-                            out_file.write(str(feature))
+                        #if feature.has_unique_colouring():
+                        out_file.write(f"Feature {i+1}:\n")
+                        out_file.write(str(feature))
                     if verification_val == 0:
                         out_file.write("Verification successfull.\n")
                     else:
@@ -426,6 +442,7 @@ if __name__ == '__main__':
         with open(output_table_path, "w") as output_table:
             output_table.write(stats_table_out)
     else:
+        #parse and run
         args = parsed_args
         (
             LOCM_types,
@@ -433,16 +450,20 @@ if __name__ == '__main__':
             verification_val,
             meta_info
         ) = process_instance(args)
+
+        #print secondary information
         if verification_val == 0:
             print("Verification successfull.")
         else:
             print(f"Verification failed on {verification_val} instances.")
         print(LOCM_types)
         print("Meta informations: " + str(meta_info))
+
+        #print features
         feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
         for i, (feature, _) in enumerate(
             sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
         ):
-            if feature.has_unique_colouring():
-                print(f"Feature {i+1}:")
-                print(feature)
+            #if feature.has_unique_colouring():
+            print(f"Feature {i+1}:")
+            print(feature)

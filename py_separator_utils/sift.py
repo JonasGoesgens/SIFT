@@ -5,6 +5,7 @@ from py_separator_utils.equivalence_classes import EquivalenceClasses
 import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 import copy
+import sys
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 
 class SIFT:
@@ -41,6 +42,10 @@ class SIFT:
         self.admissible_features = set()
         self._add_graphs(graphs)
         self.update_type_combination_keys()
+
+    def delete_complex_pattern_relations(self):
+        self.dead_patterns = dict()
+        self.equivalent_patterns = EquivalenceClasses[pt.PatternT]()
 
     @classmethod
     def _check_feature(
@@ -79,6 +84,16 @@ class SIFT:
             else:
                 dead_patterns[new_type_combination] = dead_pats
         self.dead_patterns = dead_patterns
+        #check for already existing features to update their typing if necessary
+        for feature in self.all_features:
+            type_combination = self.LOCM_types.update_type_combination(
+                feature.get_type_combination()
+            )
+            new_patterns = set(self.LOCM_types.get_all_patterns_for_typecombination(type_combination))
+            new_patterns.difference_update(feature.get_all_patterns())
+            #already done by extent seen patterns
+            #feature.set_type_combination(type_combination)
+            feature.extend_seen_patterns(new_patterns, type_combination)
 
     def update_dead_patterns_for_typecombination(
         self, type_combination : pt.TypeCombi,
@@ -143,7 +158,7 @@ class SIFT:
                             classtype.merge_graph_for_missing_arg,
                             smaller_graph,
                             smaller_initial_state,
-                            new_obj
+                            grounding_key
                         )
                 #wait for intermediate results to be available
                 wait(runs.values(), return_when=ALL_COMPLETED)
@@ -154,7 +169,7 @@ class SIFT:
                             grounding_key, graph, initial_state
                         )
                     except Exception as e:
-                        print(f"Error processing {(arity,instance,grounding_key)}: {e}")
+                        sys.stderr.write(f"Error processing simple merge for {(arity,instance,grounding_key)}: {e}")
 
         #as the simple merges are all done the complex merges all
         #only require local data and can run all in parallel
@@ -193,7 +208,7 @@ class SIFT:
                                 runs[(arity,type_combination,instance,grounding)] = process_pool.submit(
                                     classtype.merge_graph_for_dead_patterns,
                                     graph, initial_state, grounding, all_patterns,
-                                    dead_patterns, self.equivalent_patterns
+                                    dead_patterns, self.equivalent_patterns, False
                                 )
                 #wait for intermediate results to be available
                 wait(runs.values(), return_when=ALL_COMPLETED)
@@ -208,23 +223,18 @@ class SIFT:
                         local_dead_patterns[(type_combination, instance, grounding)] = dead_patterns
                         self.equivalent_patterns.update(equivalent_patterns)
                     except Exception as e:
-                        print(f"Error processing {(arity,type_combination,instance,grounding)}: {e}")
+                        sys.stderr.write(f"Error processing {(arity,type_combination,instance,grounding)}: {e}")
 
             for (type_combination, instance, grounding), dead_patterns in local_dead_patterns.items():
                 if self.get_dead_patterns_for_typecombination(type_combination).difference(dead_patterns):
                     #guarantee termination if something odd happens
-                    self.update_dead_patterns_for_typecombination(type_combination, dead_patterns)
+                    self.update_dead_patterns_for_typecombination(
+                        type_combination, dead_patterns
+                    )
                     #there are graphs that need futher merge
                     merge = True
                     break
 
-        #check for already existing features to update their typing if necessary
-        for feature in self.all_features:
-            feature.set_type_combination(
-                self.LOCM_types.update_type_combination(
-                    feature.get_type_combination()
-                )
-            )
         #print(self.equivalent_patterns)
         #generate all features, typecombinations for zeronary features included
         for arity, type_combinations in sorted(
@@ -266,7 +276,7 @@ class SIFT:
                     checked_feature = future.result()
                     feature.overwrite_feature(checked_feature)
                 except Exception as e:
-                    print(f"Error processing {feature}: {e}")
+                    sys.stderr.write(f"Error processing {feature}: {e}")
 
         for feature in self.all_features:
             if not feature.is_invalid():

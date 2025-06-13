@@ -51,26 +51,30 @@ class LOCM_Types:
             self.arg_types[arg] = type_arg
             self.type_args[type_arg].add(arg)
         elif type_arg != type_obj:
+            if type_arg > type_obj:
+                type_keep, type_drop = type_obj, type_arg
+            else:
+                type_keep, type_drop = type_arg, type_obj
             #merge type obj into type arg
             changed_arg_type = True
-            for up_obj in self.type_objs[type_obj]:
-                self.obj_types[up_obj] = type_arg
-            for up_arg in self.type_args[type_obj]:
-                self.arg_types[up_arg] = type_arg
-            self.type_args[type_arg].update(self.type_args[type_obj])
-            self.type_objs[type_arg].update(self.type_objs[type_obj])
-            del self.type_args[type_obj]
-            del self.type_objs[type_obj]
+            for up_obj in self.type_objs[type_drop]:
+                self.obj_types[up_obj] = type_keep
+            for up_arg in self.type_args[type_drop]:
+                self.arg_types[up_arg] = type_keep
+            self.type_args[type_keep].update(self.type_args[type_drop])
+            self.type_objs[type_keep].update(self.type_objs[type_drop])
+            del self.type_args[type_drop]
+            del self.type_objs[type_drop]
             #store where to find the old type
-            if not type_arg in self.type_updates:
-                self.type_updates[type_arg] = set()
-            if type_obj in self.type_updates:
-                for up_type in self.type_updates[type_obj]:
-                    self.updated_types[up_type] = type_arg
-                self.type_updates[type_arg].update(self.type_updates[type_obj])
-                del self.type_updates[type_obj]
-            self.type_updates[type_arg].add(type_obj)
-            self.updated_types[type_obj] = type_arg
+            if not type_keep in self.type_updates:
+                self.type_updates[type_keep] = set()
+            if type_drop in self.type_updates:
+                for up_type in self.type_updates[type_drop]:
+                    self.updated_types[up_type] = type_keep
+                self.type_updates[type_keep].update(self.type_updates[type_drop])
+                del self.type_updates[type_drop]
+            self.type_updates[type_keep].add(type_drop)
+            self.updated_types[type_drop] = type_keep
         #else arg and obj have same type nothing to do here
 
         return changed_arg_type
@@ -92,6 +96,9 @@ class LOCM_Types:
         self.all_patterns_per_type_combination = dict()
         return changed_arg_type
 
+    def get_action_arities(self) -> pt.ArityInfoT:
+        return self.action_arities.copy()
+
     def update_type_combination(
         self, type_combination : pt.TypeCombi
     ) -> pt.TypeCombi:
@@ -100,7 +107,7 @@ class LOCM_Types:
             new_type_combination.add(
                 self.get_current_id_of_type(types), uses
             )
-        return new_type_combination
+        return pt.TypeCombi(new_type_combination)
 
     def get_arg_type(self, arg : pt.ArgPosT):
         if arg in self.arg_types:
@@ -148,7 +155,7 @@ class LOCM_Types:
             res = set()
             for action, arity in self.action_arities.items():
                 options = list()
-                for types, uses in type_combination.items():
+                for types, uses in sorted(type_combination.items()):
                     opt = list()
                     for (act,arg) in self.type_args[types]:
                         if act == action:
@@ -177,7 +184,7 @@ class LOCM_Types:
             self.all_groundings_per_type_combination[type_combination] = dict()
             options = dict()
             summed_uses = 0
-            for types, uses in type_combination.items():
+            for types, uses in sorted(type_combination.items()):
                 summed_uses += uses
                 opt = dict()
                 for (inst, obj) in self.type_objs[types]:

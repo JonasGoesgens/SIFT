@@ -3,6 +3,8 @@ import networkx as nx
 import py_separator_utils.hashable_multiset as hm
 ActionT = typing.Union[int, str]
 #ActtionT is the identifier of an action, represented by an int or string
+ArityInfoT = typing.Dict[ActionT, int]
+#ArityInfoT gives the arity of all actions.
 TypeT = int
 #TypeT is the type of an object or action argument represented by an int
 TypeCombi = hm.Multiset[TypeT]
@@ -10,6 +12,8 @@ TypeCombi = hm.Multiset[TypeT]
 ArgPosT = typing.Tuple[ActionT,int]
 #An Object is represented by an int as id
 ObjectT = int
+#ObjectNotKnown used to fill arguments for with the object is unknown.
+ObjectNotKnown = -2
 #ObjectInstT combines an object id with its instance id as a tuple (inst,obj)
 ObjectInstT = typing.Tuple[int,ObjectT]
 #Grounding is a tuple of objects represented by int identifiers
@@ -31,6 +35,8 @@ GraphT = nx.DiGraph
 #Graph edges are annotated with the key action
 #Nodes are represented as int
 NodeT = int
+#A Node or State label gives all states merged into this state for merged graphs.
+State_LabelT = typing.Set[NodeT]
 #an edge is a 3 tuple [start, end, Edge_LabelT]
 EdgeT = typing.Tuple[NodeT,NodeT,Edge_LabelT]
 #Sets of used types

@@ -1,6 +1,9 @@
 import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
+from py_separator_utils.object_types import LOCM_Types
+from itertools import permutations
 from typing import Optional
+import sys
 #features will invalitate themselfs on a color failure
 #remember to deepcopy them for testing unsafe graphs
 #or to use the backup system, not that this will only use shallow copies
@@ -36,6 +39,7 @@ class Feature:
                 self.type_combination = other.type_combination
             else:
                 self.type_combination = type_combination
+            self.type_combination.freeze()
             self.all_patterns = set(other.all_patterns.union(all_patterns))
             self.selected_patterns = frozenset(
                 other.selected_patterns.union(selected_patterns)
@@ -52,6 +56,7 @@ class Feature:
         self.unselected_patterns = set(
             self.all_patterns.difference(self.selected_patterns)
         )
+        self.extend_identifier = None
         self.backup_color_splits = None
         self.precondition_splits = None
         self.undefined_preconditions = None
@@ -67,6 +72,7 @@ class Feature:
         grounding : pt.GroundingT
     ):
         #grounding a tupel holding the currently active objects
+        #TODO handle unknown object -2
         found_matching = False
         found_unmatching = False
         matching_selected_pattens = set()
@@ -248,6 +254,7 @@ class Feature:
 
     def set_type_combination(self, type_combination : pt.TypeCombi):
         self.type_combination = type_combination
+        self.type_combination.freeze()
 
     def invalitate(self):
         self.color_splits = None
@@ -267,20 +274,44 @@ class Feature:
         #converging into the same form for the same input no matter the order
         return self.selected_patterns
 
+    def get_extended_identifier(self):
+        #returns a frozenset of all the frozensets
+        #with the same meaning to use as key in dicts
+        #in theory a feature is completly determined by the selected patterns
+        #all other vars are merly computional caches
+        #converging into the same form for the same input no matter the order
+        if self.extend_identifier is not None:
+            return self.extend_identifier
+        arity = self.get_type_combination().size()
+        if arity < 2:
+            self.extend_identifier = frozenset({self.get_identifier()})
+            return self.extend_identifier
+        extend_identifier = set()
+        for permutation in permutations(range(arity)):
+            identifier = set()
+            for pattern in self.get_identifier():
+                identifier.add((pattern[0],tuple(
+                    pattern[1][index]
+                    for index in permutation
+                )))
+            extend_identifier.add(frozenset(identifier))
+        self.extend_identifier = frozenset(extend_identifier)
+        return self.extend_identifier
+
     def __hash__(self):
         #implemented hash to allow direct use in dicts
         #only the first added feature will be present in a set
         #in most cases this should be the desired behaviour
-        return hash(self.get_identifier())
+        return hash(self.get_extended_identifier())
 
     def __eq__(self, other):
         if isinstance(other, Feature):
-            return self.get_identifier() == other.get_identifier()
+            return self.get_extended_identifier() == other.get_extended_identifier()
         return False
 
     def __str__(self):
         if self.is_invalid():
-            return f"Feature is invalid. {self.selected_patterns}"
+            return f"Feature is invalid. {self.get_identifier()}"
 
         output_lines = []
         output_lines.append(f"Type Combination: {self.type_combination}")
@@ -299,6 +330,9 @@ class Feature:
             output_lines.append("")
 
         return "\n".join(output_lines)
+
+    def __repr__(self):
+        return f"Feature({self.get_identifier()}, {not self.is_invalid()})"
 
     def get_not_selected_patterns(self):
         return set(self.unselected_patterns)
@@ -408,7 +442,7 @@ class Feature:
     def extend_features(cls, feature_list : list['Feature'],
         new_patterns : pt.PatternTSetLike,
         type_combination : pt.TypeCombi
-    ):
+    ) -> list['Feature']:
         new_feature_list = list(feature_list)
         powerset = ut.power_set_without_empty_set(new_patterns)
         for feature in feature_list:

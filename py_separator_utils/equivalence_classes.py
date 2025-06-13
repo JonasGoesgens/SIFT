@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, Iterator
+from typing import Generic, TypeVar, Iterator, Optional
 import py_separator_utils.py_types as pt
 T = TypeVar('T')
 class EquivalenceClasses(Generic[T]):
@@ -69,17 +69,24 @@ class EquivalenceClasses(Generic[T]):
             output.update(relation[1])
         return output
 
-    def get_valid_related_groups(self) -> set[frozenset[T]]:
+    def get_valid_related_groups(self,
+        invalid_items : Optional[pt.SetLike[T]] = None
+    ) -> set[frozenset[T]]:
+        if invalid_items is None:
+            invalid_items = self._invalid_items
         output = set()
         for relation in self._equivalences:
             group = frozenset(relation[0].union(relation[1]))
-            if not group.intersection(self._invalid_items):
+            if not group.intersection(invalid_items):
                 output.add(group)
         return output
 
-    def filter_valid_related_groups(self, filter_set : pt.SetLike[T]) -> set[frozenset[T]]:
+    def filter_valid_related_groups(self,
+        filter_set : pt.SetLike[T],
+        invalid_items : Optional[pt.SetLike[T]] = None
+    ) -> set[frozenset[T]]:
         output = set()
-        for group in self.get_valid_related_groups():
+        for group in self.get_valid_related_groups(invalid_items):
             rel = frozenset(group.intersection(filter_set))
             if rel:
                 output.add(rel)
