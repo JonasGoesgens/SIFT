@@ -15,6 +15,7 @@ ObjectT = int
 #ObjectNotExisting is the valeu used to indicate that there exists no object
 #that could be identified.
 ObjectNotExisting = -1
+#ObjectNotKnown used to fill arguments for with the object is unknown.
 #ObjectNotKnown the relation is working but there is no known value which
 #object was identified
 ObjectNotKnown = -2
