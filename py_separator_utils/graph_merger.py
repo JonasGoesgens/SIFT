@@ -4,6 +4,7 @@ from py_separator_utils.equivalence_classes import EquivalenceClasses
 from multiprocessing import Manager
 from typing import Optional, Tuple
 import copy
+import warnings
 class Graph_Holder:
     def __init__(self, graph : pt.GraphT,
         initial_state : pt.NodeT,
@@ -150,6 +151,10 @@ class Graph_Holder:
         elif len(grounding_key) < 1:
             return self.base_graph, self.initial_state
         else:
+            warnings.warn(
+                "Used backup cration for simple graph.\n For best results create all graphs together.",
+                UserWarning
+            )
             new_obj = next(iter(grounding_key))
             smaller_grounding_key = self.__class__.get_sub_grounding_key(grounding_key, new_obj)
             smaller_graph, smaller_initial_state = self.get_simple_graph_for_grounding_key(smaller_grounding_key)
@@ -342,6 +347,10 @@ class Graph_Holder:
         if grounding in self.switching_merged_graphs:
             return self.switching_merged_graphs[grounding]
         else:
+            warnings.warn(
+                "Used backup cration for switching graph.\n For best results create all graphs together.",
+                UserWarning
+            )
             #make a deep copy as we need the old graph intact as intermediate result.
             graph, initial_state = self.get_simple_graph_for_grounding(grounding)
             graph = copy.deepcopy(graph)
@@ -374,6 +383,10 @@ class Graph_Holder:
         if grounding in self.final_merged_graphs:
             return self.final_merged_graphs[grounding]
         else:
+            warnings.warn(
+                "Used backup cration for final graph.\n For best results create all graphs together.",
+                UserWarning
+            )
             #make a deep copy as we need the old graph intact as intermediate result.
             graph, initial_state = self.get_switching_graph_for_grounding(
                 grounding, type_combination

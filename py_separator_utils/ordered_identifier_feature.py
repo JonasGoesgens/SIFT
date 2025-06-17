@@ -8,6 +8,7 @@ from itertools import permutations
 from typing import Optional, Tuple, Set, FrozenSet, List
 from collections import defaultdict
 import sys
+import warnings
 class Ordered_Identifier_Feature:
     def __init__(self, existence_feature : Optional[Feature],
         add_patterns : pt.PatternTSetLike,
@@ -225,7 +226,10 @@ class Ordered_Identifier_Feature:
                 if not mismatch:
                     matching_precondition_patterns.add(sel_pat)
                     if in_state_identified_object == pt.ObjectNotExisting:
-                        print(f"False indentifing precontition, this should never happen. oi feature:\n{self}existence:\n{self.existence_feature}")
+                        warnings.warn(
+                            f"False indentifing precontition, this should never happen. oi feature:\n{self}existence:\n{self.existence_feature}",
+                            UserWarning
+                        )
                         self.invalitate()
                         return None
                     elif in_state_identified_object is not None:
