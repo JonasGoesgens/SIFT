@@ -32,9 +32,12 @@ class Graph_Holder:
         return frozenset(item for item in grounding_key if item != element_to_remove)
 
     @classmethod
-    def merge_attributes(cls, existing_attrs: dict, new_attrs: Optional[dict] = None) -> dict:
+    def merge_attributes(
+        cls, existing_attrs: Optional[dict],
+        new_attrs: Optional[dict] = None
+    ) -> dict:
         #Merges attributes based on the key.
-        merged_attrs = existing_attrs.copy()
+        merged_attrs = existing_attrs.copy() if existing_attrs is not None else dict()
 
         if new_attrs is None:
             return merged_attrs
@@ -49,7 +52,9 @@ class Graph_Holder:
         return merged_attrs
 
     @classmethod
-    def merge_nodes(cls, graph: pt.GraphT, node_keep: int, node_rem: int):
+    def merge_nodes(
+        cls, graph: pt.GraphT, node_keep: int, node_rem: int
+    ) -> None:
         #Merges node node_rem into node node_keep.
 
         #Remember merged nodes

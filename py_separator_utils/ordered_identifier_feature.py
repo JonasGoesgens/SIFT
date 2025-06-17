@@ -5,7 +5,7 @@ from py_separator_utils.feature import Feature
 from py_separator_utils.object_types import LOCM_Types
 from py_separator_utils.equivalence_classes import EquivalenceClasses
 from itertools import permutations
-from typing import Optional
+from typing import Optional, Tuple, Set, FrozenSet, List
 from collections import defaultdict
 import sys
 class Ordered_Identifier_Feature:
@@ -41,7 +41,7 @@ class Ordered_Identifier_Feature:
         #Ground_Edge_Info and identifier pattern fix the grounding
         self.additional_arguments = dict()
 
-    def overwrite_feature(self, other):
+    def overwrite_feature(self, other : 'Ordered_Identifier_Feature') -> None:
         if not isinstance(other, Ordered_Identifier_Feature):
             raise ValueError("A feature can only be overwritten by a feature.")
         elif (other.get_identifier() != self.get_identifier()):
@@ -49,13 +49,10 @@ class Ordered_Identifier_Feature:
         else:
             self.pre_patterns = set(other.pre_patterns)
             self.argument_identifier_patterns = other.argument_identifier_patterns
-            if other.additional_arguments is None:
-                self.additional_arguments = None
-            else:
-                self.additional_arguments = other.additional_arguments.copy()
+            self.additional_arguments = ut.safe_copy(other.additional_arguments)
             self.disabled_pre_patterns = other.disabled_pre_patterns.copy()
 
-    def update_argument_identifier_patterns(self):
+    def update_argument_identifier_patterns(self) -> Tuple[pt.PatternT, ...]:
         new_argument_identifier_patterns = tuple(sorted(
             (self.del_patterns.union(
                 self.pre_patterns.difference(self.disabled_pre_patterns)
@@ -64,20 +61,20 @@ class Ordered_Identifier_Feature:
         self.argument_identifier_patterns = self.argument_identifier_patterns + new_argument_identifier_patterns
         return new_argument_identifier_patterns
 
-    def update_pre_patterns(self, pre_patterns : pt.PatternTSetLike):
+    def update_pre_patterns(self, pre_patterns : pt.PatternTSetLike) -> None:
         self.pre_patterns.update(pre_patterns)
 
-    def get_type_combination(self):
+    def get_type_combination(self) -> pt.TypeCombi:
         return self.type_combination
 
-    def set_type_combination(self, type_combination : pt.TypeCombi):
+    def set_type_combination(self, type_combination : pt.TypeCombi) -> None:
         self.type_combination = type_combination
         self.type_combination.freeze()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"OI Feature({self.get_identifier()}, {not self.is_invalid()})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.is_invalid():
             return f"OI Feature is invalid. {self.get_identifier()}"
 
@@ -98,7 +95,7 @@ class Ordered_Identifier_Feature:
         in_state_identified_object : pt.ObjectT,
         out_state_identified_object : pt.ObjectT,
         grounding : pt.GroundingT
-    ) -> (bool, bool, set, pt.ObjectT, pt.ObjectT):
+    ) -> Tuple[bool, bool, Set[pt.PatternT], pt.ObjectT, pt.ObjectT]:
         #grounding a tupel holding the currently active objects
         found_add_matching = False
         found_add_unmatching = False
@@ -257,7 +254,7 @@ class Ordered_Identifier_Feature:
     def label_graph(self, instance : int,
         graph : pt.GraphT,
         grounding : pt.GroundingT
-    ):
+    ) -> defaultdict[pt.NodeT, pt.ObjectT]:
         #identify missing arguments and store the correct label
         active_precondition_patterns = set()
         found_effect = False
@@ -316,7 +313,7 @@ class Ordered_Identifier_Feature:
             self.disabled_pre_patterns.update(active_precondition_patterns)
         return object_memory
 
-    def get_identifier(self):
+    def get_identifier(self) -> Tuple[FrozenSet[pt.PatternT],FrozenSet[pt.PatternT]]:
         #returns the add/del-frozensets to use as key in dicts
         #in theory a feature is completly determined by the selected patterns
         #all other vars are merly computional caches
@@ -324,7 +321,7 @@ class Ordered_Identifier_Feature:
         #give the two important sets a distinct order to recognize the sign_switch.
         return (self.add_patterns,self.del_patterns)
 
-    def get_extended_identifier(self):
+    def get_extended_identifier(self) -> FrozenSet[Tuple[FrozenSet[pt.PatternT],FrozenSet[pt.PatternT]]]:
         #returns a frozenset of all the frozensets
         #with the same meaning to use as key in dicts
         #in theory a feature is completly determined by the selected patterns
@@ -356,28 +353,28 @@ class Ordered_Identifier_Feature:
         self.extend_identifier = frozenset(extend_identifier)
         return self.extend_identifier
 
-    def get_argument_identifier_patterns(self):
+    def get_argument_identifier_patterns(self) -> Tuple[pt.PatternT, ...]:
         #returns the identifier patterns to correctly iterate over added arguments.
         return self.argument_identifier_patterns
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         #implemented hash to allow direct use in dicts
         #only the first added feature will be present in a set
         #in most cases this should be the desired behaviour
         return hash(self.get_extended_identifier())
 
-    def __eq__(self, other):
+    def __eq__(self, other : object) -> bool:
         if isinstance(other, Ordered_Identifier_Feature):
             return self.get_extended_identifier() == other.get_extended_identifier()
         return False
 
-    def invalitate(self):
+    def invalitate(self) -> None:
         self.additional_arguments = None
 
-    def has_static_existence(self):
+    def has_static_existence(self) -> bool:
         return self.existence_feature is None
 
-    def is_invalid(self):
+    def is_invalid(self) -> bool:
         if self.existence_feature is not None:
             if self.existence_feature.is_invalid():
                 return True
@@ -386,7 +383,7 @@ class Ordered_Identifier_Feature:
     def get_type_sorted_feature(self,
         locm_types : LOCM_Types,
         new_existence_feature : Optional[Feature]
-    ):
+    ) -> 'Ordered_Identifier_Feature':
         try:
             if self.type_combination.size() < 2:
                 #We do not need to sort a tuple of size 1 or 0
@@ -447,7 +444,7 @@ class Ordered_Identifier_Feature:
     def expand_adding_patterns(cls, 
         adding_patterns : pt.PatternTSetLike,
         action_arities : pt.ArityInfoT
-    ) -> pt.SetLike[frozenset[pt.PatternT]]:
+    ) -> Set[FrozenSet[pt.PatternT]]:
         combinations_dict = dict()
         for exist_pattern in adding_patterns:
             combinations_dict[exist_pattern] = set()
@@ -467,7 +464,7 @@ class Ordered_Identifier_Feature:
         dead_patterns : pt.PatternTSetLike,
         equivalent_switching_patterns : EquivalenceClasses[pt.PatternT],
         action_arities : pt.ArityInfoT
-    ) -> list['Ordered_Identifier_Feature']:
+    ) -> List['Ordered_Identifier_Feature']:
         new_feature_list = list()
         if not feature.has_unique_colouring():
             # It is not necessary to expand non unique features as
@@ -518,7 +515,7 @@ class Ordered_Identifier_Feature:
         dead_patterns : pt.PatternTSetLike,
         equivalent_switching_patterns : EquivalenceClasses[pt.PatternT],
         action_arities : pt.ArityInfoT
-    ) -> list['Ordered_Identifier_Feature']:
+    ) -> List['Ordered_Identifier_Feature']:
         new_feature_list = list()
         switching_patterns = set(all_patterns)
         switching_patterns.difference_update(dead_patterns)

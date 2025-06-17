@@ -44,6 +44,27 @@ NodeT = int
 State_LabelT = typing.Set[NodeT]
 #an edge is a 3 tuple [start, end, Edge_LabelT]
 EdgeT = typing.Tuple[NodeT,NodeT,Edge_LabelT]
+#ColorSplitT a color split is a list of 6 sets.
+#The sets come in pairs, objects in the same set have the same sign.
+#The first two state effects.
+#The next two sets state preconditions.
+#The last two sets state initial atoms by instance and grounding.
+ColorSplitT = typing.Tuple[
+    typing.Set[PatternT],
+    typing.Set[PatternT],
+    typing.Set[PatternT],
+    typing.Set[PatternT],
+    typing.Set[typing.Tuple[int,GroundingT]],
+    typing.Set[typing.Tuple[int,GroundingT]]
+]
+#PreconditionSplitT is structured like the ColorSplit type yet
+#the content of the sets holding the preconditions [2-3] differs.
+PreconditionSplitT = ColorSplitT
+#argument feature assigment stores output information, not used for calculation.
+#with argument of which action was recovered by which oi feature with which pattern.
+Arg_Feature_AssignmentT = typing.Dict[ActionT, typing.Dict[
+    int, typing.Tuple['Ordered_Identifier_Feature', PatternT]
+]]
 #Sets of used types
 T = typing.TypeVar('T')
 SetLike = typing.Union[typing.Set[T], typing.FrozenSet[T]]

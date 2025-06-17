@@ -6,10 +6,13 @@ import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 import copy
 import sys
+from typing import Set, List, Tuple, Dict, Union
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 
 class SIFT:
-    def __init__(self, graphs : list[tuple[pt.GraphT,pt.NodeT]]):
+    def __init__(self, graphs : Union[List[Tuple[pt.GraphT, pt.NodeT]],
+        Dict[int, Tuple[pt.GraphT, pt.NodeT]]]
+    ):
         self.all_graphs = dict()
         self.all_ground_edges = dict()
         self.LOCM_types = LOCM_Types()
@@ -23,19 +26,32 @@ class SIFT:
         self.equivalent_patterns = EquivalenceClasses[pt.PatternT]()
         self._add_graphs(graphs)
 
-    def _add_graphs(self, graphs : list[tuple[pt.GraphT, pt.NodeT]]):
-        for graph, init in graphs:
-            instance_id = self.instance_id_gen.take_free_id()
-            self.all_graphs[instance_id] = Graph_Holder(graph, init, self.LOCM_types)
-            self.all_ground_edges[instance_id] = set()
-            edges = graph.out_edges(graph.nodes(),data='action')
-            for edge in edges:
-                self.all_ground_edges[instance_id].update(edge[2])
-            _ = self.LOCM_types.update_LOCM_types_from_groundings(
-                self.all_ground_edges[instance_id], instance_id
-            )
+    def _add_graphs(self, graphs : Union[List[Tuple[pt.GraphT, pt.NodeT]],
+        Dict[int, Tuple[pt.GraphT, pt.NodeT]]]
+    ) -> None:
+        if isinstance(graphs, list):
+            for graph, init in graphs:
+                instance_id = self.instance_id_gen.take_free_id()
+                self._add_graph(instance_id, graph, init)
+        elif isinstance(graphs, dict):
+            if graphs:
+                self.instance_id_gen.reserve_ids_upto(max(graphs.keys()))
+            for instance_id, (graph, init) in graphs.items():
+                self._add_graph(instance_id, graph, init)
 
-    def replace_graphs(self, graphs : list[tuple[pt.GraphT, pt.NodeT]]):
+    def _add_graph(self, instance_id : int, graph : pt.GraphT, init : pt.NodeT) -> None:
+        self.all_graphs[instance_id] = Graph_Holder(graph, init, self.LOCM_types)
+        self.all_ground_edges[instance_id] = set()
+        edges = graph.out_edges(graph.nodes(),data='action')
+        for edge in edges:
+            self.all_ground_edges[instance_id].update(edge[2])
+        _ = self.LOCM_types.update_LOCM_types_from_groundings(
+            self.all_ground_edges[instance_id], instance_id
+        )
+
+    def replace_graphs(self, graphs : Union[List[Tuple[pt.GraphT, pt.NodeT]],
+        Dict[int, Tuple[pt.GraphT, pt.NodeT]]]
+    ) -> None:
         self.all_graphs = dict()
         self.all_ground_edges = dict()
         self.LOCM_types.clear_instance_information()
@@ -45,7 +61,7 @@ class SIFT:
         self._add_graphs(graphs)
         self.update_type_combination_keys()
 
-    def delete_complex_pattern_relations(self):
+    def delete_complex_pattern_relations(self) -> None:
         self.dead_patterns = dict()
         self.equivalent_patterns = EquivalenceClasses[pt.PatternT]()
         self.dead_switching_patterns = dict()
@@ -55,7 +71,7 @@ class SIFT:
     def _check_feature(
         cls, feature : Feature,
         check_list : list[tuple[int, pt.GraphT, pt.NodeT, pt.GroundingT]]
-    ):
+    ) -> Feature:
         for instance, graph, initial_state, grounding in check_list:
             if feature.is_invalid():
                 break
@@ -79,7 +95,7 @@ class SIFT:
                 check_list.append((instance, graph, initial_state, grounding))
         return check_list
 
-    def update_type_combination_keys(self):
+    def update_type_combination_keys(self) -> None:
         dead_switching_patterns = dict()
         for type_combination, dead_pats in self.dead_switching_patterns.items():
             new_type_combination = self.LOCM_types.update_type_combination(type_combination)
@@ -110,13 +126,15 @@ class SIFT:
     def update_dead_patterns_for_typecombination(
         self, type_combination : pt.TypeCombi,
         dead_patterns : pt.PatternTSetLike
-    ):
+    ) -> None:
         if not type_combination in self.dead_patterns:
             #ensure the set is not manipulated externally
             self.dead_patterns[type_combination] = set()
         self.dead_patterns[type_combination].update(dead_patterns)
 
-    def get_dead_patterns_for_typecombination(self, type_combination : pt.TypeCombi):
+    def get_dead_patterns_for_typecombination(
+        self, type_combination : pt.TypeCombi
+    ) -> Set[pt.PatternT]:
         if not type_combination in self.dead_patterns:
             return set()
         else:
@@ -125,19 +143,21 @@ class SIFT:
     def update_dead_switching_patterns_for_typecombination(
         self, type_combination : pt.TypeCombi,
         dead_patterns : pt.PatternTSetLike
-    ):
+    ) -> None:
         if not type_combination in self.dead_switching_patterns:
             #ensure the set is not manipulated externally
             self.dead_switching_patterns[type_combination] = set()
         self.dead_switching_patterns[type_combination].update(dead_patterns)
 
-    def get_dead_switching_patterns_for_typecombination(self, type_combination : pt.TypeCombi):
+    def get_dead_switching_patterns_for_typecombination(
+        self, type_combination : pt.TypeCombi
+    ) -> Set[pt.PatternT]:
         if not type_combination in self.dead_switching_patterns:
             return set()
         else:
             return set(self.dead_switching_patterns[type_combination])
 
-    def run(self, process_pool_args : dict) -> set[Feature]:
+    def run(self, process_pool_args : dict) -> Set[Feature]:
         #premerge graphs parallel to speed up things
         for arity, type_combinations in sorted(
             self.LOCM_types.get_all_type_combinations().items()
