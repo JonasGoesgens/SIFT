@@ -18,7 +18,7 @@ class Multiset(Generic[T]):
                 for element, count in sorted(elements.items()):
                     self.add(element, count)
 
-    def add(self, element, count : int = 1):
+    def add(self, element, count : int = 1) -> None:
         if self.is_frozen:
             raise RuntimeError("Cannot modify a frozen multiset.")
         if element in self.elements:
@@ -26,7 +26,7 @@ class Multiset(Generic[T]):
         else:
             self.elements[element] = count
 
-    def remove(self, element, count : int = 1):
+    def remove(self, element, count : int = 1) -> None:
         if self.is_frozen:
             raise RuntimeError("Cannot modify a frozen multiset.")
         if element in self.elements:
@@ -35,7 +35,7 @@ class Multiset(Generic[T]):
             else:
                 del self.elements[element]
 
-    def count(self, element):
+    def count(self, element) -> int:
         return self.elements.get(element, 0)
 
     def items(self) -> Iterator[T]:
@@ -45,19 +45,19 @@ class Multiset(Generic[T]):
     def __iter__(self) -> Iterator[T]:
         return iter(sorted(self.elements.keys()))
 
-    def freeze(self):
+    def freeze(self) -> None:
         self.is_frozen = True
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         self.freeze()
         return hash(tuple(sorted(self.elements.items())))
 
-    def __eq__(self, other):
+    def __eq__(self, other : object) -> bool:
         if isinstance(other, Multiset):
             return self.elements == other.elements
         return False
 
-    def __lt__(self, other):
+    def __lt__(self, other : object) -> bool:
         if isinstance(other, Multiset):
             #sort first by multisetsize
             sum_self = sum(self.elements.values())
@@ -83,10 +83,10 @@ class Multiset(Generic[T]):
         
         return NotImplemented
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Multiset({self.elements})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         type_name = "Frozenmultiset" if self.is_frozen else "Multiset"
         return f"{type_name}({self.elements})"
 

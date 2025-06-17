@@ -6,10 +6,12 @@ from py_separator_utils.ordered_identifier_feature import Ordered_Identifier_Fea
 from py_separator_utils.conflict_manager import ConflictManager
 import copy
 import sys
-from typing import Tuple
+from typing import Set, List, Tuple, Dict, Union
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 class Argument_Recovery_Sift:
-    def __init__(self, graphs : list[tuple[pt.GraphT,pt.NodeT]]):
+    def __init__(self, graphs : Union[List[Tuple[pt.GraphT, pt.NodeT]],
+        Dict[int, Tuple[pt.GraphT, pt.NodeT]]]
+    ):
         self.sift_iterations = dict()
         self.sift_iterations[0] = SIFT(graphs)
         self.order_id_features = set()
@@ -21,7 +23,7 @@ class Argument_Recovery_Sift:
     def _check_feature(
         cls, oi_feature : OIFeature,
         check_list : list[tuple[int, pt.GraphT, pt.GroundingT]]
-    ):
+    ) -> OIFeature:
         for instance, graph, grounding in check_list:
             if oi_feature.is_invalid():
                 break
@@ -29,7 +31,9 @@ class Argument_Recovery_Sift:
         oi_feature.update_argument_identifier_patterns()
         return oi_feature
 
-    def _get_graph_list_for_feature(self, oi_feature : OIFeature, iteration : int) -> list[tuple[pt.GraphT, pt.GroundingT]]:
+    def _get_graph_list_for_feature(
+        self, oi_feature : OIFeature, iteration : int
+        ) -> list[tuple[pt.GraphT, pt.GroundingT]]:
         check_list = list()
         if oi_feature.is_invalid():
             return check_list
@@ -44,7 +48,7 @@ class Argument_Recovery_Sift:
                 check_list.append((instance, graph, grounding))
         return check_list
 
-    def type_sort_features(self, iteration : int):
+    def type_sort_features(self, iteration : int) -> None:
         #regroup arguments in patterns by type if they got merged.
         features_sorting = dict()
         for feature in self.sift_iterations[iteration].all_features:
@@ -92,7 +96,7 @@ class Argument_Recovery_Sift:
             for oi_feature in self.updated_oi_features
         )
 
-    def update_type_combination_keys(self, iteration : int):
+    def update_type_combination_keys(self, iteration : int) -> None:
         #check for already existing features to update their typing if necessary
         for oi_feature in self.order_id_features:
             type_combination = self.sift_iterations[iteration].LOCM_types.update_type_combination(
@@ -125,7 +129,7 @@ class Argument_Recovery_Sift:
             if new_patterns:
                 self.updated_oi_features.add(oi_feature)
 
-    def run_iteration(self, iteration : int, process_pool_args : dict) -> set[Feature]:
+    def run_iteration(self, iteration : int, process_pool_args : dict) -> set[OIFeature]:
         features = self.sift_iterations[iteration].run(process_pool_args)
         action_arities = self.sift_iterations[iteration].LOCM_types.get_action_arities()
         equivalent_switching_patterns = self.sift_iterations[iteration].equivalent_switching_patterns
@@ -193,7 +197,7 @@ class Argument_Recovery_Sift:
         process_pool_args : dict,
         max_iterations : int = 0,
         find_oi_features_in_last_iteration : bool = False
-    ):
+    ) -> Tuple[Set[OIFeature], Set[Feature]]:
         iteration = 0
         input_changed = True
         #self.arg_feature_assignments = dict()
@@ -214,6 +218,7 @@ class Argument_Recovery_Sift:
             )
             self.sift_iterations[iteration].delete_complex_pattern_relations()
 
+            #TODO clean up oifeatures additional_arguments.
             input_changed, arg_feature_assignment = self.update_graphs(
                 tuple(
                     feature
@@ -235,10 +240,17 @@ class Argument_Recovery_Sift:
                     for index, assignment in assignments.items():
                         self.arg_feature_assignments[action][index] = assignment
 
-        if find_oi_features_in_last_iteration:
-            self.run_iteration(iteration, process_pool_args)
+        if input_changed:
+            if find_oi_features_in_last_iteration:
+                #Search for both types of features in last run
+                self.run_iteration(iteration, process_pool_args)
+            else:
+                #Only search for base Sift features in last run
+                self.sift_iterations[iteration].run(process_pool_args)
         else:
-            self.sift_iterations[iteration].run(process_pool_args)
+            #Remove prepared iteration as it wont change anything anymore
+            _ = self.sift_iterations.pop(iteration, None)
+            iteration -= 1
 
         return (
             self.admissible_order_id_features,
@@ -248,7 +260,7 @@ class Argument_Recovery_Sift:
     def update_graphs(self,
         new_oi_features : tuple[OIFeature],
         iteration : int
-    ):
+    ) -> Tuple[bool, pt.Arg_Feature_AssignmentT]:
         new_graphs = list()
         arities = dict()
         arg_feature_assignment = dict()

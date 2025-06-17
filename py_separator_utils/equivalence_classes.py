@@ -54,7 +54,7 @@ class EquivalenceClasses(Generic[T]):
                 output.add(rel)
         return output
 
-    def update(self, other : 'EquivalenceClasses[T]'):
+    def update(self, other : 'EquivalenceClasses[T]') -> None:
         for relation in other._equivalences:
             self.add_relation(relation)
         self._invalid_items.update(other._invalid_items)
@@ -92,7 +92,7 @@ class EquivalenceClasses(Generic[T]):
                 output.add(rel)
         return output
 
-    def is_equivalent(self, elem1, elem2):
+    def is_equivalent(self, elem1, elem2) -> bool:
         if elem1 in self._invalid_items or elem2 in self._invalid_items:
             return False
         

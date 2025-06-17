@@ -1,6 +1,7 @@
 import itertools
 import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
+from typing import Set, Dict, List
 class LOCM_Types:
     def __init__(self):
         self.action_arities = dict()
@@ -16,7 +17,7 @@ class LOCM_Types:
         self.all_patterns_per_type_combination = dict()
         self.all_groundings_per_type_combination = dict()
 
-    def clear_instance_information(self):
+    def clear_instance_information(self) -> None:
         #deletes all information about instances and their objects
         #but preserves info over arguments
         self.obj_types = dict()
@@ -25,7 +26,7 @@ class LOCM_Types:
         self.known_instances = set()
         self.all_groundings_per_type_combination = dict()
 
-    def add_obj_to_type(self, arg : pt.ArgPosT, obj : pt.ObjectInstT):
+    def add_obj_to_type(self, arg : pt.ArgPosT, obj : pt.ObjectInstT) -> bool:
         changed_arg_type = False
         type_arg = self.arg_types.get(arg)
         type_obj = self.obj_types.get(obj)
@@ -80,8 +81,8 @@ class LOCM_Types:
         return changed_arg_type
 
     def update_LOCM_types_from_groundings(self,
-        ground_edges : set[pt.Ground_Edge_Info], instance : int
-    ):
+        ground_edges : pt.SetLike[pt.Ground_Edge_Info], instance : int
+    ) -> bool:
         self.known_instances.add(instance)
         #We need to store objects as instance id + object id to tell apart the same object id in diff instances
         changed_arg_type = False
@@ -107,30 +108,35 @@ class LOCM_Types:
             new_type_combination.add(
                 self.get_current_id_of_type(types), uses
             )
+        #Recreate TypeCombi on return to allow optimizations on element storage.
+        #e.g. sorting.
         return pt.TypeCombi(new_type_combination)
 
-    def get_arg_type(self, arg : pt.ArgPosT):
+    def get_arg_type(self, arg : pt.ArgPosT) -> pt.TypeT:
         if arg in self.arg_types:
             return self.arg_types[arg]
         else:
             raise ValueError("please add all possible groundings to database before requesting types.")
 
-    def get_obj_type(self, obj : pt.ObjectInstT):
+    def get_obj_type(self, obj : pt.ObjectInstT) -> pt.TypeT:
         if obj in self.obj_types:
             return self.obj_types[obj]
         else:
             raise ValueError("please add all possible groundings to database before requesting types.")
 
-    def get_current_id_of_type(self, type_var):
+    def get_current_id_of_type(self, type_var : pt.TypeT) -> pt.TypeT:
         if type_var in self.updated_types:
             return self.updated_types[type_var]
         else:
             return type_var
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"LOCM_Types args: ({self.type_args}) objs: ({self.type_objs})"
 
-    def get_all_type_combinations(self):
+    def __repr__(self) -> str:
+        return f"LOCMT A: ({self.type_args}) O: ({self.type_objs})"
+
+    def get_all_type_combinations(self) -> Dict[int, Set[pt.TypeCombi]]:
         if not self.type_combinations is None:
             return self.type_combinations
         self.type_combinations = dict()
@@ -144,10 +150,14 @@ class LOCM_Types:
                 type_combi = pt.TypeCombi()
                 for arg in arg_combi:
                     type_combi.add(self.get_arg_type((action,arg)))
+                #Reinit to allow sorting the entries
+                type_combi = pt.TypeCombi(type_combi)
                 self.type_combinations[len(arg_combi)].add(type_combi)
         return self.type_combinations
 
-    def get_all_patterns_for_typecombination(self, type_combination) -> set[pt.PatternT]:
+    def get_all_patterns_for_typecombination(
+        self, type_combination : pt.TypeCombi
+    ) -> Set[pt.PatternT]:
         type_combination = self.update_type_combination(type_combination)
         if type_combination in self.all_patterns_per_type_combination:
             return self.all_patterns_per_type_combination[type_combination]
@@ -175,7 +185,9 @@ class LOCM_Types:
             self.all_patterns_per_type_combination[type_combination] = res
             return self.all_patterns_per_type_combination[type_combination]
 
-    def get_all_groundings_for_typecombination(self, type_combination):
+    def get_all_groundings_for_typecombination(
+        self, type_combination : pt.TypeCombi
+    ) -> Dict[int, Set[pt.GroundingT]]:
         type_combination = self.update_type_combination(type_combination)
         if type_combination in self.all_groundings_per_type_combination:
             return self.all_groundings_per_type_combination[type_combination]

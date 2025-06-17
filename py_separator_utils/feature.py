@@ -2,7 +2,7 @@ import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 from py_separator_utils.object_types import LOCM_Types
 from itertools import permutations
-from typing import Optional
+from typing import Optional, Tuple, Set, FrozenSet, Dict, List
 import sys
 #features will invalitate themselfs on a color failure
 #remember to deepcopy them for testing unsafe graphs
@@ -22,7 +22,7 @@ class Feature:
             #all patterns will appear sometimes
             #color splits need to be a list to allow ordered removal
             self.color_splits = [
-                [{pat},set(),set(),set(),set(),set()] for pat in selected_patterns
+                ({pat},set(),set(),set(),set(),set()) for pat in selected_patterns
             ]
         else:
             #extends a feature by unseen patterns
@@ -47,12 +47,15 @@ class Feature:
             #in the begining we do not know any relative colour information
             #all patterns will appear sometimes
             #color splits need to be a list to allow ordered removal
-            self.color_splits = other.color_splits.extend(
-                [[{pat},set(),set(),set(),set(),set()]
-                for pat in selected_patterns.difference(
-                    set().union(*(other.color_splits[0]))
-                    .union(*(other.color_splits[1]))
-            )])
+            if other.color_splits is None:
+                self.color_splits = None
+            else:
+                self.color_splits = other.color_splits.copy().extend(
+                    [({pat},set(),set(),set(),set(),set())
+                    for pat in selected_patterns.difference(
+                        set().union(*(other.color_splits[0]))
+                        .union(*(other.color_splits[1]))
+                )])
         self.unselected_patterns = set(
             self.all_patterns.difference(self.selected_patterns)
         )
@@ -61,16 +64,16 @@ class Feature:
         self.precondition_splits = None
         self.undefined_preconditions = None
 
-    def delete_initial_atoms(self):
+    def delete_initial_atoms(self) -> None:
         if not self.is_invalid():
             for split in self.color_splits:
-                split[4] = set()
-                split[5] = set()
+                split[4].clear()
+                split[5].clear()
             self.precondition_splits = None
 
     def parse_edge_label(self, edge_label : pt.Edge_LabelT,
         grounding : pt.GroundingT
-    ):
+    ) -> Tuple[bool, bool, Set[pt.PatternT], Set[pt.PatternT]]:
         #grounding a tupel holding the currently active objects
         #TODO handle unknown object -2
         found_matching = False
@@ -119,14 +122,16 @@ class Feature:
             matching_selected_pattens,
             matching_unselected_pattens)
 
-    def add_color_constraint(self, pattern_colors : list):
+    def add_color_constraint(
+        self, pattern_colors : pt.ColorSplitT
+    ) -> Optional[pt.ColorSplitT]:
         #pattern_colors is a list of four sets of patterns
         if self.is_invalid():
             return None
         #new_split will grow with any old split it connects
-        new_split = [set(pattern_colors[0]),set(pattern_colors[1]),
+        new_split = (set(pattern_colors[0]),set(pattern_colors[1]),
             set(pattern_colors[2]),set(pattern_colors[3]),
-            set(pattern_colors[4]),set(pattern_colors[5])]
+            set(pattern_colors[4]),set(pattern_colors[5]))
         if (
             (not new_split[0].issubset(self.selected_patterns)) or 
             (not new_split[1].issubset(self.selected_patterns))
@@ -178,7 +183,7 @@ class Feature:
 
     def color_graph(self, instance : int, Graph : pt.GraphT, initial_state : pt.NodeT,
         grounding : pt.GroundingT
-    ):
+    ) -> Optional[Dict[pt.NodeT, Optional[int]]]:
         if self.is_invalid():
             return None
         node_color = {i: None for i in Graph.nodes()}
@@ -240,7 +245,7 @@ class Feature:
 
     def extend_seen_patterns(self, new_patterns : pt.PatternTSetLike,
         new_type_combination : pt.TypeCombi
-    ):
+    ) -> None:
         if not new_type_combination is None:
             self.type_combination = new_type_combination
         extend_set = new_patterns.difference(self.all_patterns)
@@ -249,32 +254,32 @@ class Feature:
         self.precondition_splits = None
         self.undefined_preconditions = None
 
-    def get_type_combination(self):
+    def get_type_combination(self) -> pt.TypeCombi:
         return self.type_combination
 
-    def set_type_combination(self, type_combination : pt.TypeCombi):
+    def set_type_combination(self, type_combination : pt.TypeCombi) -> None:
         self.type_combination = type_combination
         self.type_combination.freeze()
 
-    def invalitate(self):
+    def invalitate(self) -> None:
         self.color_splits = None
         self.precondition_splits = None
         self.undefined_preconditions = None
 
-    def is_invalid(self):
+    def is_invalid(self) -> bool:
         return self.color_splits == None
 
-    def get_selected_patterns(self):
+    def get_selected_patterns(self) -> Set[pt.PatternT]:
         return set(self.selected_patterns)
 
-    def get_identifier(self):
+    def get_identifier(self) -> FrozenSet[pt.PatternT]:
         #returns the frozenset to use as key in dicts
         #in theory a feature is completly determined by the selected patterns
         #all other vars are merly computional caches
         #converging into the same form for the same input no matter the order
         return self.selected_patterns
 
-    def get_extended_identifier(self):
+    def get_extended_identifier(self) -> FrozenSet[FrozenSet[pt.PatternT]]:
         #returns a frozenset of all the frozensets
         #with the same meaning to use as key in dicts
         #in theory a feature is completly determined by the selected patterns
@@ -298,18 +303,18 @@ class Feature:
         self.extend_identifier = frozenset(extend_identifier)
         return self.extend_identifier
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         #implemented hash to allow direct use in dicts
         #only the first added feature will be present in a set
         #in most cases this should be the desired behaviour
         return hash(self.get_extended_identifier())
 
-    def __eq__(self, other):
+    def __eq__(self, other : object) -> bool:
         if isinstance(other, Feature):
             return self.get_extended_identifier() == other.get_extended_identifier()
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.is_invalid():
             return f"Feature is invalid. {self.get_identifier()}"
 
@@ -331,64 +336,61 @@ class Feature:
 
         return "\n".join(output_lines)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Feature({self.get_identifier()}, {not self.is_invalid()})"
 
-    def get_not_selected_patterns(self):
+    def get_not_selected_patterns(self) -> Set[pt.PatternT]:
         return set(self.unselected_patterns)
 
-    def get_all_patterns(self):
+    def get_all_patterns(self) -> Set[pt.PatternT]:
         return set(self.all_patterns)
 
-    def get_color_splits(self):
-        return self.color_splits
+    def get_color_splits(self) -> List[pt.ColorSplitT]:
+        return self.color_splits.copy()
 
-    def has_unique_colouring(self):
+    def has_unique_colouring(self) -> bool:
         if (self.color_splits == None):
             return False
         return len(self.color_splits) == 1
 
-    def has_valid_backup(self):
+    def has_valid_backup(self) -> bool:
         return self.backup_color_splits is not None
 
-    def overwrite_feature(self, other):
+    def overwrite_feature(self, other : 'Feature') -> None:
         if not isinstance(other, Feature):
             raise ValueError("A feature can only be overwritten by a feature.")
         elif (other.selected_patterns != self.selected_patterns):
             raise ValueError("A feature can only be overwritten by a logically identical feature.")
         else:
             self.type_combination = other.type_combination
-            self.all_patterns = set(other.all_patterns)
-            if other.color_splits is None:
-                self.color_splits = None
-            else:
-                self.color_splits = list(other.color_splits)
-            self.unselected_patterns = set(other.unselected_patterns)
-            if other.backup_color_splits is None:
-                self.backup_color_splits = None
-            else:
-                self.backup_color_splits = list(other.backup_color_splits)
+            self.all_patterns = other.all_patterns.copy()
+            self.color_splits = ut.safe_copy(other.color_splits)
+            self.unselected_patterns = other.unselected_patterns.copy()
+            self.backup_color_splits = ut.safe_copy(other.backup_color_splits)
             self.precondition_splits = None
             self.undefined_preconditions = None
 
-    def save_backup(self):
+    def save_backup(self) -> None:
         #shallow copy should be enough as we only add a new color split and delete the older ones
         #but we do not manipulate the content of an older split.
         if not is_invalid(self):
-            self.backup_color_splits = list(self.color_splits)
+            self.backup_color_splits = self.color_splits.copy()
 
-    def restore_backup(self):
+    def restore_backup(self) -> None:
         if self.has_valid_backup():
-            self.color_splits = list(self.backup_color_splits)
+            self.color_splits = self.backup_color_splits.copy()
 
-    def has_changed_since_backup(self):
+    def has_changed_since_backup(self) -> bool:
         if self.is_invalid():
             return True
         if not self.has_valid_backup():
             return True
         return not sorted(self.color_splits) == sorted(self.backup_color_splits)
 
-    def extract_precondition_splits(self):
+    def extract_precondition_splits(self) -> Optional[Tuple[
+            List[pt.PreconditionSplitT],
+            Set[pt.PatternT]
+        ]]:
         if self.is_invalid():
             return None
         if not self.precondition_splits is None:
@@ -399,20 +401,28 @@ class Feature:
             impossible_prec.update(color_split[2].intersection(color_split[3]))
             defined_prec.update(color_split[2].union(color_split[3]))
         undefined_precs = self.unselected_patterns.difference(defined_prec)
-        precondition_split = list()
+        precondition_splits = list()
         for color_split in self.color_splits:
-            precondition_split.append([color_split[0],color_split[1],color_split[2].difference(impossible_prec),color_split[3].difference(impossible_prec),color_split[4],color_split[5]])
+            precondition_splits.append((color_split[0],color_split[1],color_split[2].difference(impossible_prec),color_split[3].difference(impossible_prec),color_split[4],color_split[5]))
         #chache the results until splits are changed again
-        self.precondition_splits = precondition_split
+        self.precondition_splits = precondition_splits
         self.undefined_preconditions = undefined_precs
-        return precondition_split, undefined_precs
+        return self.precondition_splits, self.undefined_preconditions
 
-    def get_number_of_split_combinations(self):
+    def get_number_of_split_combinations(self) -> int:
         if self.is_invalid():
             return None
         return int(2**(len(self.color_splits) - 1))
 
-    def get_color_split_combination(self, index : int):
+    def get_color_split_combination(self, index : int) -> Optional[Tuple[
+        Set[pt.PatternT],
+        Set[pt.PatternT],
+        Set[pt.PatternT],
+        Set[pt.PatternT],
+        Set[pt.PatternT],
+        Set[Tuple[int,pt.GroundingT]],
+        Set[Tuple[int,pt.GroundingT]],
+    ]]:
         if not (0 <= index < self.get_number_of_split_combinations()):
             return None
         add_list = set()
@@ -438,7 +448,7 @@ class Feature:
         neg_precs.difference_update(remove_list)
         return add_list, del_list, pos_precs, neg_precs, undefined_precs, init_true_atoms, init_false_atoms
 
-    def get_type_sorted_feature(self, locm_types : LOCM_Types):
+    def get_type_sorted_feature(self, locm_types : LOCM_Types) -> 'Feature':
         try:
             if self.type_combination.size() < 2:
                 #We do not need to sort a tuple of size 1 or 0
@@ -461,7 +471,7 @@ class Feature:
             if self.color_splits is not None:
                 color_splits = list()
                 for split in self.color_splits:
-                    new_split = [
+                    new_split = (
                         set(pattern_mapping[pattern] for pattern in split[0]),
                         set(pattern_mapping[pattern] for pattern in split[1]),
                         set(pattern_mapping[pattern] for pattern in split[2]),
@@ -476,7 +486,7 @@ class Feature:
                             key=lambda x: locm_types.get_obj_type((instance,x))
                         ))) for (instance, grounding) in split[5]
                         )
-                    ]
+                    )
                     color_splits.append(new_split)
             else:
                 color_splits = None
