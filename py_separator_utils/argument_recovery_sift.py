@@ -14,11 +14,14 @@ class Argument_Recovery_Sift:
     ):
         self.sift_iterations = dict()
         self.sift_iterations[0] = SIFT(graphs)
-        self.order_id_features = set()
+        self.order_id_features = dict()
+        self.order_id_features[0] = set()
         self.arg_feature_assignments = dict()
-        self.admissible_order_id_features = set()
-        self.argument_identifier_features = tuple()
-        self.updated_oi_features = set()
+        self.admissible_order_id_features = dict()
+        self.argument_identifier_features = dict()
+        self.argument_identifier_features[0] = tuple()
+        self.updated_oi_features = dict()
+        self.updated_oi_features[0] = set()
     @classmethod
     def _check_feature(
         cls, oi_feature : OIFeature,
@@ -56,7 +59,7 @@ class Argument_Recovery_Sift:
                 self.sift_iterations[iteration].LOCM_types
             )
         oi_features_sorting = dict()
-        for oi_feature in self.order_id_features:
+        for oi_feature in self.order_id_features[iteration]:
             #there may be errors leading to a feature not being sorted
             if oi_feature.existence_feature is None:
                 oi_features_sorting[oi_feature] = oi_feature.get_type_sorted_feature(
@@ -83,22 +86,22 @@ class Argument_Recovery_Sift:
             features_sorting.get(feature,feature)
             for feature in self.sift_iterations[iteration].admissible_features
         )
-        self.order_id_features = set(
+        self.order_id_features[iteration] = set(
             oi_features_sorting.get(oi_feature,oi_feature)
-            for oi_feature in self.order_id_features
+            for oi_feature in self.order_id_features[iteration]
         )
-        self.argument_identifier_features = tuple(
+        self.argument_identifier_features[iteration] = tuple(
             oi_features_sorting.get(oi_feature,oi_feature)
-            for oi_feature in self.argument_identifier_features
+            for oi_feature in self.argument_identifier_features[iteration]
         )
-        self.updated_oi_features = set(
+        self.updated_oi_features[iteration] = set(
             oi_features_sorting.get(oi_feature,oi_feature)
-            for oi_feature in self.updated_oi_features
+            for oi_feature in self.updated_oi_features[iteration]
         )
 
     def update_type_combination_keys(self, iteration : int) -> None:
         #check for already existing features to update their typing if necessary
-        for oi_feature in self.order_id_features:
+        for oi_feature in self.order_id_features[iteration]:
             type_combination = self.sift_iterations[iteration].LOCM_types.update_type_combination(
                 oi_feature.get_type_combination()
             )
@@ -127,7 +130,7 @@ class Argument_Recovery_Sift:
             new_patterns.difference_update(oi_feature.pre_patterns)
             oi_feature.update_pre_patterns(new_patterns)
             if new_patterns:
-                self.updated_oi_features.add(oi_feature)
+                self.updated_oi_features[iteration].add(oi_feature)
 
     def run_iteration(self, iteration : int, process_pool_args : dict) -> set[OIFeature]:
         features = self.sift_iterations[iteration].run(process_pool_args)
@@ -140,7 +143,7 @@ class Argument_Recovery_Sift:
             ].get_dead_switching_patterns_for_typecombination(
                 feature.get_type_combination()
             )
-            self.order_id_features.update(
+            self.order_id_features[iteration].update(
                 OIFeature.expand_existence_feature(
                     feature,
                     dead_patterns,
@@ -154,7 +157,7 @@ class Argument_Recovery_Sift:
                 all_patterns = self.sift_iterations[iteration].LOCM_types.get_all_patterns_for_typecombination(type_combination)
                 dead_patterns = self.sift_iterations[iteration].get_dead_switching_patterns_for_typecombination(type_combination)
                 equivalent_switching_patterns = self.sift_iterations[iteration].equivalent_switching_patterns
-                self.order_id_features.update(
+                self.order_id_features[iteration].update(
                     OIFeature.create_io_features_for_static_type_combination(
                         type_combination,
                         all_patterns,
@@ -166,10 +169,10 @@ class Argument_Recovery_Sift:
         #run ar sift
         with ProcessPoolExecutor(**process_pool_args) as process_pool:
             runs = dict()
-            for oi_feature in self.order_id_features:
+            for oi_feature in self.order_id_features[iteration]:
                 if oi_feature.is_invalid():
                     continue
-                if oi_feature in self.argument_identifier_features and oi_feature not in self.updated_oi_features:
+                if oi_feature in self.argument_identifier_features[iteration] and oi_feature not in self.updated_oi_features[iteration]:
                     #no need to check them again
                     #unless they got more prec patterns
                     #TODO prec pat
@@ -187,11 +190,12 @@ class Argument_Recovery_Sift:
                 except Exception as e:
                     sys.stderr.write(f"Error processing {oi_feature}: {e}")
 
-        for feature in self.order_id_features:
+        self.admissible_order_id_features[iteration] = set()
+        for feature in self.order_id_features[iteration]:
             if not feature.is_invalid():
-                self.admissible_order_id_features.add(feature)
+                self.admissible_order_id_features[iteration].add(feature)
 
-        return self.admissible_order_id_features
+        return self.admissible_order_id_features[iteration]
 
     def run(self,
         process_pool_args : dict,
@@ -207,28 +211,41 @@ class Argument_Recovery_Sift:
         ):
             self.run_iteration(iteration, process_pool_args)
             new_oi_features = tuple(
-                self.admissible_order_id_features.difference(self.argument_identifier_features)
+                self.admissible_order_id_features[iteration].difference(self.argument_identifier_features[iteration])
             )
             for oi_feature in new_oi_features:
                 oi_feature.update_argument_identifier_patterns()
-            self.argument_identifier_features = self.argument_identifier_features + new_oi_features
+            self.argument_identifier_features[iteration] = self.argument_identifier_features[iteration] + new_oi_features
+
             iteration += 1
+
             self.sift_iterations[iteration] = copy.deepcopy(
                 self.sift_iterations[iteration - 1]
+            )
+            mapping_dict = dict()
+            self.order_id_features[iteration] = set()
+            for oi_feature in self.order_id_features[iteration - 1]:
+                new_oi_feature = copy.deepcopy(oi_feature)
+                mapping_dict[oi_feature] = new_oi_feature
+                self.order_id_features[iteration].add(new_oi_feature)
+            self.argument_identifier_features[iteration] = tuple(
+                mapping_dict[oi_feature]
+                for oi_feature in self.argument_identifier_features[iteration - 1]
+            )
+            revised_oi_features = tuple(
+                mapping_dict[oi_feature]
+                for oi_feature in self.argument_identifier_features[iteration - 1]
+                if not oi_feature.is_invalid() and
+                oi_feature in self.updated_oi_features[iteration - 1].union(new_oi_features)
             )
             self.sift_iterations[iteration].delete_complex_pattern_relations()
 
             #TODO clean up oifeatures additional_arguments.
             input_changed, arg_feature_assignment = self.update_graphs(
-                tuple(
-                    feature
-                    for feature in self.argument_identifier_features
-                    if feature in self.updated_oi_features and
-                    not feature.is_invalid()
-                ) + new_oi_features,
+                revised_oi_features,
                 iteration
             )
-            self.updated_oi_features = set()
+            self.updated_oi_features[iteration] = set()
 
             self.type_sort_features(iteration)
             self.update_type_combination_keys(iteration)
@@ -250,10 +267,20 @@ class Argument_Recovery_Sift:
         else:
             #Remove prepared iteration as it wont change anything anymore
             _ = self.sift_iterations.pop(iteration, None)
+            _ = self.order_id_features.pop(iteration, None)
+            _ = self.updated_oi_features.pop(iteration, None)
+            _ = self.argument_identifier_features.pop(iteration, None)
+            _ = self.admissible_order_id_features.pop(iteration, None)
             iteration -= 1
 
+        #An oi feature may not have been changed in the final iteration
+        #and thus not been checked again and marked as admissible.
+        overall_admissible_order_id_features = set()
+        for _, admissible_features in reversed(sorted(self.admissible_order_id_features.items())):
+            #reverse order so the most recent version is reported
+            overall_admissible_order_id_features.update(admissible_features)
         return (
-            self.admissible_order_id_features,
+            overall_admissible_order_id_features,
             self.sift_iterations[iteration].admissible_features
         )
 
