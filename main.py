@@ -391,27 +391,17 @@ def process_instance(args: argparse.Namespace):
                 args.verification_instance
             )
             for (early_termination, neg_mode, graphs) in verification_cases:
-                if neg_mode or not early_termination:
-                    for graph in graphs:
-                        graph = [graph]
-                        local_verifier = copy.deepcopy(verifier)
-                        local_verifier.replace_graphs(graph)
-                        local_features = local_verifier.run(process_pool_args)
-                        failure_servity = compare_features(
-                            features, local_features
-                        )
-                        if neg_mode and failure_servity < 2:
-                            verification_val += 1
-                        elif not neg_mode and failure_servity > 0:
-                            verification_val += 1
-                else:
+                for graph in graphs:
+                    graph = [graph]
                     local_verifier = copy.deepcopy(verifier)
-                    local_verifier.replace_graphs(graphs)
+                    local_verifier.replace_graphs(graph)
                     local_features = local_verifier.run(process_pool_args)
                     failure_servity = compare_features(
                         features, local_features
                     )
-                    if failure_servity > 0:
+                    if neg_mode and failure_servity < 2:
+                        verification_val += 1
+                    elif not neg_mode and failure_servity > 0:
                         verification_val += 1
         return (
             sift.LOCM_types,
