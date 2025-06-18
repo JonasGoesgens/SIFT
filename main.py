@@ -73,12 +73,12 @@ def get_arguments():
                 try:
                     runs = int(runs_str)
                 except ValueError:
-                    sys.stderr.write(f"Invalid number of runs: {runs_str}")
+                    sys.stderr.write(f"Invalid number of runs: {runs_str}\n")
                     continue
                 try:
                     args = single_run_parser.parse_args(arguments)
                 except SystemExit:
-                    sys.stderr.write(f"Invalid arguments in line {str(i)}.")
+                    sys.stderr.write(f"Invalid arguments in line {str(i)}.\n")
                     continue
                 parsed_args.append((runs,args))
     else:
@@ -140,8 +140,7 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
         split_input = instance.split(',')
 
         if 1 >= len(split_input) or len(split_input) > 5:
-            print(len(split_input))
-            print('Length of input {} does not fit!'.format(instance))
+            sys.stderr.write('Length {} of input {} does not fit!\n'.format(len(split_input),instance))
             continue
 
         instance_path = split_input[0]
@@ -152,34 +151,34 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
         instance_early_term = False
 
         if not os.path.exists(instance_path):
-            print('For input {} the path {} does not exist'.format(instance, split_input[0]))
+            sys.stderr.write('For input {} the path {} does not exist\n'.format(instance, split_input[0]))
             continue
 
         if not instance_mode in modes:
-            print('For input {} mode {} does not exist!'.format(instance, split_input[1]))
+            sys.stderr.write('For input {} mode {} does not exist!\n'.format(instance, split_input[1]))
             continue
         elif instance_mode in neg_modes:
             instance_neg_sample = True
             idx = neg_modes.index(instance_mode)
             if idx >= len(pos_modes):
-                print('No pos mode known for neg mode {}'.format(instance_mode))
+                sys.stderr.write('No pos mode known for neg mode {}!\n'.format(instance_mode))
                 continue
             instance_mode = pos_modes[idx]
 
         if instance_mode in partial_modes and len(split_input) < 3:
-            print('For input {} no specification of input size!'.format(instance))
+            sys.stderr.write('For input {} no specification of input size!\n'.format(instance))
             continue
 
         if len(split_input) >= 3:
             instance_edges = int(split_input[2])
             if instance_edges < 1:
-                print('No valid number of edges!')
+                sys.stderr.write('No valid number of edges!\n')
                 continue
 
         if len(split_input) >= 4:
             instance_samples = int(split_input[3])
             if instance_samples < 1:
-                print('No valid number of traces!')
+                sys.stderr.write('No valid number of traces!\n')
                 continue
 
         if len(split_input) == 5:
@@ -189,7 +188,7 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
             elif split_input_val_5 == 1:
                 instance_early_term = True
             else:
-                print('No valid truth value for early termination!')
+                sys.stderr.write('No valid truth value for early termination!\n')
                 continue
 
         instances.append((instance_early_term,
