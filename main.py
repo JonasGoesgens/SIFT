@@ -315,17 +315,17 @@ def process_instance(args: argparse.Namespace):
 
     #print(args.instance)
 
-    for instance in args.instance:
+    for instance_path in args.instance:
 
         # create problem path
-        problem_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), instance)
-        instance = create_graphs_from_input(
+        problem_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), instance_path)
+        instance_graph_list = create_graphs_from_input(
             domain_path, problem_path,
             args.learning_mode, args.learning_size,
             args.learning_number_inputs, False
         )
         if recover_args_mode:
-            for graph, _ in instance:
+            for graph, _ in instance_graph_list:
                 for u, v, data in graph.edges(data=True):
                     labels = data['action']
                     new_labels = set()
@@ -337,7 +337,7 @@ def process_instance(args: argparse.Namespace):
                             new_label = label
                         new_labels.add(new_label)
                     data['action'] = new_labels
-        instance_list += instance
+        instance_list += instance_graph_list
     #print(instance_list)
     process_pool_args = {'max_workers' : args.processes}
     number_samples = args.learning_number_inputs
