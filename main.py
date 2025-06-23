@@ -1,5 +1,6 @@
 from py_separator_utils.sift import SIFT
 from py_separator_utils.argument_recovery_sift import Argument_Recovery_Sift as ARSift
+from py_separator_utils.argument_recovery_sift import StratificationError
 from py_separator_utils.feature import Feature
 import py_separator_utils.py_types as pt
 import os
@@ -312,8 +313,6 @@ def process_instance(args: argparse.Namespace):
     instance_list = list()
     meta_info = dict()
 
-    #print(args.instance)
-
     for instance_path in args.instance:
 
         # create problem path
@@ -337,7 +336,7 @@ def process_instance(args: argparse.Namespace):
                         new_labels.add(new_label)
                     data['action'] = new_labels
         instance_list += instance_graph_list
-    #print(instance_list)
+
     process_pool_args = {'max_workers' : args.processes}
     number_samples = args.learning_number_inputs
     if args.learning_mode == 'fg':
@@ -363,22 +362,73 @@ def process_instance(args: argparse.Namespace):
         meta_info['admissible_oi_features'] = len(oi_features)
         meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
         meta_info['action_arities'] = ar_sift.sift_iterations[iteration].LOCM_types.action_arities
-        #TODO Verification
+
+        verification_val = 0
+        if args.verification_instance is not None:
+            verifier = copy.deepcopy(ar_sift)
+            #add empty list on purpose to speed up further deep copies.
+            verifier.replace_graphs(list())
+
+            verification_cases = get_verification_instances(
+                domain_path,
+                args.verification_instance
+            )
+
+            for early_termination, neg_mode, graph_list in verification_cases:
+                for graph, _ in graph_list:
+                    for u, v, data in graph.edges(data=True):
+                        labels = data['action']
+                        new_labels = set()
+                        for label in labels:
+                            if label[0] in mask_dict:
+                                mask = mask_dict[label[0]]
+                                new_label = (label[0],tuple(x for i, x in enumerate(label[1]) if i not in mask))
+                            else:
+                                new_label = label
+                            new_labels.add(new_label)
+                        data['action'] = new_labels
+
+            for (early_termination, neg_mode, graphs) in verification_cases:
+                for graph in graphs:
+                    graph = [graph]
+                    local_verifier = copy.deepcopy(verifier)
+                    local_verifier.replace_graphs(graph)
+                    try:
+                        local_oi_features, local_features = local_verifier.run(
+                            process_pool_args,
+                            max_iterations,
+                            False,
+                            verification_mode = True
+                        )
+                    except StratificationError as e:
+                        if neg_mode:
+                            #Something was expected to fail so this is correct.
+                            continue
+                        else:
+                            verification_val += 1
+                            continue
+                    #All arguments should be correctly recovered so check normal sift features
+                    failure_servity = compare_features(
+                        features, local_features
+                    )
+                    if neg_mode and failure_servity < 2:
+                        verification_val += 1
+                    elif not neg_mode and failure_servity > 0:
+                        verification_val += 1
+
         return(
             ar_sift.sift_iterations[iteration].LOCM_types,
             oi_features,
             features,
-            0,
+            verification_val,
             meta_info
         )
     else:
         sift = SIFT(instance_list)
         oi_features = set()
-        #print("sift initialized")
         features = sift.run(process_pool_args)
         meta_info['all_features'] = len(sift.all_features)
         meta_info['admissible_features'] = len(features)
-        #print("sift main run completed")
         verification_val = 0
         if args.verification_instance is not None:
             verifier = copy.deepcopy(sift)

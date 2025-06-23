@@ -355,7 +355,6 @@ class SIFT:
                     merge = True
                     break
 
-        #print(self.equivalent_patterns)
         #generate all features, typecombinations for zeronary features included
         for arity, type_combinations in sorted(
             self.LOCM_types.get_all_type_combinations().items()
@@ -380,7 +379,6 @@ class SIFT:
                         pats
                     ))
 
-        #print(f"Num Features to test: {len(self.all_features)}")
         #run sift
         with ProcessPoolExecutor(**process_pool_args) as process_pool:
             runs = dict()
