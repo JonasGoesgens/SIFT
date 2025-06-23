@@ -384,6 +384,10 @@ class Ordered_Identifier_Feature:
                 return True
         return self.additional_arguments == None
 
+    def delete_identified_arguments(self) -> None:
+        if not self.is_invalid():
+            self.additional_arguments = dict()
+
     def get_type_sorted_feature(self,
         locm_types : LOCM_Types,
         new_existence_feature : Optional[Feature]

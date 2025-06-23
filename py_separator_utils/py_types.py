@@ -2,7 +2,7 @@ import typing
 import networkx as nx
 import py_separator_utils.hashable_multiset as hm
 ActionT = typing.Union[int, str]
-#ActtionT is the identifier of an action, represented by an int or string
+#ActionT is the identifier of an action, represented by an int or string
 ArityInfoT = typing.Dict[ActionT, int]
 #ArityInfoT gives the arity of all actions.
 TypeT = int
