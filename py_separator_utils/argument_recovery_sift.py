@@ -343,7 +343,7 @@ class Argument_Recovery_Sift:
 
             #TODO clean up oifeatures additional_arguments.
             old_arities = self.sift_iterations[iteration - 1].LOCM_types.action_arities.copy()
-            input_changed, arg_feature_assignment = self.update_graphs(
+            input_changed, arg_feature_assignment, _ = self.update_graphs(
                 self.revised_oi_features[iteration - 1],
                 iteration,
                 old_arities
@@ -406,7 +406,9 @@ class Argument_Recovery_Sift:
         new_graphs = dict()
         arities = dict()
         arg_feature_assignment = dict()
+        all_arg_feature_assignments = dict()
         arg_conflicts = ConflictManager[Tuple[pt.ActionT,int]]()
+        arg_emulations = ConflictManager[Tuple[pt.ActionT,int]]()
         new_label = None
 
         some_label = None
@@ -441,6 +443,12 @@ class Argument_Recovery_Sift:
                                     (new_label[0],pt.ObjectNotKnown),
                                     (new_label[0],new_index)
                                 )
+                            for index, arg in enumerate(new_label[1]):
+                                if new_arg != arg:
+                                    arg_emulations.add_conflict(
+                                            (new_label[0],index),
+                                            (new_label[0],new_index)
+                                    )
                             new_label = (new_label[0], new_label[1]+(new_arg,))
                     arities[new_label[0]] = max(arities.get(new_label[0],0),len(new_label[1]))
                     edge_label.remove(label)
@@ -477,6 +485,21 @@ class Argument_Recovery_Sift:
                 for ai_pattern in oi_feature.argument_identifier_patterns:
                     arg_feature_assignment[action][index] = (oi_feature,ai_pattern)
                     index += 1
+
+        for action, arity in arities.items():
+            all_arg_feature_assignments[action] = dict()
+            for index in range(arity):
+                other_args = set((action, arg) for arg in range(arity))
+                all_arg_feature_assignments[action][index] = set()
+                for _, arg in arg_emulations.find_non_conflicting_elements(
+                    (action, index), other_args
+                ):
+                    if arg in arg_feature_assignment[action]:
+                        all_arg_feature_assignments[action][index].add(
+                            arg_feature_assignment[action][arg]
+                        )
+
+        for action, arity in old_arities.items():
             index = arity
             action_arg_feature_assignment = dict()
             for old_index, assignment in sorted(arg_feature_assignment[action].items()):
@@ -484,6 +507,16 @@ class Argument_Recovery_Sift:
                     action_arg_feature_assignment[index] = assignment
                     index += 1
             arg_feature_assignment[action] = action_arg_feature_assignment
+
+        for action, arity in arities.items():
+            protected_pos = old_arities.get(action,0)
+            index = 0
+            action_arg_feature_assignment = dict()
+            for old_index, assignment in sorted(all_arg_feature_assignments[action].items()):
+                if old_index not in args_to_delete[action] or old_index < protected_pos:
+                    action_arg_feature_assignment[index] = assignment
+                    index += 1
+            all_arg_feature_assignments[action] = action_arg_feature_assignment
 
         for action, arr in arities.items():
             arities[action] = arities[action] - len(args_to_delete[action])
@@ -508,4 +541,5 @@ class Argument_Recovery_Sift:
             key not in old_arities or
             arities[key] > old_arities[key]
             for key in arities
-        ), arg_feature_assignment)
+        ), arg_feature_assignment,
+        all_arg_feature_assignments)
