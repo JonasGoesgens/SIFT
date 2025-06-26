@@ -11,12 +11,14 @@ from contextlib import redirect_stderr
 import argparse
 import typing
 import copy
+import clingo
 from pathlib import Path
 import networkx as nx
 from py_separator_utils.mimir_holder import mimir_holder
 from graph_generator import get_trace_rl, get_trace_simple
 from graph_generator import bfs_state_space, get_nx_graph_from_state_space
 from concurrent.futures import ProcessPoolExecutor
+from typing import Set, Dict, Tuple, Union
 
 def get_batch_run_parser():
     parser = argparse.ArgumentParser(
@@ -121,7 +123,7 @@ def create_graphs_from_input(
     print(act_map)
     return instance_list
 
-def read_dict_from_file(filename):
+def read_dict_from_file(filename) -> Dict[pt.ActionT, Set[int]]:
     result = {}
 
     with open(filename, 'r') as file:
@@ -133,7 +135,21 @@ def read_dict_from_file(filename):
 
     return result
 
-def process_instance(args: argparse.Namespace):
+def write_dict_to_file(filename, data : Dict[pt.ActionT, Set[int]]):
+    with open(filename, 'w') as file:
+        for key, value_set in data.items():
+            values = ', '.join(str(v) for v in sorted(value_set))
+            file.write(f"{key}: {values}\n")
+
+def get_clingo_action_string(action : pt.ActionT) -> str:
+    if isinstance(action, int):
+        return str(action)
+    elif isinstance(action, str):
+        return f"\"{action}\""
+    else:
+        raise ValueError("action not of type int or str.")
+
+def generate_clingo_from_instance(args: argparse.Namespace):
     # create domain paths
     domain_path = os.path.join(
         os.path.dirname(
@@ -210,32 +226,87 @@ def process_instance(args: argparse.Namespace):
                     oi_feature_recovery_options.add((action, argument, oi_feature, frozenset()))
                 else:
                     oi_feature_recovery_options.add((action, argument, oi_feature, frozenset(pattern[1])))
-    
+
     clingo_input = ""
 
     for action, arity in old_arities.items():
-        clingo_input += f"action_arity(\"{action}\", {arity}).\n"
+        clingo_input += f"action_arity({get_clingo_action_string(action)}, {arity}).\n"
 
     for oi_feature, mask_dict in oi_feature_requirement_mask.items():
-        requirements_str = ""
+        requirements_list = list()
         for action, requirements in mask_dict.items():
             for argument in requirements:
-                if requirements_str != "":
-                    requirements_str += ", "
-                requirements_str += f"arg_known(\"{action}\", {argument})"
-        if requirements_str != "":
+                requirements_list.append(f"arg_known({get_clingo_action_string(action)}, {argument})")
+
+        if requirements_list:
+            requirements_str = ", ".join(requirements_list)
             clingo_input += f"feature_usable({oi_feature_index_list[oi_feature]}) :- {requirements_str}.\n"
         else:
             clingo_input += f"feature_usable({oi_feature_index_list[oi_feature]}).\n"
 
     for action, argument, oi_feature, requirements in oi_feature_recovery_options:
-        requirements_str = ""
-        for requirement in requirements:
-            requirements_str += f", arg_known(\"{action}\", {requirement})"
-        clingo_input += f"arg_known(\"{action}\", {argument}) :- feature_usable({oi_feature_index_list[oi_feature]}){requirements_str}.\n"
-    #action, arg, feature, additional requirements
+        requirements_list = list(
+            f"arg_known({get_clingo_action_string(action)}, {requirement})"
+            for requirement in requirements
+        )
+        if requirements_list:
+            requirements_str = ", ".join(requirements_list)
+            clingo_input += f"arg_known({get_clingo_action_string(action)}, {argument}) :- feature_usable({oi_feature_index_list[oi_feature]}), {requirements_str}.\n"
+        else:
+            clingo_input += f"arg_known({get_clingo_action_string(action)}, {argument}) :- feature_usable({oi_feature_index_list[oi_feature]}).\n"
 
-    return clingo_input
+    return clingo_input, old_arities
+
+def extract_raw_from_clingo_value(symbol : clingo.Symbol) -> Union[str,int]:
+    if symbol.type == clingo.SymbolType.String:
+        return symbol.string
+    elif symbol.type == clingo.SymbolType.Number:
+        return symbol.number
+    else:
+        raise ValueError("Operation only provided for type int or str.")
+
+def extract_necessary_arguments(model) -> Set[Tuple[pt.ActionT, int]]:
+    return set(
+        (
+            extract_raw_from_clingo_value(atom.arguments[0]),
+            extract_raw_from_clingo_value(atom.arguments[1])
+        )
+        for atom in model.symbols(shown=True)
+        if atom.name == "arg_given"
+    )
+
+def run_clingo_with_rules(clingo_input):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    os.makedirs(os.path.join(dir_path, "clingo", "generated"), exist_ok=True)
+    output_path = dir_path + '/clingo/generated/test.lp'
+    with open(output_path, "w") as out_file:
+        out_file.write(clingo_input)
+
+    ctl = clingo.Control()
+
+    with open(dir_path + "/clingo/Optimization_rules.lp", "r") as f:
+        ctl.add("base", [], f.read())
+
+    # Füge den dynamischen Input hinzu
+    ctl.add("base", [], clingo_input)
+
+    ctl.ground([("base", [])])
+
+    solutions = list()
+
+    def on_model(model):
+        solutions.append((str(model),extract_necessary_arguments(model)))
+
+    ctl.solve(on_model=on_model)
+
+    return solutions
+
+def get_model_string(model) -> str:
+    symbols = model.symbols(shown=True)
+    if not symbols:
+        return "No symbols"
+
+    return ", ".join(str(atom) for atom in symbols)
 
 if __name__ == '__main__':
     # get domain and instance
@@ -254,22 +325,27 @@ if __name__ == '__main__':
             max_number_samples = 1
             for run in range(runs):
                 start_time = time.time()
-                clingo_input = process_instance(args)
+                clingo_input, arities = generate_clingo_from_instance(args)
+                models = run_clingo_with_rules(clingo_input)
                 end_time = time.time()
                 sum_time += end_time - start_time
                 output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
                 output_path = 'output/{}.txt'.format(output_file)
                 with open(output_path, "w") as out_file:
                     out_file.write(clingo_input)
+                    out_file.write(f"Found{len(models)} models\n")
+                    for model_str, necessary_arguments in models:
+                        out_file.write(f"Model quality {len(necessary_arguments)}\n")
+                        for action, arg in necessary_arguments:
+                            out_file.write(f"{action}, {arities.get(action,None)}, {arg}\n")
     else:
         #parse and run
         args = parsed_args
-        #(
-        #    LOCM_types,
-        #    oi_features,
-        #    features,
-        #    verification_val,
-        #    meta_info
-        #) = process_instance(args)
-        clingo_input = process_instance(args)
+        clingo_input, arities = generate_clingo_from_instance(args)
+        models = run_clingo_with_rules(clingo_input)
         print(clingo_input)
+        print(f"Found{len(models)} models")
+        for model_str, necessary_arguments in models:
+            print("Model quality ", len(necessary_arguments))
+            for action, arg in necessary_arguments:
+                print(action, arities.get(action,None), arg)
