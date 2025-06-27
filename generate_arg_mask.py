@@ -301,12 +301,15 @@ def run_clingo_with_rules(clingo_input):
 
     return solutions
 
-def get_model_string(model) -> str:
-    symbols = model.symbols(shown=True)
-    if not symbols:
-        return "No symbols"
-
-    return ", ".join(str(atom) for atom in symbols)
+def get_unnecessary_argument_mask(necessary_arguments, arities):
+    argument_mask = dict()
+    for action, arity in arities.items():
+        argument_mask[action] = set(
+            argument
+            for argument in range(arity)
+            if (action, argument) not in necessary_arguments
+        )
+    return argument_mask
 
 if __name__ == '__main__':
     # get domain and instance
@@ -337,15 +340,25 @@ if __name__ == '__main__':
                     for model_str, necessary_arguments in models:
                         out_file.write(f"Model quality {len(necessary_arguments)}\n")
                         for action, arg in necessary_arguments:
-                            out_file.write(f"{action}, {arities.get(action,None)}, {arg}\n")
+                            out_file.write(f"{action}, {arg}\n")
+                    if models:
+                        _, best_model = models[-1]
+                        argument_mask = get_unnecessary_argument_mask(best_model, arities)
+                        out_file.write(argument_mask + "\n")
+                        write_dict_to_file(dir_path + '/output/test.txt', argument_mask)
     else:
         #parse and run
         args = parsed_args
         clingo_input, arities = generate_clingo_from_instance(args)
         models = run_clingo_with_rules(clingo_input)
         print(clingo_input)
-        print(f"Found{len(models)} models")
+        print(f"Found {len(models)} models")
         for model_str, necessary_arguments in models:
             print("Model quality ", len(necessary_arguments))
             for action, arg in necessary_arguments:
-                print(action, arities.get(action,None), arg)
+                print(action, arg)
+        if models:
+            _, best_model = models[-1]
+            argument_mask = get_unnecessary_argument_mask(best_model, arities)
+            print(argument_mask)
+            write_dict_to_file(dir_path + '/output/test.txt', argument_mask)
