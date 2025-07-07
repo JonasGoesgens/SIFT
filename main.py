@@ -358,7 +358,10 @@ def process_instance(args: argparse.Namespace):
         iteration = max(ar_sift.sift_iterations.keys())
         meta_info['all_features'] = len(ar_sift.sift_iterations[iteration].all_features)
         meta_info['admissible_features'] = len(features)
-        meta_info['all_oi_features'] = len(ar_sift.order_id_features)
+        all_tested_oi_features = set()
+        for _, tested_oi_features in reversed(sorted(ar_sift.order_id_features.items())):
+            all_tested_oi_features.update(tested_oi_features)
+        meta_info['all_oi_features'] = len(all_tested_oi_features)
         meta_info['admissible_oi_features'] = len(oi_features)
         meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
         meta_info['action_arities'] = ar_sift.sift_iterations[iteration].LOCM_types.action_arities

@@ -135,7 +135,7 @@ class Ordered_Identifier_Feature:
             else:
                 found_add_unmatching = True
             if found_add_matching and found_add_unmatching:
-                #other check should fail in this case to as the stored value
+                #other check should fail in this case too as the stored value
                 #must be changed and remain unchanged at the same time.
                 #This also means this property is decided already
                 #after the first label in the edge_label.
@@ -188,7 +188,7 @@ class Ordered_Identifier_Feature:
             else:
                 found_del_unmatching = True
             if found_del_matching and found_del_unmatching:
-                #other check should fail in this case to as the stored value
+                #other check should fail in this case too as the stored value
                 #must be existing and changed and (not existing and added or
                 #existing and unchanged) at the same time.
                 #This also means this property is decided already
@@ -226,10 +226,13 @@ class Ordered_Identifier_Feature:
                 if not mismatch:
                     matching_precondition_patterns.add(sel_pat)
                     if in_state_identified_object == pt.ObjectNotExisting:
-                        warnings.warn(
-                            f"False indentifing precontition, this should never happen. oi feature:\n{self}existence:\n{self.existence_feature}",
-                            UserWarning
-                        )
+                        #This case can happen if some other case would invalidate the feature as well.
+                        #e.g. an unsure situation between found_del_matching and found_del_unmatching
+                        #and multiple patterns fitting one label.
+                        #warnings.warn(
+                        #    f"False indentifing precontition, this should never happen. oi feature:\n{self}existence:\n{self.existence_feature}",
+                        #    UserWarning
+                        #)
                         self.invalitate()
                         return None
                     elif in_state_identified_object is not None:
