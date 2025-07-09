@@ -120,7 +120,7 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
 
         G.add_edge(node, new_id, action={negative_action_mapping})
 
-    return G, init_id
+    return G, init_id, dict()
 
 # create a rl style trace
 def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, introduce_false_edge: bool):
@@ -210,7 +210,7 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
 
         G.add_edge(node, cur_number_nodes, action={negative_action_mapped})
 
-    return G, init_id
+    return G, init_id, dict()
 
 # create a simple trace in random style
 def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introduce_false_edge: bool):
@@ -295,23 +295,7 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
 
         G.add_edge(node, next_state_index, action={negative_action_mapped})
 
-    return G, init_id
-
-
-
-def get_nx_graph_only_action_names_new(graph):
-
-    new_graph = nx.DiGraph()
-    all_actions = set()
-
-    for edge in graph.edges(data="action"):
-        action_names = set()
-        for _act in edge[2]:
-            action_names.add(_act[0])
-            all_actions.add(_act[0])
-        new_graph.add_edge(edge[0], edge[1], action=action_names)
-
-    return new_graph, all_actions
+    return G, init_id, dict()
 
 # for a state space create the corresponding graph as directed nx graph 
 # label: 'action': *grounded action*
@@ -386,5 +370,5 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
             G.add_edge(manipulated_node, reached_node, action={negative_action})
 
     # return created graph
-    return G, init_id
+    return G, init_id, dict()
 

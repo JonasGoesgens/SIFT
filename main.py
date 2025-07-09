@@ -3,6 +3,7 @@ from py_separator_utils.argument_recovery_sift import Argument_Recovery_Sift as 
 from py_separator_utils.argument_recovery_sift import StratificationError
 from py_separator_utils.feature import Feature
 import py_separator_utils.py_types as pt
+import py_separator_utils.utils as ut
 import os
 import io
 import sys
@@ -110,23 +111,23 @@ def create_graphs_from_input(
 
     for num_input in range(number_inputs):
         if mode == 'fg':
-            G, init = get_nx_graph_from_state_space(pddl_holder, introduce_false_edge)
+            G, init, state_atom_dict = get_nx_graph_from_state_space(pddl_holder, introduce_false_edge)
         elif mode == 'pg':
-            G, init = bfs_state_space(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, state_atom_dict = bfs_state_space(pddl_holder, number_edges, num_input, introduce_false_edge)
         elif mode == 'rl':
-            G, init = get_trace_rl(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, state_atom_dict = get_trace_rl(pddl_holder, number_edges, num_input, introduce_false_edge)
         elif mode == 'st':
-            G, init = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, state_atom_dict = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge)
         else:
             #return None
             continue
 
-        instance_list.append((G,init))
+        instance_list.append((G,init, state_atom_dict))
 
         if mode == 'fg':
             break
-    act_map, _ = pddl_holder.get_action_mapping_and_arity()
-    print(act_map)
+    #act_map, _ = pddl_holder.get_action_mapping_and_arity()
+    #print(act_map)
     return instance_list
 
 def get_verification_instances(domain_path : str, verification_input : list[str]):
@@ -192,16 +193,18 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
                 sys.stderr.write('No valid truth value for early termination!\n')
                 continue
 
+        instance_list = list((graph,init) for (graph,init,_) in create_graphs_from_input(
+            domain_path,
+            instance_path,
+            instance_mode,
+            instance_edges,
+            instance_samples,
+            instance_neg_sample
+        ))
+
         instances.append((instance_early_term,
             instance_neg_sample,
-            create_graphs_from_input(
-                domain_path,
-                instance_path,
-                instance_mode,
-                instance_edges,
-                instance_samples,
-                instance_neg_sample
-            )
+            instance_list
         ))
 
     return instances
@@ -310,7 +313,9 @@ def process_instance(args: argparse.Namespace):
             max_iterations = -max_iterations
             find_oi_features_in_last_iteration = True
 
-    instance_list = list()
+    instance_dict = dict()
+    instance_atoms_dict = dict()
+    id_gen = ut.UniqueIDAllocator()
     meta_info = dict()
 
     for instance_path in args.instance:
@@ -323,7 +328,7 @@ def process_instance(args: argparse.Namespace):
             args.learning_number_inputs, False
         )
         if recover_args_mode:
-            for graph, _ in instance_graph_list:
+            for graph, _, _ in instance_graph_list:
                 for u, v, data in graph.edges(data=True):
                     labels = data['action']
                     new_labels = set()
@@ -335,21 +340,26 @@ def process_instance(args: argparse.Namespace):
                             new_label = label
                         new_labels.add(new_label)
                     data['action'] = new_labels
-        instance_list += instance_graph_list
+        
+        for graph, init, state_atom_dict in instance_graph_list:
+            instance = id_gen.take_free_id()
+            instance_dict[instance] = (graph,init)
+            #split atom data here to make transparent sift does not need or use it.
+            instance_atoms_dict[instance] = state_atom_dict
 
     process_pool_args = {'max_workers' : args.processes}
     number_samples = args.learning_number_inputs
     if args.learning_mode == 'fg':
         number_samples = 1
     graph_size = 0
-    graph_number = len(instance_list)
-    for instance in instance_list:
+    graph_number = len(instance_dict)
+    for instance in instance_dict.values():
         graph_size += instance[0].number_of_edges()
     meta_info['graph_size'] = graph_size
     meta_info['graph_number'] = graph_number
     meta_info['number_samples'] = number_samples
     if recover_args_mode:
-        ar_sift = ARSift(instance_list)
+        ar_sift = ARSift(instance_dict)
         oi_features, features = ar_sift.run(
             process_pool_args,
             max_iterations,
@@ -427,7 +437,7 @@ def process_instance(args: argparse.Namespace):
             meta_info
         )
     else:
-        sift = SIFT(instance_list)
+        sift = SIFT(instance_dict)
         oi_features = set()
         features = sift.run(process_pool_args)
         meta_info['all_features'] = len(sift.all_features)
