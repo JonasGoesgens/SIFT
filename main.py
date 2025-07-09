@@ -8,6 +8,7 @@ import os
 import io
 import sys
 import time
+import warnings
 from contextlib import redirect_stderr
 import argparse
 import typing
@@ -120,6 +121,13 @@ def create_graphs_from_input(
             G, init, state_atom_dict = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge)
         else:
             #return None
+            continue
+
+        if not nx.is_weakly_connected(G):
+            warnings.warn(
+                f"Created not connected statespace as input, dropping it.",
+                UserWarning
+            )
             continue
 
         instance_list.append((G,init, state_atom_dict))

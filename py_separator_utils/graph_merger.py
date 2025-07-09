@@ -3,6 +3,7 @@ from py_separator_utils.object_types import LOCM_Types
 from py_separator_utils.equivalence_classes import EquivalenceClasses
 from multiprocessing import Manager
 from typing import Optional, Tuple
+import networkx as nx
 import copy
 import warnings
 class Graph_Holder:
@@ -10,6 +11,8 @@ class Graph_Holder:
         initial_state : pt.NodeT,
         locm_types : LOCM_Types
     ):
+        if not nx.is_weakly_connected(graph):
+            raise ValueError("Sift is only implented for weakly connected instances, components are seperate instances.")
         self.base_graph = graph
         self.initial_state = initial_state
         self.locm_types = locm_types
