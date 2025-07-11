@@ -1,5 +1,5 @@
 import pymimir
-from pymimir import PDDLParser, StateSpace, PDDLParser
+from pymimir import PDDLParser, StateSpace, Problem
 
 class mimir_holder:
 
@@ -19,7 +19,12 @@ class mimir_holder:
 
     def get_complete_statespace(self):
         if self.complete_statespace is None:
-            self.complete_statespace = StateSpace.create(self.domain_path, self.problem_path)
+            self.complete_statespace = StateSpace.create(
+                self.pddl_parser.get_problem(),
+                self.pddl_parser.get_factories(),
+                self.get_AAG(),
+                self.get_SSG()
+            )
         return self.complete_statespace
 
     def get_object_mapping(self):

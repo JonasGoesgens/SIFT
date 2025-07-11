@@ -24,6 +24,8 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
     # create graph
     G = nx.DiGraph()
 
+    node_atoms_dict = dict()
+
     # nodes that have be seen
     seen_nodes = set()
 
@@ -95,6 +97,17 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
                 mapped_action_to_mimir_action[current_action] = _act
                 G.add_edge(cur_id, node, action={current_action})
 
+    all_nodes = [i for i in G.nodes()]
+
+    sample = random.sample(all_nodes, k=5)
+    for node in sample:
+        node_atoms_dict[node] = set()
+        state = node_and_corrensponding_state[node]
+        atoms = state.get_fluent_atoms()
+        atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
+        for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())))
+
     if introduce_false_edge:
         negative_action_mapping = random.choice(list(all_actions))
         negative_action = mapped_action_to_mimir_action[negative_action_mapping]
@@ -103,24 +116,25 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
         # TODO SEE WHY THIS NOT WORK
         #print('Graph', G.nodes())
         #print('Dict', node_and_corrensponding_state)
-        node, all_nodes = None, [i for i in G.nodes()]
+        node = None
         random.shuffle(all_nodes)
 
         new_id = max(all_nodes) + 1
 
-        while True:
+        while len(all_nodes):
             node = all_nodes.pop(0)
 
             applicable_actions = mimir_stuff.get_applicable_actions(node_and_corrensponding_state[node])
             
             if negative_action in applicable_actions:
-                print('THE OTHER CASE CAN HAPPEN')
+                pass
+                #print('THE OTHER CASE CAN HAPPEN')
             else:
                 break
 
         G.add_edge(node, new_id, action={negative_action_mapping})
 
-    return G, init_id, dict()
+    return G, init_id, node_atoms_dict
 
 # create a rl style trace
 def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, introduce_false_edge: bool):
@@ -134,6 +148,8 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
 
     # create graph
     G = nx.DiGraph()
+
+    node_atoms_dict = dict()
 
     # applicable action generator and successive state generatpr
 
@@ -191,14 +207,25 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
 
             cur_number_nodes += 1
 
+    all_nodes = [i for i in range(cur_number_nodes)]
+
+    sample = random.sample(all_nodes, k=5)
+    for node in sample:
+        node_atoms_dict[node] = set()
+        state = node_and_corrensponding_state[node]
+        atoms = state.get_fluent_atoms()
+        atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
+        for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())))
+
     if introduce_false_edge:
         negative_action_mapped = random.choice(list(all_actions))
         negative_action = mapped_action_to_mimir_action[negative_action_mapped]
 
-        node, all_nodes = None, [i for i in range(cur_number_nodes)]
+        node = None
         random.shuffle(all_nodes)
 
-        while True:
+        while len(all_nodes):
             node = all_nodes.pop(0)
 
             applicable_actions = mimir_stuff.get_applicable_actions(node_and_corrensponding_state[node])
@@ -206,11 +233,12 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
             if not negative_action in applicable_actions:
                 break
             else:
-                print('THE OTHER CASE IS POSSIBLE')
+                pass
+                #print('THE OTHER CASE IS POSSIBLE')
 
         G.add_edge(node, cur_number_nodes, action={negative_action_mapped})
 
-    return G, init_id, dict()
+    return G, init_id, node_atoms_dict
 
 # create a simple trace in random style
 def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introduce_false_edge: bool):
@@ -224,6 +252,8 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
 
     # create graph
     G = nx.DiGraph()
+
+    node_atoms_dict = dict()
 
     # applicable action generator and successive state generatpr
  
@@ -275,15 +305,25 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
             
         next_state_index += 1
     
+    all_nodes = [i for i in range(next_state_index)]
+
+    sample = random.sample(all_nodes, k=5)
+    for node in sample:
+        node_atoms_dict[node] = set()
+        state = node_and_corrensponding_state[node]
+        atoms = state.get_fluent_atoms()
+        atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
+        for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())))
+
     if introduce_false_edge:
         negative_action_mapped = random.choice(list(all_actions))
         negative_action = mapped_action_to_mimir_action[negative_action_mapped]
 
-        all_nodes = [i for i in range(next_state_index)]
         random.shuffle(all_nodes)
 
         node = None
-        while True:
+        while len(all_nodes):
             node = all_nodes.pop(0)
 
             applicable_actions = mimir_stuff.get_applicable_actions(node_and_corrensponding_state[node])
@@ -291,11 +331,12 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
             if not negative_action in applicable_actions:
                 break
             else:
-                print('THE OTHER CASE CAN HAPPEN')
+                pass
+                #print('THE OTHER CASE CAN HAPPEN')
 
         G.add_edge(node, next_state_index, action={negative_action_mapped})
 
-    return G, init_id, dict()
+    return G, init_id, node_atoms_dict
 
 # for a state space create the corresponding graph as directed nx graph 
 # label: 'action': *grounded action*
@@ -313,16 +354,18 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
     # create graph
     G = nx.DiGraph()
 
+    node_atoms_dict = dict()
+
     # get state indices 
-    states = [state_space.get_state_index(state) for state in state_space.get_states()]
+    states = {state_space.get_state_index(state) : state for state in state_space.get_states()}
 
     # add all states to the graph 
-    G.add_nodes_from(states)
+    G.add_nodes_from(states.keys())
 
     init_id = mimir_stuff.get_SSG().get_or_create_initial_state().get_id()
 
     # for each transition create a edge in the graph which is labeled with the corresponding grounded action
-    for state in states:
+    for state in states.keys():
         for trans in state_space.get_forward_transitions(state):
             action_name = trans.get_creating_action().get_name()
             action_objects = tuple([object_mapping[_obj.get_name()] for _obj in trans.get_creating_action().get_objects()])
@@ -333,10 +376,22 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
                 G.add_edge(trans.get_source_state(), trans.get_target_state(), action={current_action})
             all_possible_actions.add(current_action)
 
+    all_nodes = [i for i in G.nodes()]
+
+    sample = random.sample(all_nodes, k=5)
+    for node in sample:
+        node_atoms_dict[node] = set()
+        state = states[node]
+        atoms = state.get_fluent_atoms()
+        atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
+        for atom in state_space.get_pddl_factories().get_fluent_ground_atoms_from_ids(atoms):
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())))
+
     if introduce_false_edge:
-        while True:
+        random.shuffle(all_nodes)
+        while len(all_nodes):
             # get random node
-            manipulated_node = random.choice(list(G.nodes()))
+            manipulated_node = all_nodes.pop(0)
 
             manipulated_node_actions = set()
 
@@ -370,5 +425,5 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
             G.add_edge(manipulated_node, reached_node, action={negative_action})
 
     # return created graph
-    return G, init_id, dict()
+    return G, init_id, node_atoms_dict
 

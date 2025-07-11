@@ -355,6 +355,8 @@ def process_instance(args: argparse.Namespace):
             #split atom data here to make transparent sift does not need or use it.
             instance_atoms_dict[instance] = state_atom_dict
 
+    print(instance_atoms_dict)
+
     process_pool_args = {'max_workers' : args.processes}
     number_samples = args.learning_number_inputs
     if args.learning_mode == 'fg':
