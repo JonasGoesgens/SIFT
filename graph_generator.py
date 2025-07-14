@@ -378,7 +378,7 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
 
     all_nodes = [i for i in G.nodes()]
 
-    sample = random.sample(all_nodes, k=5)
+    sample = random.sample(all_nodes, k=int((len(all_nodes)+1)/2))
     for node in sample:
         node_atoms_dict[node] = set()
         state = states[node]

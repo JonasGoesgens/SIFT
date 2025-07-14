@@ -19,6 +19,7 @@ from py_separator_utils.mimir_holder import mimir_holder
 from graph_generator import get_trace_rl, get_trace_simple
 from graph_generator import bfs_state_space, get_nx_graph_from_state_space
 from concurrent.futures import ProcessPoolExecutor
+from py_separator_utils.conflict_manager import ConflictManager
 
 def get_batch_run_parser():
     parser = argparse.ArgumentParser(
@@ -217,6 +218,63 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
 
     return instances
 
+def compare_atoms_features(
+    instance_atoms_dict : dict,
+    features : pt.SetLike[Feature],
+    graphs : dict
+):
+    conflicts = ConflictManager()
+    options = dict()
+    predicates = dict()
+    for instance, state_atom_dict in instance_atoms_dict.items():
+        for state, atom_set in state_atom_dict.items():
+            for predicate, grounding in atom_set:
+                predicates[predicate] = len(grounding)
+    for feature in features:
+        arity = feature.get_type_combination().size()
+        if not arity in options:
+            options[arity] = set()
+        for variant in range(feature.get_number_of_split_combinations()):
+            effects = [None] * 2
+            preconditions = [None] * 2
+            atoms = [None] * 2
+            (
+                effects[0],
+                effects[1],
+                preconditions[0],
+                preconditions[1],
+                _,
+                atoms[0],
+                atoms[1]
+            ) = feature.get_color_split_combination(variant)
+            #TODO Permutations
+            for sign in {False,True}:
+                options[arity].add((feature,variant,sign))
+            for instance, state_atom_dict in instance_atoms_dict.items():
+                if instance not in graphs:
+                    continue
+                graph, init = graphs[instance]
+                for state, atom_set in state_atom_dict.items():
+                    for predicate, grounding in atom_set:
+                        if (instance, grounding) not in atoms[0].union(atoms[1]):
+                            continue
+                        sign = (instance, grounding) in atoms[0]
+                        path = nx.shortest_path(graph, source=init, target=state)
+                        for i in range(len(path) - 1):
+                            edge = (path[i], path[i + 1])
+                            edge_label = graph.get_edge_data(*edge)['action']
+                            ret, _, _, _ = feature.parse_edge_label(edge_label, grounding)
+                            sign = sign ^ ret
+                        conflicts.add_conflict(predicate, (feature, variant, not sign))
+    for predicate, arity in predicates.items():
+        if arity not in options:
+            continue
+        print(conflicts)
+        print(predicate,conflicts.find_non_conflicting_elements(predicate, options[arity]))
+
+
+
+
 def compare_features(
     features : pt.SetLike[Feature], local_features : pt.SetLike[Feature]
 ) -> int:
@@ -355,8 +413,6 @@ def process_instance(args: argparse.Namespace):
             #split atom data here to make transparent sift does not need or use it.
             instance_atoms_dict[instance] = state_atom_dict
 
-    print(instance_atoms_dict)
-
     process_pool_args = {'max_workers' : args.processes}
     number_samples = args.learning_number_inputs
     if args.learning_mode == 'fg':
@@ -368,6 +424,7 @@ def process_instance(args: argparse.Namespace):
     meta_info['graph_size'] = graph_size
     meta_info['graph_number'] = graph_number
     meta_info['number_samples'] = number_samples
+    #recovered_graphs = dict()
     if recover_args_mode:
         ar_sift = ARSift(instance_dict)
         oi_features, features = ar_sift.run(
@@ -376,6 +433,10 @@ def process_instance(args: argparse.Namespace):
             find_oi_features_in_last_iteration
         )
         iteration = max(ar_sift.sift_iterations.keys())
+        recovered_graphs = {
+            instance : (graphholder.base_graph, graphholder.initial_state)
+            for instance, graphholder in ar_sift.sift_iterations[iteration].all_graphs.items()
+        }
         meta_info['all_features'] = len(ar_sift.sift_iterations[iteration].all_features)
         meta_info['admissible_features'] = len(features)
         all_tested_oi_features = set()
@@ -443,6 +504,8 @@ def process_instance(args: argparse.Namespace):
             ar_sift.sift_iterations[iteration].LOCM_types,
             oi_features,
             features,
+            recovered_graphs,
+            instance_atoms_dict,
             verification_val,
             meta_info
         )
@@ -479,6 +542,8 @@ def process_instance(args: argparse.Namespace):
             sift.LOCM_types,
             oi_features,
             features,
+            instance_dict,
+            instance_atoms_dict,
             verification_val,
             meta_info
         )
@@ -504,6 +569,8 @@ if __name__ == '__main__':
                     LOCM_types,
                     oi_features,
                     features,
+                    recovered_graphs,
+                    instance_atoms_dict,
                     verification_val,
                     meta_info
                 ) = process_instance(args)
@@ -578,6 +645,8 @@ if __name__ == '__main__':
             LOCM_types,
             oi_features,
             features,
+            recovered_graphs,
+            instance_atoms_dict,
             verification_val,
             meta_info
         ) = process_instance(args)
@@ -617,3 +686,11 @@ if __name__ == '__main__':
             for index, (oi_feature, pattern) in assignments.items():
                 output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature, repr(oi_feature))} Pattern {pattern[1]}), "
             print(output_line)
+
+        print(instance_atoms_dict)
+
+        compare_atoms_features(
+            instance_atoms_dict,
+            features,
+            recovered_graphs
+        )
