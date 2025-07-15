@@ -223,7 +223,7 @@ def compare_atoms_features(
     features : pt.SetLike[Feature],
     graphs : dict
 ):
-    conflicts = ConflictManager()
+    conflicts = dict()
     options = dict()
     predicates = dict()
     for instance, state_atom_dict in instance_atoms_dict.items():
@@ -233,7 +233,9 @@ def compare_atoms_features(
     for feature in features:
         arity = feature.get_type_combination().size()
         if not arity in options:
-            options[arity] = set()
+            options[arity] = dict()
+        if not arity in conflicts:
+            conflicts[arity] = dict()
         for variant in range(feature.get_number_of_split_combinations()):
             effects = [None] * 2
             preconditions = [None] * 2
@@ -248,16 +250,20 @@ def compare_atoms_features(
                 atoms[1]
             ) = feature.get_color_split_combination(variant)
             #TODO Permutations
-            for sign in {False,True}:
-                options[arity].add((feature,variant,sign))
             for instance, state_atom_dict in instance_atoms_dict.items():
                 if instance not in graphs:
                     continue
                 graph, init = graphs[instance]
                 for state, atom_set in state_atom_dict.items():
                     for predicate, grounding in atom_set:
+                        if predicate not in options[arity]:
+                            options[arity][predicate] = set()
+                        if predicate not in conflicts[arity]:
+                            conflicts[arity][predicate] = set()
                         if (instance, grounding) not in atoms[0].union(atoms[1]):
                             continue
+                        for sign in {False,True}:
+                            options[arity][predicate].add((feature,variant,sign))
                         sign = (instance, grounding) in atoms[0]
                         path = nx.shortest_path(graph, source=init, target=state)
                         for i in range(len(path) - 1):
@@ -265,12 +271,12 @@ def compare_atoms_features(
                             edge_label = graph.get_edge_data(*edge)['action']
                             ret, _, _, _ = feature.parse_edge_label(edge_label, grounding)
                             sign = sign ^ ret
-                        conflicts.add_conflict(predicate, (feature, variant, not sign))
+                        conflicts[arity][predicate].add((feature, variant, not sign))
     for predicate, arity in predicates.items():
         if arity not in options:
             continue
-        print(conflicts)
-        print(predicate,conflicts.find_non_conflicting_elements(predicate, options[arity]))
+        #print(conflicts)
+        print(predicate,options[arity][predicate].difference(conflicts[arity][predicate]))
 
 
 
@@ -687,7 +693,7 @@ if __name__ == '__main__':
                 output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature, repr(oi_feature))} Pattern {pattern[1]}), "
             print(output_line)
 
-        print(instance_atoms_dict)
+        #print(instance_atoms_dict)
 
         compare_atoms_features(
             instance_atoms_dict,

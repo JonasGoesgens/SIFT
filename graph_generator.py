@@ -306,13 +306,20 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
         next_state_index += 1
     
     all_nodes = [i for i in range(next_state_index)]
+    all_atoms = set()
+    for node in all_nodes:
+        state = node_and_corrensponding_state[node]
+        atoms = state.get_fluent_atoms()
+        all_atoms.update(atoms)
 
-    sample = random.sample(all_nodes, k=5)
+    print(all_atoms)
+
+    sample = random.sample(all_nodes, k=int((len(all_nodes))))
     for node in sample:
         node_atoms_dict[node] = set()
         state = node_and_corrensponding_state[node]
         atoms = state.get_fluent_atoms()
-        atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
+        atoms = random.sample(atoms, k=int((len(atoms))))
         for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
             node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())))
 
@@ -377,15 +384,23 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
             all_possible_actions.add(current_action)
 
     all_nodes = [i for i in G.nodes()]
+    all_atoms = set()
+    for node in all_nodes:
+        state = states[node]
+        atoms = state.get_fluent_atoms()
+        all_atoms.update(atoms)
+
+    #print(all_atoms)
 
     sample = random.sample(all_nodes, k=int((len(all_nodes)+1)/2))
     for node in sample:
         node_atoms_dict[node] = set()
         state = states[node]
         atoms = state.get_fluent_atoms()
+        neg_atoms = all_atoms.difference(atoms)
         atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
         for atom in state_space.get_pddl_factories().get_fluent_ground_atoms_from_ids(atoms):
-            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())))
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), True))
 
     if introduce_false_edge:
         random.shuffle(all_nodes)
