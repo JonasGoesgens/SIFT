@@ -392,15 +392,18 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
 
     #print(all_atoms)
 
-    sample = random.sample(all_nodes, k=int((len(all_nodes)+1)/2))
+    sample = random.sample(all_nodes, k=int((len(all_nodes)+4)/5))
     for node in sample:
         node_atoms_dict[node] = set()
         state = states[node]
         atoms = state.get_fluent_atoms()
-        neg_atoms = all_atoms.difference(atoms)
+        neg_atoms = list(all_atoms.difference(atoms))
         atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
+        neg_atoms = random.sample(neg_atoms, k=int((len(neg_atoms)+1)/2))
         for atom in state_space.get_pddl_factories().get_fluent_ground_atoms_from_ids(atoms):
             node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), True))
+        for atom in state_space.get_pddl_factories().get_fluent_ground_atoms_from_ids(neg_atoms):
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), False))
 
     if introduce_false_edge:
         random.shuffle(all_nodes)

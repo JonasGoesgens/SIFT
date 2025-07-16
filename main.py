@@ -19,7 +19,7 @@ from py_separator_utils.mimir_holder import mimir_holder
 from graph_generator import get_trace_rl, get_trace_simple
 from graph_generator import bfs_state_space, get_nx_graph_from_state_space
 from concurrent.futures import ProcessPoolExecutor
-from py_separator_utils.conflict_manager import ConflictManager
+from itertools import permutations
 
 def get_batch_run_parser():
     parser = argparse.ArgumentParser(
@@ -222,13 +222,13 @@ def compare_atoms_features(
     instance_atoms_dict : dict,
     features : pt.SetLike[Feature],
     graphs : dict
-):
+) -> dict:
     conflicts = dict()
     options = dict()
     predicates = dict()
     for instance, state_atom_dict in instance_atoms_dict.items():
         for state, atom_set in state_atom_dict.items():
-            for predicate, grounding in atom_set:
+            for predicate, grounding, _ in atom_set:
                 predicates[predicate] = len(grounding)
     for feature in features:
         arity = feature.get_type_combination().size()
@@ -250,33 +250,45 @@ def compare_atoms_features(
                 atoms[1]
             ) = feature.get_color_split_combination(variant)
             #TODO Permutations
-            for instance, state_atom_dict in instance_atoms_dict.items():
-                if instance not in graphs:
-                    continue
-                graph, init = graphs[instance]
-                for state, atom_set in state_atom_dict.items():
-                    for predicate, grounding in atom_set:
-                        if predicate not in options[arity]:
-                            options[arity][predicate] = set()
-                        if predicate not in conflicts[arity]:
-                            conflicts[arity][predicate] = set()
-                        if (instance, grounding) not in atoms[0].union(atoms[1]):
-                            continue
-                        for sign in {False,True}:
-                            options[arity][predicate].add((feature,variant,sign))
-                        sign = (instance, grounding) in atoms[0]
-                        path = nx.shortest_path(graph, source=init, target=state)
-                        for i in range(len(path) - 1):
-                            edge = (path[i], path[i + 1])
-                            edge_label = graph.get_edge_data(*edge)['action']
-                            ret, _, _, _ = feature.parse_edge_label(edge_label, grounding)
-                            sign = sign ^ ret
-                        conflicts[arity][predicate].add((feature, variant, not sign))
+            for permutation in permutations(range(arity)):
+                for instance, state_atom_dict in instance_atoms_dict.items():
+                    if instance not in graphs:
+                        continue
+                    graph, init = graphs[instance]
+                    for state, atom_set in state_atom_dict.items():
+                        for predicate, grounding, value in atom_set:
+                            if len(grounding) != arity:
+                                continue
+                            #print(permutation, predicate, grounding)
+                            grounding = tuple(
+                                grounding[index]
+                                for index in permutation
+                            )
+                            if predicate not in options[arity]:
+                                options[arity][predicate] = set()
+                            if predicate not in conflicts[arity]:
+                                conflicts[arity][predicate] = set()
+                            if (instance, grounding) not in atoms[0].union(atoms[1]):
+                                continue
+                            for sign in {False,True}:
+                                options[arity][predicate].add((feature,variant, permutation,sign))
+                            sign = (instance, grounding) in atoms[0]
+                            path = nx.shortest_path(graph, source=init, target=state)
+                            for i in range(len(path) - 1):
+                                edge = (path[i], path[i + 1])
+                                edge_label = graph.get_edge_data(*edge)['action']
+                                ret, _, _, _ = feature.parse_edge_label(edge_label, grounding)
+                                sign = sign ^ ret
+                            conflicts[arity][predicate].add((feature, variant, permutation, value ^ sign))
+    predicate_feature_dict = dict()
     for predicate, arity in predicates.items():
         if arity not in options:
             continue
+        if predicate not in options[arity]:
+            continue
         #print(conflicts)
-        print(predicate,options[arity][predicate].difference(conflicts[arity][predicate]))
+        predicate_feature_dict[predicate] = options[arity][predicate].difference(conflicts[arity][predicate])
+    return predicate_feature_dict
 
 
 
@@ -695,8 +707,62 @@ if __name__ == '__main__':
 
         #print(instance_atoms_dict)
 
-        compare_atoms_features(
+        predicate_feature_dict = compare_atoms_features(
             instance_atoms_dict,
             features,
             recovered_graphs
         )
+        #print(predicate_feature_dict)
+        output_lines = list()
+        for predicate, feature_options in predicate_feature_dict.items():
+            output_lines.append(f"{predicate}:")
+            for index, (feature, variant, permutation, sign) in enumerate(feature_options):
+                if len(feature_options) > 1:
+                    output_lines.append(f"Option {index}:")
+                inverse_permutation = tuple(pos for pos,_ in sorted(
+                    enumerate(permutation), key=lambda item: item[1]
+                ))
+                
+                a, b = (0, 1) if sign else (1, 0)
+                effects = [None] * 2
+                preconditions = [None] * 2
+                atoms = [None] * 2
+                (
+                    effects[a],
+                    effects[b],
+                    preconditions[a],
+                    preconditions[b],
+                    _,
+                    atoms[a],
+                    atoms[b]
+                ) = feature.get_color_split_combination(variant)
+                for i in {0,1}:
+                    effects[i] = set(
+                        (pattern[0], tuple(
+                            pattern[1][pos]
+                            for pos in inverse_permutation
+                        )) for pattern in effects[i]
+                    )
+                    preconditions[i] = set(
+                        (pattern[0], tuple(
+                            pattern[1][pos]
+                            for pos in inverse_permutation
+                        )) for pattern in preconditions[i]
+                    )
+                    atoms[i] = set(
+                        (instance, tuple(
+                            grounding[pos]
+                            for pos in inverse_permutation
+                        )) for instance, grounding in atoms[i]
+                    )
+
+
+                output_lines.append(f"  Add List: {effects[0]}")
+                output_lines.append(f"  Delete List: {effects[1]}")
+                output_lines.append(f"  Positive Preconditions: {preconditions[0]}")
+                output_lines.append(f"  Negative Preconditions: {preconditions[1]}")
+                output_lines.append(f"  True initial Atoms: {atoms[0]}")
+                output_lines.append(f"  False initial Atoms: {atoms[1]}")
+
+        print("\n".join(output_lines))
+
