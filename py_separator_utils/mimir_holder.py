@@ -8,6 +8,7 @@ class mimir_holder:
         self.problem_path = problem_path
         self.complete_statespace = None
         self.object_mapping = None
+        self.inverse_object_mapping = None
         self.action_mapping = None
         self.action_arity = None
         self.AAG = None
@@ -31,6 +32,11 @@ class mimir_holder:
         if self.object_mapping is None:
             self.object_mapping = {_obj.get_name(): _obj_num for _obj_num, _obj in enumerate(self.pddl_parser.get_problem().get_objects())}
         return self.object_mapping
+
+    def get_inverse_object_mapping(self):
+        if self.inverse_object_mapping is None:
+            self.inverse_object_mapping = {_obj_num: _obj_name for _obj_name, _obj_num in self.get_object_mapping().items()}
+        return self.inverse_object_mapping
 
     def get_action_mapping_and_arity(self):
         if self.action_mapping is None:

@@ -113,13 +113,13 @@ def create_graphs_from_input(
 
     for num_input in range(number_inputs):
         if mode == 'fg':
-            G, init, state_atom_dict = get_nx_graph_from_state_space(pddl_holder, introduce_false_edge)
+            G, init, state_atom_dict, object_names_dict = get_nx_graph_from_state_space(pddl_holder, introduce_false_edge)
         elif mode == 'pg':
-            G, init, state_atom_dict = bfs_state_space(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, state_atom_dict, object_names_dict = bfs_state_space(pddl_holder, number_edges, num_input, introduce_false_edge)
         elif mode == 'rl':
-            G, init, state_atom_dict = get_trace_rl(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, state_atom_dict, object_names_dict = get_trace_rl(pddl_holder, number_edges, num_input, introduce_false_edge)
         elif mode == 'st':
-            G, init, state_atom_dict = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, state_atom_dict, object_names_dict = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge)
         else:
             #return None
             continue
@@ -131,7 +131,7 @@ def create_graphs_from_input(
             )
             continue
 
-        instance_list.append((G,init, state_atom_dict))
+        instance_list.append((G,init, state_atom_dict, object_names_dict))
 
         if mode == 'fg':
             break
@@ -202,7 +202,7 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
                 sys.stderr.write('No valid truth value for early termination!\n')
                 continue
 
-        instance_list = list((graph,init) for (graph,init,_) in create_graphs_from_input(
+        instance_list = list((graph,init) for (graph,init,_,_) in create_graphs_from_input(
             domain_path,
             instance_path,
             instance_mode,
@@ -231,6 +231,8 @@ def compare_atoms_features(
             for predicate, grounding, _ in atom_set:
                 predicates[predicate] = len(grounding)
     for feature in features:
+        if not feature.has_unique_colouring():
+            continue
         arity = feature.get_type_combination().size()
         if not arity in options:
             options[arity] = dict()
@@ -249,7 +251,6 @@ def compare_atoms_features(
                 atoms[0],
                 atoms[1]
             ) = feature.get_color_split_combination(variant)
-            #TODO Permutations
             for permutation in permutations(range(arity)):
                 for instance, state_atom_dict in instance_atoms_dict.items():
                     if instance not in graphs:
@@ -259,7 +260,6 @@ def compare_atoms_features(
                         for predicate, grounding, value in atom_set:
                             if len(grounding) != arity:
                                 continue
-                            #print(permutation, predicate, grounding)
                             grounding = tuple(
                                 grounding[index]
                                 for index in permutation
@@ -271,7 +271,7 @@ def compare_atoms_features(
                             if (instance, grounding) not in atoms[0].union(atoms[1]):
                                 continue
                             for sign in {False,True}:
-                                options[arity][predicate].add((feature,variant, permutation,sign))
+                                options[arity][predicate].add((feature, variant, permutation, sign))
                             sign = (instance, grounding) in atoms[0]
                             path = nx.shortest_path(graph, source=init, target=state)
                             for i in range(len(path) - 1):
@@ -286,12 +286,8 @@ def compare_atoms_features(
             continue
         if predicate not in options[arity]:
             continue
-        #print(conflicts)
         predicate_feature_dict[predicate] = options[arity][predicate].difference(conflicts[arity][predicate])
     return predicate_feature_dict
-
-
-
 
 def compare_features(
     features : pt.SetLike[Feature], local_features : pt.SetLike[Feature]
@@ -399,6 +395,7 @@ def process_instance(args: argparse.Namespace):
 
     instance_dict = dict()
     instance_atoms_dict = dict()
+    instance_object_names_dict = dict()
     id_gen = ut.UniqueIDAllocator()
     meta_info = dict()
 
@@ -412,7 +409,7 @@ def process_instance(args: argparse.Namespace):
             args.learning_number_inputs, False
         )
         if recover_args_mode:
-            for graph, _, _ in instance_graph_list:
+            for graph, _, _, _ in instance_graph_list:
                 for u, v, data in graph.edges(data=True):
                     labels = data['action']
                     new_labels = set()
@@ -425,11 +422,12 @@ def process_instance(args: argparse.Namespace):
                         new_labels.add(new_label)
                     data['action'] = new_labels
         
-        for graph, init, state_atom_dict in instance_graph_list:
+        for graph, init, state_atom_dict, object_names_dict in instance_graph_list:
             instance = id_gen.take_free_id()
             instance_dict[instance] = (graph,init)
             #split atom data here to make transparent sift does not need or use it.
             instance_atoms_dict[instance] = state_atom_dict
+            instance_object_names_dict[instance] = object_names_dict
 
     process_pool_args = {'max_workers' : args.processes}
     number_samples = args.learning_number_inputs
@@ -524,6 +522,7 @@ def process_instance(args: argparse.Namespace):
             features,
             recovered_graphs,
             instance_atoms_dict,
+            instance_object_names_dict,
             verification_val,
             meta_info
         )
@@ -562,6 +561,7 @@ def process_instance(args: argparse.Namespace):
             features,
             instance_dict,
             instance_atoms_dict,
+            instance_object_names_dict,
             verification_val,
             meta_info
         )
@@ -589,6 +589,7 @@ if __name__ == '__main__':
                     features,
                     recovered_graphs,
                     instance_atoms_dict,
+                    instance_object_names_dict,
                     verification_val,
                     meta_info
                 ) = process_instance(args)
@@ -665,6 +666,7 @@ if __name__ == '__main__':
             features,
             recovered_graphs,
             instance_atoms_dict,
+            instance_object_names_dict,
             verification_val,
             meta_info
         ) = process_instance(args)
@@ -751,7 +753,7 @@ if __name__ == '__main__':
                     )
                     atoms[i] = set(
                         (instance, tuple(
-                            grounding[pos]
+                            instance_object_names_dict[instance][grounding[pos]]
                             for pos in inverse_permutation
                         )) for instance, grounding in atoms[i]
                     )
@@ -762,7 +764,7 @@ if __name__ == '__main__':
                 output_lines.append(f"  Positive Preconditions: {preconditions[0]}")
                 output_lines.append(f"  Negative Preconditions: {preconditions[1]}")
                 output_lines.append(f"  True initial Atoms: {atoms[0]}")
-                output_lines.append(f"  False initial Atoms: {atoms[1]}")
+                #output_lines.append(f"  False initial Atoms: {atoms[1]}")
 
         print("\n".join(output_lines))
 
