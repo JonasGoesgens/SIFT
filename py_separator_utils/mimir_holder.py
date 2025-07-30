@@ -1,5 +1,5 @@
 import pymimir
-from pymimir import PDDLParser, StateSpace, PDDLParser
+from pymimir import PDDLParser, StateSpace, Problem
 
 class mimir_holder:
 
@@ -8,6 +8,7 @@ class mimir_holder:
         self.problem_path = problem_path
         self.complete_statespace = None
         self.object_mapping = None
+        self.inverse_object_mapping = None
         self.action_mapping = None
         self.action_arity = None
         self.AAG = None
@@ -19,13 +20,23 @@ class mimir_holder:
 
     def get_complete_statespace(self):
         if self.complete_statespace is None:
-            self.complete_statespace = StateSpace.create(self.domain_path, self.problem_path)
+            self.complete_statespace = StateSpace.create(
+                self.pddl_parser.get_problem(),
+                self.pddl_parser.get_factories(),
+                self.get_AAG(),
+                self.get_SSG()
+            )
         return self.complete_statespace
 
     def get_object_mapping(self):
         if self.object_mapping is None:
             self.object_mapping = {_obj.get_name(): _obj_num for _obj_num, _obj in enumerate(self.pddl_parser.get_problem().get_objects())}
         return self.object_mapping
+
+    def get_inverse_object_mapping(self):
+        if self.inverse_object_mapping is None:
+            self.inverse_object_mapping = {_obj_num: _obj_name for _obj_name, _obj_num in self.get_object_mapping().items()}
+        return self.inverse_object_mapping
 
     def get_action_mapping_and_arity(self):
         if self.action_mapping is None:
@@ -53,4 +64,4 @@ class mimir_holder:
         return self.get_AAG().compute_applicable_actions(state)
 
     def get_successor_state(self, state, action):
-            return self.get_SSG().get_or_create_successor_state(state, action)
+        return self.get_SSG().get_or_create_successor_state(state, action)

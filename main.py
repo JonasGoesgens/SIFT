@@ -125,8 +125,8 @@ def create_graphs_from_input(
 
         if mode == 'fg':
             break
-    act_map, _ = pddl_holder.get_action_mapping_and_arity()
-    print(act_map)
+    #act_map, _ = pddl_holder.get_action_mapping_and_arity()
+    #print(act_map)
     return instance_list
 
 def get_verification_instances(domain_path : str, verification_input : list[str]):

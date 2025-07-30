@@ -121,6 +121,7 @@ class Ordered_Identifier_Feature:
                     found_add = True
                     #seting value for add can be done greedily
                     edge_out_identified_object = label[1][sel_pat[1][-1]]
+                    #TODO edge_out_identified_object == pt.ObjectNotKnown
                     if out_state_identified_object is None:
                         out_state_identified_object = edge_out_identified_object
                     elif out_state_identified_object != edge_out_identified_object:

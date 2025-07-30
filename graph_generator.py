@@ -108,13 +108,14 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
 
         new_id = max(all_nodes) + 1
 
-        while True:
+        while len(all_nodes):
             node = all_nodes.pop(0)
 
             applicable_actions = mimir_stuff.get_applicable_actions(node_and_corrensponding_state[node])
             
             if negative_action in applicable_actions:
-                print('THE OTHER CASE CAN HAPPEN')
+                pass
+                #print('THE OTHER CASE CAN HAPPEN')
             else:
                 break
 
@@ -198,7 +199,7 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
         node, all_nodes = None, [i for i in range(cur_number_nodes)]
         random.shuffle(all_nodes)
 
-        while True:
+        while len(all_nodes):
             node = all_nodes.pop(0)
 
             applicable_actions = mimir_stuff.get_applicable_actions(node_and_corrensponding_state[node])
@@ -206,7 +207,8 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
             if not negative_action in applicable_actions:
                 break
             else:
-                print('THE OTHER CASE IS POSSIBLE')
+                pass
+                #print('THE OTHER CASE IS POSSIBLE')
 
         G.add_edge(node, cur_number_nodes, action={negative_action_mapped})
 
@@ -283,7 +285,7 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
         random.shuffle(all_nodes)
 
         node = None
-        while True:
+        while len(all_nodes):
             node = all_nodes.pop(0)
 
             applicable_actions = mimir_stuff.get_applicable_actions(node_and_corrensponding_state[node])
@@ -291,27 +293,12 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
             if not negative_action in applicable_actions:
                 break
             else:
-                print('THE OTHER CASE CAN HAPPEN')
+                pass
+                #print('THE OTHER CASE CAN HAPPEN')
 
         G.add_edge(node, next_state_index, action={negative_action_mapped})
 
     return G, init_id
-
-
-
-def get_nx_graph_only_action_names_new(graph):
-
-    new_graph = nx.DiGraph()
-    all_actions = set()
-
-    for edge in graph.edges(data="action"):
-        action_names = set()
-        for _act in edge[2]:
-            action_names.add(_act[0])
-            all_actions.add(_act[0])
-        new_graph.add_edge(edge[0], edge[1], action=action_names)
-
-    return new_graph, all_actions
 
 # for a state space create the corresponding graph as directed nx graph 
 # label: 'action': *grounded action*
@@ -349,10 +336,13 @@ def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edg
                 G.add_edge(trans.get_source_state(), trans.get_target_state(), action={current_action})
             all_possible_actions.add(current_action)
 
+    all_nodes = list(G.nodes())
+
     if introduce_false_edge:
-        while True:
+        random.shuffle(all_nodes)
+        while len(all_nodes):
             # get random node
-            manipulated_node = random.choice(list(G.nodes()))
+            manipulated_node = all_nodes.pop(0)
 
             manipulated_node_actions = set()
 
