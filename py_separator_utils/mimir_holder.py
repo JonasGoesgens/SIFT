@@ -64,4 +64,4 @@ class mimir_holder:
         return self.get_AAG().compute_applicable_actions(state)
 
     def get_successor_state(self, state, action):
-            return self.get_SSG().get_or_create_successor_state(state, action)
+        return self.get_SSG().get_or_create_successor_state(state, action)
