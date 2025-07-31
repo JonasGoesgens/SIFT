@@ -4,9 +4,10 @@ from py_separator_utils.object_types import LOCM_Types
 from itertools import permutations
 from typing import Optional, Tuple, Set, FrozenSet, Dict, List
 import sys
+import warnings
 #features will invalitate themselfs on a color failure
 #remember to deepcopy them for testing unsafe graphs
-#or to use the backup system, not that this will only use shallow copies
+#or to use the backup system, note that this will only use shallow copies
 #so dont manually edit a color split
 class Feature:
     def __init__(self, type_combination : pt.TypeCombi,
@@ -74,7 +75,7 @@ class Feature:
     def parse_edge_label(self, edge_label : pt.Edge_LabelT,
         grounding : pt.GroundingT
     ) -> Tuple[bool, bool, Set[pt.PatternT], Set[pt.PatternT]]:
-        #grounding a tupel holding the currently active objects
+        #grounding a tuple holding the currently active objects
         #TODO handle unknown object -2
         found_matching = False
         found_unmatching = False
@@ -82,8 +83,10 @@ class Feature:
         matching_unselected_pattens = set()
         for label in edge_label:
             found = False
+            found_unknown = False
             for sel_pat in self.selected_patterns:
                 mismatch = False
+                unknown = False
                 if label[0] != sel_pat[0]:
                     mismatch = True
                 else:
@@ -91,12 +94,18 @@ class Feature:
                     for index, entry in enumerate(sel_pat[1]):
                         object_pat = grounding[index]
                         object_label = label[1][entry]
-                        if object_label != object_pat:
+                        if object_label == pt.ObjectNotKnown:
+                            unknown = True
+                        elif object_label != object_pat:
                             mismatch = True
                 if not mismatch:
-                    found = True
-                    matching_selected_pattens.add(sel_pat)
+                    if unknown:
+                        found_unknown = True
+                    else:
+                        found = True
+                        matching_selected_pattens.add(sel_pat)
             if not found:
+                #There wont be any preconditions on effect labels to find anyway.
                 for unsel_pat in self.unselected_patterns:
                     #if included set up list for preconditions
                     mismatch = False
@@ -107,14 +116,16 @@ class Feature:
                         for index, entry in enumerate(unsel_pat[1]):
                             object_pat = grounding[index]
                             object_label = label[1][entry]
-                            if object_label != object_pat:
+                            if object_label == pt.ObjectNotKnown:
+                                mismatch = True
+                            elif object_label != object_pat:
                                 mismatch = True
                     if not mismatch:
                         matching_unselected_pattens.add(unsel_pat)
 
             if found:
                 found_matching = True
-            else:
+            elif not found_unknown:
                 found_unmatching = True
 
         return (found_matching,
@@ -129,6 +140,7 @@ class Feature:
         if self.is_invalid():
             return None
         #new_split will grow with any old split it connects
+        #recreate it to avoid external changes and ensure the correct format
         new_split = (set(pattern_colors[0]),set(pattern_colors[1]),
             set(pattern_colors[2]),set(pattern_colors[3]),
             set(pattern_colors[4]),set(pattern_colors[5]))
@@ -137,6 +149,10 @@ class Feature:
             (not new_split[1].issubset(self.selected_patterns))
         ):
             #not a correct input
+            warnings.warn(
+                f"Tried to add incorrect color constraint for feature:\n{self}",
+                UserWarning
+            )
             return None
         if new_split[0].intersection(new_split[1]):
             #invalid local patern coloring
@@ -181,65 +197,85 @@ class Feature:
             self.undefined_preconditions = None
         return new_split
 
-    def color_graph(self, instance : int, Graph : pt.GraphT, initial_state : pt.NodeT,
-        grounding : pt.GroundingT
+    def color_graph(self,
+        instance : int,
+        Graph : pt.GraphT,
+        grounding : pt.GroundingT,
+        initial_state : Optional[pt.NodeT] = None
     ) -> Optional[Dict[pt.NodeT, Optional[int]]]:
         if self.is_invalid():
             return None
         node_color = {i: None for i in Graph.nodes()}
-        node_color[initial_state] = 0
-        pattern_colors = [set(),set(),set(),set(),{(instance, grounding)},set()]
-        open_nodes = [initial_state]
-        while len(open_nodes) > 0:
-            node = open_nodes.pop(0)
-            for edges, a, b in [
-                [Graph.out_edges([node],data='action'), 1, 0],
-                [Graph.in_edges([node],data='action'), 0, 1]
-            ]:
-                #note every edge is seen twice this is neccesary for the open list
-                #checking for duplicates would take as much time as running them
-                for edge in edges:
-                    (found_matching, found_unmatching,
-                    matching_selected_pattens, matching_unselected_pattens
-                    ) = self.parse_edge_label(edge[2], grounding)
-                    if found_matching and found_unmatching:
-                        #invalid edge, merging should remove most of these cases,
-                        #but we need to handle them for cases,
-                        #where merging is not applicable.
-                        self.invalitate()
-                        return None
+        unvisited_nodes = set(Graph.nodes())
+        while unvisited_nodes:
+            if initial_state is not None and initial_state in unvisited_nodes:
+                node_color[initial_state] = 0
+                pattern_colors = (set(),set(),set(),set(),{(instance, grounding)},set())
+                open_nodes = [initial_state]
+            else:
+                #Continue coloring for unconnected graphs
+                node = next(iter(unvisited_nodes))
+                node_color[node] = 0
+                pattern_colors = (set(),set(),set(),set(),set(),set())
+                open_nodes = [node]
 
-                    elif found_matching:
-                        #feature edge switch color
-                        if node_color[edge[a]] is None:
-                            node_color[edge[a]] = 1 - node_color[edge[b]]
-                            open_nodes.append(edge[a])
-                        elif node_color[edge[a]] == node_color[edge[b]]:
-                            #invalid coloring
-                            self.invalitate()
-                            return None
-                        
-                        for col_pat in matching_selected_pattens:
-                            #pattern get the same color as target nodes
-                            pattern_colors[node_color[edge[1]]].add(col_pat)
-
-                    else:
-                        #neutral edge keep color
-                        if node_color[edge[a]] is None:
-                            node_color[edge[a]] = node_color[edge[b]]
-                            open_nodes.append(edge[a])
-                        elif node_color[edge[a]] != node_color[edge[b]]:
-                            #invalid coloring
+            while open_nodes:
+                node = open_nodes.pop(0)
+                unvisited_nodes.discard(node)
+                for edges, a, b in [
+                    [Graph.out_edges([node],data='action'), 1, 0],
+                    [Graph.in_edges([node],data='action'), 0, 1]
+                ]:
+                    #note every edge is seen twice this is neccesary for the open list
+                    #checking for duplicates would take as much time as running them
+                    for edge in edges:
+                        (found_matching, found_unmatching,
+                        matching_selected_pattens, matching_unselected_pattens
+                        ) = self.parse_edge_label(edge[2], grounding)
+                        if found_matching and found_unmatching:
+                            #invalid edge, merging should remove most of these cases,
+                            #but we need to handle them for cases,
+                            #where merging is not applicable.
                             self.invalitate()
                             return None
 
-                        (pattern_colors[node_color[edge[1]]+2]
-                        .update(matching_unselected_pattens))
+                        elif found_matching:
+                            #feature edge switch color
+                            if node_color[edge[a]] is None:
+                                node_color[edge[a]] = 1 - node_color[edge[b]]
+                                open_nodes.append(edge[a])
+                            elif node_color[edge[a]] == node_color[edge[b]]:
+                                #invalid coloring
+                                self.invalitate()
+                                return None
 
-        #check pattern consitency at the end to keep stuff readable
-        result = self.add_color_constraint(pattern_colors)
-        if result is None :
-            return None
+                            for col_pat in matching_selected_pattens:
+                                #pattern get the same color as target nodes
+                                pattern_colors[node_color[edge[1]]].add(col_pat)
+
+                        elif found_unmatching:
+                            #neutral edge keep color
+                            if node_color[edge[a]] is None:
+                                node_color[edge[a]] = node_color[edge[b]]
+                                open_nodes.append(edge[a])
+                            elif node_color[edge[a]] != node_color[edge[b]]:
+                                #invalid coloring
+                                self.invalitate()
+                                return None
+
+                            (pattern_colors[node_color[edge[1]]+2]
+                            .update(matching_unselected_pattens))
+
+                        else:
+                            #uncertain edge with unknown arguments,
+                            #handle as if it does not exist.
+                            #This may disconnect the graph.
+                            continue
+
+            #check pattern consitency at the end to keep stuff readable
+            result = self.add_color_constraint(pattern_colors)
+            if result is None :
+                return None
 
         return node_color
 
