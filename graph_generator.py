@@ -98,15 +98,24 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
                 G.add_edge(cur_id, node, action={current_action})
 
     all_nodes = [i for i in G.nodes()]
+    all_atoms = set()
+    for node in all_nodes:
+        state = node_and_corrensponding_state[node]
+        atoms = state.get_fluent_atoms()
+        all_atoms.update(atoms)
 
-    sample = random.sample(all_nodes, k=5)
+    sample = random.sample(all_nodes, k=min(10, len(all_nodes)))
     for node in sample:
         node_atoms_dict[node] = set()
         state = node_and_corrensponding_state[node]
         atoms = state.get_fluent_atoms()
+        neg_atoms = list(all_atoms.difference(atoms))
         atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
+        neg_atoms = random.sample(neg_atoms, k=int((len(neg_atoms)+1)/2))
         for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
-            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())))
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), True))
+        for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(neg_atoms):
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), False))
 
     if introduce_false_edge:
         negative_action_mapping = random.choice(list(all_actions))
@@ -208,15 +217,24 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
             cur_number_nodes += 1
 
     all_nodes = [i for i in range(cur_number_nodes)]
+    all_atoms = set()
+    for node in all_nodes:
+        state = node_and_corrensponding_state[node]
+        atoms = state.get_fluent_atoms()
+        all_atoms.update(atoms)
 
-    sample = random.sample(all_nodes, k=5)
+    sample = random.sample(all_nodes, k=min(10, len(all_nodes)))
     for node in sample:
         node_atoms_dict[node] = set()
         state = node_and_corrensponding_state[node]
         atoms = state.get_fluent_atoms()
+        neg_atoms = list(all_atoms.difference(atoms))
         atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
+        neg_atoms = random.sample(neg_atoms, k=int((len(neg_atoms)+1)/2))
         for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
-            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())))
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), True))
+        for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(neg_atoms):
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), False))
 
     if introduce_false_edge:
         negative_action_mapped = random.choice(list(all_actions))
@@ -312,16 +330,20 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
         atoms = state.get_fluent_atoms()
         all_atoms.update(atoms)
 
-    print(all_atoms)
+    #print(all_atoms)
 
-    sample = random.sample(all_nodes, k=int((len(all_nodes))))
+    sample = random.sample(all_nodes, k=min(10, len(all_nodes)))
     for node in sample:
         node_atoms_dict[node] = set()
         state = node_and_corrensponding_state[node]
         atoms = state.get_fluent_atoms()
-        atoms = random.sample(atoms, k=int((len(atoms))))
+        neg_atoms = list(all_atoms.difference(atoms))
+        atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
+        neg_atoms = random.sample(neg_atoms, k=int((len(neg_atoms)+1)/2))
         for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
-            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())))
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), True))
+        for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(neg_atoms):
+            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), False))
 
     if introduce_false_edge:
         negative_action_mapped = random.choice(list(all_actions))
