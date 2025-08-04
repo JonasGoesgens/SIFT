@@ -105,9 +105,10 @@ class Ordered_Identifier_Feature:
         matching_precondition_patterns = set()
         for label in edge_label:
             found_add = False
-            found_del = False
+            unknown_add = False
             for sel_pat in self.add_patterns:
                 mismatch = False
+                unknown = False
                 if label[0] != sel_pat[0]:
                     mismatch = True
                 else:
@@ -115,25 +116,35 @@ class Ordered_Identifier_Feature:
                     for index, entry in enumerate(sel_pat[1][:-1]):
                         object_pat = grounding[index]
                         object_label = label[1][entry]
-                        if object_label != object_pat:
+                        if object_label == pt.ObjectNotKnown:
+                            unknown = True
+                        elif object_label != object_pat:
                             mismatch = True
+
                 if not mismatch:
-                    found_add = True
-                    #seting value for add can be done greedily
-                    edge_out_identified_object = label[1][sel_pat[1][-1]]
-                    #TODO edge_out_identified_object == pt.ObjectNotKnown
-                    if out_state_identified_object is None:
-                        out_state_identified_object = edge_out_identified_object
-                    elif out_state_identified_object != edge_out_identified_object:
-                        self.invalitate()
-                        return None
-                    if in_state_identified_object == out_state_identified_object:
-                        #switching effects must actually switch something
-                        self.invalitate()
-                        return None
+                    if unknown:
+                        unknown_add = True
+                    else:
+                        found_add = True
+                        #seting value for add can be done greedily
+                        edge_out_identified_object = label[1][sel_pat[1][-1]]
+                        #TODO edge_out_identified_object == pt.ObjectNotKnown
+                        if out_state_identified_object is None:
+                            out_state_identified_object = edge_out_identified_object
+                        elif out_state_identified_object == pt.ObjectNotKnown:
+                            out_state_identified_object = edge_out_identified_object
+                        elif out_state_identified_object != edge_out_identified_object:
+                            if edge_out_identified_object != pt.ObjectNotKnown:
+                                self.invalitate()
+                                return None
+                        if in_state_identified_object == out_state_identified_object:
+                            #switching effects must actually switch something
+                            if out_state_identified_object != pt.ObjectNotKnown:
+                                self.invalitate()
+                                return None
             if found_add:
                 found_add_matching = True
-            else:
+            elif not unknown_add:
                 found_add_unmatching = True
             if found_add_matching and found_add_unmatching:
                 #other check should fail in this case too as the stored value
@@ -142,8 +153,13 @@ class Ordered_Identifier_Feature:
                 #after the first label in the edge_label.
                 self.invalitate()
                 return None
+
+        for label in edge_label:
+            found_del = False
+            unknown_del = False
             for sel_pat in self.del_patterns:
                 mismatch = False
+                unknown = False
                 if label[0] != sel_pat[0]:
                     mismatch = True
                 else:
@@ -151,42 +167,47 @@ class Ordered_Identifier_Feature:
                     for index, entry in enumerate(sel_pat[1]):
                         object_pat = grounding[index]
                         object_label = label[1][entry]
-                        if object_label != object_pat:
+                        if object_label == pt.ObjectNotKnown:
+                            unknown = True
+                        elif object_label != object_pat:
                             mismatch = True
                 if not mismatch:
-                    found_del = True
-                    if in_state_identified_object == pt.ObjectNotExisting:
-                        #the previous value must be still unknown or given.
-                        #but it can not be no value stored.
-                        self.invalitate()
-                        return None
-                    #for deletes we need to know whether there was an add
-                    if found_add_unmatching:
-                        if out_state_identified_object is not None:
-                            if out_state_identified_object != pt.ObjectNotExisting:
-                                self.invalitate()
-                                return None
-                        else:
-                            out_state_identified_object = pt.ObjectNotExisting
-                    if in_state_identified_object is not None:
-                        for state in state_label:
-                            if (
-                                instance, state, label, sel_pat
-                            ) in self.additional_arguments:
-                                #check same in_state_identified_object
-                                if self.additional_arguments[
-                                    (instance, state, label, sel_pat)
-                                ] != in_state_identified_object:
+                    if unknown:
+                        unknown_del = True
+                    else:
+                        found_del = True
+                        if in_state_identified_object == pt.ObjectNotExisting:
+                            #the previous value must be still unknown or given.
+                            #but it can not be no value stored.
+                            self.invalitate()
+                            return None
+                        #for deletes we need to know whether there was an add
+                        if found_add_unmatching:
+                            if out_state_identified_object is not None:
+                                if out_state_identified_object != pt.ObjectNotExisting:
                                     self.invalitate()
                                     return None
                             else:
-                                #set it
-                                self.additional_arguments[
-                                    (instance, state, label, sel_pat)
-                                ] = in_state_identified_object
+                                out_state_identified_object = pt.ObjectNotExisting
+                        if in_state_identified_object is not None:
+                            for state in state_label:
+                                if (
+                                    instance, state, label, sel_pat
+                                ) in self.additional_arguments:
+                                    #check same in_state_identified_object
+                                    if self.additional_arguments[
+                                        (instance, state, label, sel_pat)
+                                    ] != in_state_identified_object:
+                                        self.invalitate()
+                                        return None
+                                else:
+                                    #set it
+                                    self.additional_arguments[
+                                        (instance, state, label, sel_pat)
+                                    ] = in_state_identified_object
             if found_del:
                 found_del_matching = True
-            else:
+            elif not unknown_del:
                 found_del_unmatching = True
             if found_del_matching and found_del_unmatching:
                 #other check should fail in this case too as the stored value
@@ -204,15 +225,28 @@ class Ordered_Identifier_Feature:
                         return None
                 else:
                     in_state_identified_object = pt.ObjectNotExisting
+            if found_del_matching:
+                #in state must have some stored object
+                if in_state_identified_object is None:
+                    in_state_identified_object = pt.ObjectNotKnown
+                elif in_state_identified_object == pt.ObjectNotExisting:
+                    self.invalitate()
+                    return None
             if found_add_unmatching and found_del_unmatching:
                 #inactive edge copy over info
                 if in_state_identified_object is None:
                     in_state_identified_object = out_state_identified_object
                 elif out_state_identified_object is None:
                     out_state_identified_object = in_state_identified_object
+                elif in_state_identified_object == pt.ObjectNotKnown:
+                    in_state_identified_object = out_state_identified_object
+                elif out_state_identified_object == pt.ObjectNotKnown:
+                    out_state_identified_object = in_state_identified_object
                 elif in_state_identified_object != out_state_identified_object:
                     self.invalitate()
                     return None
+
+        for label in edge_label:
             for sel_pat in self.pre_patterns:
                 mismatch = False
                 if label[0] != sel_pat[0]:
@@ -222,6 +256,8 @@ class Ordered_Identifier_Feature:
                     for index, entry in enumerate(sel_pat[1]):
                         object_pat = grounding[index]
                         object_label = label[1][entry]
+                        if object_label == pt.ObjectNotKnown:
+                            mismatch = True
                         if object_label != object_pat:
                             mismatch = True
                 if not mismatch:
@@ -236,7 +272,10 @@ class Ordered_Identifier_Feature:
                         #)
                         self.invalitate()
                         return None
-                    elif in_state_identified_object is not None:
+                    elif (
+                        in_state_identified_object is not None and
+                        in_state_identified_object != pt.ObjectNotKnown
+                    ):
                         for state in state_label:
                             if (
                                 instance, state, label, sel_pat
@@ -317,7 +356,9 @@ class Ordered_Identifier_Feature:
                 found_effect = True
             open_list = next_open_list
         if not found_effect:
-            #Note this rull is only reliable for full graph inputs.
+            #Note this rule is only reliable for full graph inputs.
+            #This blocks situations like y-coordinate above for horizontals moves in a grid.
+            #This rule requires to see all fluent atoms of an instance changed.
             self.disabled_pre_patterns.update(active_precondition_patterns)
         return object_memory
 

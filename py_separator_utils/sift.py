@@ -75,7 +75,7 @@ class SIFT:
         for instance, graph, initial_state, grounding in check_list:
             if feature.is_invalid():
                 break
-            feature.color_graph(instance, graph, initial_state, grounding)
+            feature.color_graph(instance, graph, grounding, initial_state)
         return feature
 
     def _get_graph_list_for_feature(self, feature : Feature) -> list[tuple[pt.GraphT, pt.GroundingT]]:

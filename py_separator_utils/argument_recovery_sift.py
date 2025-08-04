@@ -430,8 +430,8 @@ class Argument_Recovery_Sift:
                             if new_arg is None:
                                 new_arg = pt.ObjectNotKnown
                             new_index = len(new_label[1])
-                            #Remember diffences to already known arguments
-                            #to later delete args the do not add new information
+                            #Remember differences to already known arguments
+                            #to later delete args that do not add new information
                             if new_arg != pt.ObjectNotKnown:
                                 for index, arg in enumerate(new_label[1]):
                                     if new_arg != arg:
