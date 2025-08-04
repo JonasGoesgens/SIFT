@@ -186,10 +186,13 @@ class Graph_Holder:
         #and provide a set of sets stating the multi matches.
         matching_pattens = set()
         matching_multi_pattens = set()
+        matching_pattens_unknown = set()
         for label in edge_labels:
             found_pat = set()
+            found_unknown = False
             for pat in all_patterns:
                 mismatch = False
+                unknown = False
                 if label[0] != pat[0]:
                     mismatch = True
                 else:
@@ -197,15 +200,22 @@ class Graph_Holder:
                     for index, entry in enumerate(pat[1]):
                         object_pat = grounding[index]
                         object_label = label[1][entry]
+                        if object_label == pt.ObjectNotKnown:
+                            unknown = True
                         if object_label != object_pat:
                             mismatch = True
                 if not mismatch:
-                    found_pat.add(pat)
-            if len(found_pat) == 1:
+                    if not unknown:
+                        found_pat.add(pat)
+                    else:
+                        found_unknown = True
+            if len(found_pat) == 1 and not found_unknown:
                 matching_pattens.update(found_pat)
+            elif found_unknown:
+                matching_pattens_unknown.update(found_pat)
             elif len(found_pat) > 1:
                 matching_multi_pattens.add(frozenset(found_pat))
-        return matching_pattens, matching_multi_pattens
+        return matching_pattens, matching_multi_pattens, matching_pattens_unknown
 
     @classmethod
     def merge_graph_for_dead_patterns(
@@ -235,7 +245,11 @@ class Graph_Holder:
                     if edge_label is None:
                         raise ValueError(f"Edge label not found for edge from {predecessor} to {node}")
        
-                    local_pat_in, local_multi_pats_in = cls.get_compatible_patterns_from_edge_label(
+                    (
+                        local_pat_in,
+                        local_multi_pats_in,
+                        local_pat_unknown_in
+                    ) = cls.get_compatible_patterns_from_edge_label(
                         edge_label,
                         grounding,
                         all_patterns
@@ -244,7 +258,9 @@ class Graph_Holder:
                         self_loop.update(local_pat_in)
                         for pat_group in local_multi_pats_in:
                             self_loop.update(pat_group)
+                            self_loop.update(local_pat_unknown_in)
                     pat_in.update(local_pat_in)
+                    pat_in.update(local_pat_unknown_in)
                     for pat_group in local_multi_pats_in:
                         pat_in.update(pat_group)
                     equivalent_patterns.add_relation((local_pat_in, set()))
@@ -252,16 +268,22 @@ class Graph_Holder:
                     edge_label = graph[node][neighbor].get('action')
                     if edge_label is None:
                         raise ValueError(f"Edge label not found for edge from {node} to {neighbor}")
-                    local_pat_out, local_multi_pats_out = cls.get_compatible_patterns_from_edge_label(
+                    (
+                        local_pat_out,
+                        local_multi_pats_out,
+                        local_pat_unknown_out
+                    ) = cls.get_compatible_patterns_from_edge_label(
                         edge_label,
                         grounding,
                         all_patterns
                     )
                     if neighbor == node:
                         self_loop.update(local_pat_out)
+                        self_loop.update(local_pat_unknown_out)
                         for pat_group in local_multi_pats_out:
                             self_loop.update(pat_group)
                     pat_out.update(local_pat_out)
+                    pat_out.update(local_pat_unknown_out)
                     for pat_group in local_multi_pats_out:
                         pat_out.update(pat_group)
                     equivalent_patterns.add_relation((local_pat_out, set()))
@@ -289,12 +311,12 @@ class Graph_Holder:
                     edge_label_out = graph[node][common_node].get('action')
                     if edge_label_out is None:
                         raise ValueError(f"Edge label not found for edge from {node} to {common_node}")
-                    local_pat_in, _ = cls.get_compatible_patterns_from_edge_label(
+                    local_pat_in, _, _ = cls.get_compatible_patterns_from_edge_label(
                         edge_label_in,
                         grounding,
                         all_patterns
                     )
-                    local_pat_out, _ = cls.get_compatible_patterns_from_edge_label(
+                    local_pat_out, _, _ = cls.get_compatible_patterns_from_edge_label(
                         edge_label_out,
                         grounding,
                         all_patterns
@@ -312,7 +334,7 @@ class Graph_Holder:
                 for neighbor in list(graph.successors(node)):
                     if neighbor != node:
                         edge_label = graph[node][neighbor].get('action')
-                        pat, multi_pat = cls.get_compatible_patterns_from_edge_label(
+                        pat, multi_pat, _ = cls.get_compatible_patterns_from_edge_label(
                             edge_label,
                             grounding,
                             all_patterns

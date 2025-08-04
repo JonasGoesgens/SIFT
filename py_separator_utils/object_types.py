@@ -30,7 +30,13 @@ class LOCM_Types:
         changed_arg_type = False
         type_arg = self.arg_types.get(arg)
         type_obj = self.obj_types.get(obj)
-        if type_obj is None:
+        if obj[1] == pt.ObjectNotKnown:
+            if type_arg is None:
+                type_arg = self.type_id_generator.take_free_id()
+                self.arg_types[arg] = type_arg
+                self.type_args[type_arg] = {arg}
+                self.type_objs[type_arg] = set()
+        elif type_obj is None:
             if type_arg is None:
                 type_obj = self.type_id_generator.take_free_id()
                 type_arg = type_obj
@@ -119,7 +125,9 @@ class LOCM_Types:
             raise ValueError("please add all possible groundings to database before requesting types.")
 
     def get_obj_type(self, obj : pt.ObjectInstT) -> pt.TypeT:
-        if obj in self.obj_types:
+        if obj[1] == pt.ObjectNotKnown:
+            return pt.ObjectNotKnown
+        elif obj in self.obj_types:
             return self.obj_types[obj]
         else:
             raise ValueError("please add all possible groundings to database before requesting types.")
