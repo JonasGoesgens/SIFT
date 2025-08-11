@@ -2,6 +2,7 @@ from py_separator_utils.sift import SIFT
 from py_separator_utils.argument_recovery_sift import Argument_Recovery_Sift as ARSift
 from py_separator_utils.argument_recovery_sift import StratificationError
 from py_separator_utils.feature import Feature
+from py_separator_utils.pddl_generator import PDDLGenerator
 import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 import os
@@ -768,3 +769,17 @@ if __name__ == '__main__':
 
         print("\n".join(output_lines))
 
+        pddl_features = list()
+        feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
+        for i, (feature, _) in enumerate(
+            sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
+        ):
+            if not feature.has_unique_colouring():
+                continue
+            pddl_features.append(feature)
+        pddl_gen = PDDLGenerator()
+        pddl_gen.import_sift_result(
+            LOCM_types,
+            pddl_features
+        )
+        print(pddl_gen.get_domain_pddl("test"))
