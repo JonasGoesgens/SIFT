@@ -12,6 +12,7 @@ class PDDLGenerator:
         self.action_add_effects = dict()
         self.action_del_effects = dict()
         self.action_preconditions = dict()
+        self.object_names_dict = dict()
         self.initial_states = dict()
         self.locm_types = None
         self.display_chunk_size = display_chunk_size
@@ -92,6 +93,7 @@ class PDDLGenerator:
                 self.action_arg_names[(action, arg)] = f"?Arg{arg}"
         for instance in locm_types.known_instances:
             self.initial_states[instance] = set()
+            self.object_names_dict[instance] = dict()
         all_atoms_dict = dict()
         for arity, type_combinations in locm_types.get_all_type_combinations().items():
             for type_combination in type_combinations:
@@ -117,6 +119,16 @@ class PDDLGenerator:
                     ), set()
                 )
             )
+        for type_obj, inst_objects in locm_types.type_objs.items():
+            for instance in locm_types.known_instances:
+                self.object_names_dict[instance][type_obj] = dict()
+            print(inst_objects)
+            for instance, obj in inst_objects:
+                self.object_names_dict[instance][type_obj][obj] = f"{self.type_mapping[type_obj]}_I{instance}_Obj{obj}"
+        for instance, type_obj_names_dict in self.object_names_dict.items():
+            for type_obj, names_dict in type_obj_names_dict.items():
+                if not len(names_dict):
+                    del self.object_names_dict[instance][type_obj]
 
     def get_domain_pddl(self, name : str) -> str:
         pddl_str =          f"(define (domain {name})\n"
@@ -213,12 +225,38 @@ class PDDLGenerator:
         return pddl_str
 
     def get_instance_pddl(self, name : str, instance : int, goal) -> str:
-        pddl_str =  f"(define (problem {name}-{instance})\n"
-        pddl_str += f"(:domain {name})\n"
+        if instance not in self.locm_types.known_instances:
+            return ""
+        pddl_str =         f"(define (problem {name}-{instance})\n"
+        pddl_str +=        f"  (:domain {name})\n"
         #objects
-
+        if len(self.object_names_dict[instance]):
+            pddl_str +=     "  (:objects\n"
+            for type_obj, names_dict in self.object_names_dict[instance].items():
+                pddl_str += "    "
+                for name in names_dict.values():
+                    pddl_str += f"{name} "
+                pddl_str += f"- {self.type_mapping[type_obj]}\n"
+            pddl_str +=     "  )\n"
         #initial state
-
+        atom_str_list = list()
+        atom_str_chunks = list()
+        for atom_predicate, atom_grounding in self.initial_states[instance]:
+            atom_str = f"({atom_predicate}"
+            for obj in atom_grounding:
+                type_obj = self.locm_types.get_obj_type((instance, obj))
+                atom_str += f" {self.object_names_dict[instance][type_obj][obj]}"
+            atom_str += ")"
+            atom_str_list.append(atom_str)
+            if len(atom_str_list) >= self.display_chunk_size:
+                atom_str_chunks.append(" ".join(atom_str_list))
+                atom_str_list = list()
+        if atom_str_list:
+            atom_str_chunks.append(" ".join(atom_str_list))
+        if atom_str_chunks:
+            pddl_str +=  "  (:init\n"
+            pddl_str +=  "    " + "\n    ".join(atom_str_chunks) + "\n"
+            pddl_str +=  "  )\n"
         #goal condition
 
         #closing problem

@@ -783,3 +783,5 @@ if __name__ == '__main__':
             pddl_features
         )
         print(pddl_gen.get_domain_pddl("test"))
+        for instance in LOCM_types.known_instances:
+            print(pddl_gen.get_instance_pddl("test", instance, None))
