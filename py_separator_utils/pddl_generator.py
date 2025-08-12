@@ -56,7 +56,9 @@ class PDDLGenerator:
                         self.predicates[(feature, split_number, sign)],
                         arg_grounding
                     ))
-                for precondition in preconditions[sign]:
+                for precondition in preconditions[sign].union(effects[1-sign]):
+                    #Also include all delete effects as preconditions
+                    #as the domain has to be well-formed
                     action = precondition[0]
                     arg_grounding = precondition[1]
                     self.action_preconditions[action].add((
@@ -208,8 +210,8 @@ class PDDLGenerator:
             if close_effects:
                 pddl_str +=  "    )\n"
             pddl_str +=      "  )\n"
-            #closing domain
-            pddl_str +=      ")\n"
+        #closing domain
+        pddl_str +=      ")\n"
         return pddl_str
 
     def get_instance_pddl(self, name : str, instance : int, goal) -> str:
