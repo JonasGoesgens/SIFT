@@ -3,7 +3,7 @@ from py_separator_utils.object_types import LOCM_Types
 import py_separator_utils.py_types as pt
 from typing import List
 class PDDLGenerator:
-    def __init__(self):
+    def __init__(self, display_chunk_size : int = 4):
         self.type_mapping = dict()
         self.predicate_base_names = dict()
         self.predicates = dict()
@@ -14,6 +14,7 @@ class PDDLGenerator:
         self.action_preconditions = dict()
         self.initial_states = dict()
         self.locm_types = None
+        self.display_chunk_size = display_chunk_size
 
     def import_feature(self,
         feature : Feature,
@@ -159,16 +160,15 @@ class PDDLGenerator:
                 for arg in arg_grounding:
                     precondition_str += f" {self.action_arg_names[(action, arg)]}"
                 precondition_str += ")"
-                if len(precondition_str_list) < 4:
-                    precondition_str_list.append(precondition_str)
-                else:
+                precondition_str_list.append(precondition_str)
+                if len(precondition_str_list) >= self.display_chunk_size:
                     precondition_str_chunks.append(" ".join(precondition_str_list))
                     precondition_str_list = list()
             if precondition_str_list:
                 precondition_str_chunks.append(" ".join(precondition_str_list))
             if precondition_str_chunks:
                 pddl_str +=  "    :precondition (and\n"
-                pddl_str +=  "      " + "\n       ".join(precondition_str_chunks) + "\n"
+                pddl_str +=  "      " + "\n      ".join(precondition_str_chunks) + "\n"
                 pddl_str +=  "    )\n"
             #effects
             effect_str_list = list()
@@ -179,16 +179,15 @@ class PDDLGenerator:
                 for arg in arg_grounding:
                     effect_str += f" {self.action_arg_names[(action, arg)]}"
                 effect_str += ")"
-                if len(effect_str_list) < 4:
-                    effect_str_list.append(effect_str)
-                else:
+                effect_str_list.append(effect_str)
+                if len(effect_str_list) >= self.display_chunk_size:
                     effect_str_chunks.append(" ".join(effect_str_list))
                     effect_str_list = list()
             if effect_str_list:
                 effect_str_chunks.append(" ".join(effect_str_list))
             if effect_str_chunks:
                 pddl_str +=  "    :effect (and\n"
-                pddl_str +=  "      " + "\n       ".join(effect_str_chunks) + "\n"
+                pddl_str +=  "      " + "\n      ".join(effect_str_chunks) + "\n"
                 close_effects = True
             effect_str_list = list()
             effect_str_chunks = list()
@@ -197,9 +196,8 @@ class PDDLGenerator:
                 for arg in arg_grounding:
                     effect_str += f" {self.action_arg_names[(action, arg)]}"
                 effect_str += "))"
-                if len(effect_str_list) < 4:
-                    effect_str_list.append(effect_str)
-                else:
+                effect_str_list.append(effect_str)
+                if len(effect_str_list) >= self.display_chunk_size:
                     effect_str_chunks.append(" ".join(effect_str_list))
                     effect_str_list = list()
             if effect_str_list:
