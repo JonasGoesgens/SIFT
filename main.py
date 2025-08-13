@@ -2,20 +2,20 @@ from py_separator_utils.sift import SIFT
 from py_separator_utils.argument_recovery_sift import Argument_Recovery_Sift as ARSift
 from py_separator_utils.argument_recovery_sift import StratificationError
 from py_separator_utils.feature import Feature
-from py_separator_utils.pddl_generator import PDDLGenerator
 import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 import os
 import io
 import sys
 import time
-import warnings
 from contextlib import redirect_stderr
+import warnings
 import argparse
 import typing
 import copy
 from pathlib import Path
 import networkx as nx
+from py_separator_utils.pddl_generator import PDDLGenerator
 from py_separator_utils.mimir_holder import mimir_holder
 from graph_generator import get_trace_rl, get_trace_simple
 from graph_generator import bfs_state_space, get_nx_graph_from_state_space
@@ -127,7 +127,7 @@ def create_graphs_from_input(
 
         if not nx.is_weakly_connected(G):
             warnings.warn(
-                f"Created not connected statespace as input, dropping it.",
+                f"Created not connected state space as input, dropping it.",
                 UserWarning
             )
             continue
@@ -576,6 +576,7 @@ if __name__ == '__main__':
     if batch_mode:
         os.makedirs(os.path.join(dir_path, "output"          ), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "tables"), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "pddl"), exist_ok=True)
         stats_table_out = ""
         max_all_features = 0
         for line_num, (runs, args) in enumerate(parsed_args):
@@ -637,6 +638,34 @@ if __name__ == '__main__':
                     else:
                         out_file.write(f"Verification failed on {verification_val} instances.\n")
                     out_file.write("Meta informations: " + str(meta_info) + "\n")
+
+                #print pddl files
+                pddl_features = list()
+                feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
+                for i, (feature, _) in enumerate(
+                    sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
+                ):
+                    if not feature.has_unique_colouring():
+                        continue
+                    pddl_features.append(feature)
+                pddl_gen = PDDLGenerator()
+                pddl_gen.import_sift_result(
+                    LOCM_types,
+                    pddl_features,
+                    all_ground_edges
+                )
+
+                name = os.path.splitext(os.path.basename(args.domain))[0]
+                output_domain_path = 'output/pddl/{}.pddl'.format(output_file)
+                with open(output_domain_path, "w") as out_file:
+                    out_file.write(pddl_gen.get_domain_pddl(name) + "\n")
+
+                for instance in LOCM_types.known_instances:
+                    output_instance_path = 'output/pddl/{}_{}.pddl'.format(output_file, instance)
+                    with open(output_instance_path, "w") as out_file:
+                        goals = list()
+                        out_file.write(pddl_gen.get_instance_pddl(name, instance, goals) + "\n")
+
             success_rate = 100*successful_runs/runs
             avg_admissible_features = sum_admissible_features/runs
             avg_graph_size = sum_graph_size/runs
@@ -773,6 +802,7 @@ if __name__ == '__main__':
 
         print("\n".join(output_lines))
 
+        #print pddl files
         pddl_features = list()
         feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
         for i, (feature, _) in enumerate(
@@ -787,11 +817,12 @@ if __name__ == '__main__':
             pddl_features,
             all_ground_edges
         )
-        print(pddl_gen.get_domain_pddl("test"))
+        name = os.path.splitext(os.path.basename(args.domain))[0]
+        print(pddl_gen.get_domain_pddl(name))
         for instance in LOCM_types.known_instances:
             goals = list()
             for atom in pddl_features[0].get_color_split_combination(0)[6]:
                 if atom[0] == instance:
                     goals.append((pddl_features[0],0,0,atom[1]))
                     break
-            print(pddl_gen.get_instance_pddl("test", instance, goals))
+            print(pddl_gen.get_instance_pddl(name, instance, goals))

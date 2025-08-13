@@ -102,7 +102,6 @@ class PDDLGenerator:
         for arity, type_combinations in locm_types.get_all_type_combinations().items():
             for type_combination in type_combinations:
                 all_atoms_dict[type_combination] = set()
-                print(type_combination)
                 for instance, groundings in locm_types.get_all_groundings_for_typecombination(
                     type_combination
                 ).items():
@@ -126,7 +125,6 @@ class PDDLGenerator:
         for type_obj, inst_objects in locm_types.type_objs.items():
             for instance in locm_types.known_instances:
                 self.object_names_dict[instance][type_obj] = dict()
-            print(inst_objects)
             for instance, obj in inst_objects:
                 self.object_names_dict[instance][type_obj][obj] = f"{self.type_mapping[type_obj]}_I{instance}_Obj{obj}"
         for instance, type_obj_names_dict in self.object_names_dict.items():
