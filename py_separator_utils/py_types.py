@@ -18,6 +18,8 @@ ObjectNotKnown = -2
 ObjectInstT = typing.Tuple[int,ObjectT]
 #Grounding is a tuple of objects represented by int identifiers
 GroundingT = typing.Tuple[ObjectT]
+#Instanced grounding
+GroundingInstT = typing.Tuple[int,GroundingT]
 #GroundingKey is a frozenset of objects represented by int identifiers
 GroundingKeyT = typing.FrozenSet[ObjectT]
 #pattern is a tuple holding an int and a tuple of ints

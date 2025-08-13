@@ -6,11 +6,13 @@ import io
 import sys
 import time
 from contextlib import redirect_stderr
+import warnings
 import argparse
 import typing
 import copy
 from pathlib import Path
 import networkx as nx
+from py_separator_utils.pddl_generator import PDDLGenerator
 from py_separator_utils.mimir_holder import mimir_holder
 from graph_generator import get_trace_rl, get_trace_simple
 from graph_generator import bfs_state_space, get_nx_graph_from_state_space
@@ -117,12 +119,19 @@ def create_graphs_from_input(
             #return None
             continue
 
+        if not nx.is_weakly_connected(G):
+            warnings.warn(
+                f"Created not connected state space as input, dropping it.",
+                UserWarning
+            )
+            continue
+
         instance_list.append((G,init))
 
         if mode == 'fg':
             break
-    act_map, _ = pddl_holder.get_action_mapping_and_arity()
-    print(act_map)
+    #act_map, _ = pddl_holder.get_action_mapping_and_arity()
+    #print(act_map)
     return instance_list
 
 def get_verification_instances(domain_path : str, verification_input : list[str]):
@@ -137,8 +146,7 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
         split_input = instance.split(',')
 
         if 1 >= len(split_input) or len(split_input) > 5:
-            print(len(split_input))
-            print('Length of input {} does not fit!'.format(instance))
+            sys.stderr.write('Length {} of input {} does not fit!\n'.format(len(split_input),instance))
             continue
 
         instance_path = split_input[0]
@@ -149,34 +157,34 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
         instance_early_term = False
 
         if not os.path.exists(instance_path):
-            print('For input {} the path {} does not exist'.format(instance, split_input[0]))
+            sys.stderr.write('For input {} the path {} does not exist\n'.format(instance, split_input[0]))
             continue
 
         if not instance_mode in modes:
-            print('For input {} mode {} does not exist!'.format(instance, split_input[1]))
+            sys.stderr.write('For input {} mode {} does not exist!\n'.format(instance, split_input[1]))
             continue
         elif instance_mode in neg_modes:
             instance_neg_sample = True
             idx = neg_modes.index(instance_mode)
             if idx >= len(pos_modes):
-                print('No pos mode known for neg mode {}'.format(instance_mode))
+                sys.stderr.write('No pos mode known for neg mode {}!\n'.format(instance_mode))
                 continue
             instance_mode = pos_modes[idx]
 
         if instance_mode in partial_modes and len(split_input) < 3:
-            print('For input {} no specification of input size!'.format(instance))
+            sys.stderr.write('For input {} no specification of input size!\n'.format(instance))
             continue
 
         if len(split_input) >= 3:
             instance_edges = int(split_input[2])
             if instance_edges < 1:
-                print('No valid number of edges!')
+                sys.stderr.write('No valid number of edges!\n')
                 continue
 
         if len(split_input) >= 4:
             instance_samples = int(split_input[3])
             if instance_samples < 1:
-                print('No valid number of traces!')
+                sys.stderr.write('No valid number of traces!\n')
                 continue
 
         if len(split_input) == 5:
@@ -186,7 +194,7 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
             elif split_input_val_5 == 1:
                 instance_early_term = True
             else:
-                print('No valid truth value for early termination!')
+                sys.stderr.write('No valid truth value for early termination!\n')
                 continue
 
         instances.append((instance_early_term,
@@ -365,6 +373,7 @@ def process_instance(args: argparse.Namespace):
     return (
         sift.LOCM_types,
         features,
+        sift.all_ground_edges,
         verification_val,
         meta_info
     )
@@ -376,6 +385,7 @@ if __name__ == '__main__':
     if batch_mode:
         os.makedirs(os.path.join(dir_path, "output"          ), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "tables"), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "pddl"), exist_ok=True)
         stats_table_out = ""
         max_all_features = 0
         for line_num, (runs, args) in enumerate(parsed_args):
@@ -389,6 +399,7 @@ if __name__ == '__main__':
                 (
                     LOCM_types,
                     features,
+                    all_ground_edges,
                     verification_val,
                     meta_info
                 ) = process_instance(args)
@@ -417,6 +428,34 @@ if __name__ == '__main__':
                     else:
                         out_file.write(f"Verification failed on {verification_val} instances.\n")
                     out_file.write("Meta informations: " + str(meta_info) + "\n")
+
+                #print pddl files
+                pddl_features = list()
+                feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
+                for i, (feature, _) in enumerate(
+                    sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
+                ):
+                    if not feature.has_unique_colouring():
+                        continue
+                    pddl_features.append(feature)
+                pddl_gen = PDDLGenerator()
+                pddl_gen.import_sift_result(
+                    LOCM_types,
+                    pddl_features,
+                    all_ground_edges
+                )
+
+                name = os.path.splitext(os.path.basename(args.domain))[0]
+                output_domain_path = 'output/pddl/{}.pddl'.format(output_file)
+                with open(output_domain_path, "w") as out_file:
+                    out_file.write(pddl_gen.get_domain_pddl(name) + "\n")
+
+                for instance in LOCM_types.known_instances:
+                    output_instance_path = 'output/pddl/{}_{}.pddl'.format(output_file, instance)
+                    with open(output_instance_path, "w") as out_file:
+                        goals = list()
+                        out_file.write(pddl_gen.get_instance_pddl(name, instance, goals) + "\n")
+
             success_rate = 100*successful_runs/runs
             avg_admissible_features = sum_admissible_features/runs
             avg_graph_size = sum_graph_size/runs
@@ -447,6 +486,7 @@ if __name__ == '__main__':
         (
             LOCM_types,
             features,
+            all_ground_edges,
             verification_val,
             meta_info
         ) = process_instance(args)
@@ -467,3 +507,24 @@ if __name__ == '__main__':
             #if feature.has_unique_colouring():
             print(f"Feature {i+1}:")
             print(feature)
+
+        #print pddl files
+        pddl_features = list()
+        feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
+        for i, (feature, _) in enumerate(
+            sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
+        ):
+            if not feature.has_unique_colouring():
+                continue
+            pddl_features.append(feature)
+        pddl_gen = PDDLGenerator()
+        pddl_gen.import_sift_result(
+            LOCM_types,
+            pddl_features,
+            all_ground_edges
+        )
+        name = os.path.splitext(os.path.basename(args.domain))[0]
+        print(pddl_gen.get_domain_pddl(name))
+        for instance in LOCM_types.known_instances:
+            goals = list()
+            print(pddl_gen.get_instance_pddl(name, instance, goals))
