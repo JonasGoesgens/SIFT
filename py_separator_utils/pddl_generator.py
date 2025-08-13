@@ -1,11 +1,13 @@
 from py_separator_utils.feature import Feature
 from py_separator_utils.object_types import LOCM_Types
 import py_separator_utils.py_types as pt
-from typing import List
+from typing import Iterable, List, Dict, Set, Tuple
 class PDDLGenerator:
     def __init__(self, display_chunk_size : int = 4):
         self.type_mapping = dict()
         self.predicate_base_names = dict()
+        self.static_predicates = dict()
+        self.static_atoms = dict()
         self.predicates = dict()
         self.predicate_name_mapping = dict()
         self.action_arg_names = dict()
@@ -80,7 +82,8 @@ class PDDLGenerator:
 
     def import_sift_result(self,
         locm_types : LOCM_Types,
-        admissible_features : List[Feature]
+        admissible_features : Iterable[Feature],
+        all_ground_edges : Dict[int,Set[pt.Ground_Edge_Info]]
     ):
         self.locm_types = locm_types
         for number, type_id in enumerate(locm_types.type_args.keys()):
@@ -89,6 +92,7 @@ class PDDLGenerator:
             self.action_add_effects[action] = set()
             self.action_del_effects[action] = set()
             self.action_preconditions[action] = set()
+            self.static_predicates[action] = f"Static_{action}"
             for arg in range(arity):
                 self.action_arg_names[(action, arg)] = f"?Arg{arg}"
         for instance in locm_types.known_instances:
@@ -126,9 +130,15 @@ class PDDLGenerator:
             for instance, obj in inst_objects:
                 self.object_names_dict[instance][type_obj][obj] = f"{self.type_mapping[type_obj]}_I{instance}_Obj{obj}"
         for instance, type_obj_names_dict in self.object_names_dict.items():
-            for type_obj, names_dict in type_obj_names_dict.items():
+            for type_obj, names_dict in type_obj_names_dict.copy().items():
                 if not len(names_dict):
                     del self.object_names_dict[instance][type_obj]
+        for instance, all_edge_labels in all_ground_edges.items():
+            self.static_atoms[instance] = set()
+            for action, obj_grounding in all_edge_labels:
+                self.static_atoms[instance].add((
+                    self.static_predicates[action],obj_grounding
+                ))
 
     def get_domain_pddl(self, name : str) -> str:
         pddl_str =          f"(define (domain {name})\n"
@@ -150,6 +160,13 @@ class PDDLGenerator:
                 for _ in range(count):
                     predicate_str += f" ?Arg{pos} - {self.type_mapping[type_id]}"
                     pos += 1
+            predicate_str += ")"
+            predicate_str_list.append(predicate_str)
+        for action, name in self.static_predicates.items():
+            predicate_str = f"({name}"
+            for arg in range(self.locm_types.action_arities[action]):
+                type_id = self.locm_types.get_arg_type((action,arg))
+                predicate_str += f" ?Arg{arg} - {self.type_mapping[type_id]}"
             predicate_str += ")"
             predicate_str_list.append(predicate_str)
         pddl_str +=          "    " + "\n    ".join(predicate_str_list) + "\n"
@@ -176,6 +193,12 @@ class PDDLGenerator:
                 if len(precondition_str_list) >= self.display_chunk_size:
                     precondition_str_chunks.append(" ".join(precondition_str_list))
                     precondition_str_list = list()
+            predicate_name = self.static_predicates[action]
+            precondition_str = f"({predicate_name}"
+            for arg in range(self.locm_types.action_arities[action]):
+                precondition_str += f" {self.action_arg_names[(action, arg)]}"
+            precondition_str += ")"
+            precondition_str_list.append(precondition_str)
             if precondition_str_list:
                 precondition_str_chunks.append(" ".join(precondition_str_list))
             if precondition_str_chunks:
@@ -224,7 +247,12 @@ class PDDLGenerator:
         pddl_str +=      ")\n"
         return pddl_str
 
-    def get_instance_pddl(self, name : str, instance : int, goal) -> str:
+    def get_instance_pddl(
+        self,
+        name : str,
+        instance : int,
+        goal : List[Tuple[Feature, int, int, pt.GroundingT]] = list()
+    ) -> str:
         if instance not in self.locm_types.known_instances:
             return ""
         pddl_str =         f"(define (problem {name}-{instance})\n"
@@ -241,7 +269,9 @@ class PDDLGenerator:
         #initial state
         atom_str_list = list()
         atom_str_chunks = list()
-        for atom_predicate, atom_grounding in self.initial_states[instance]:
+        for atom_predicate, atom_grounding in self.initial_states[instance].union(
+            self.static_atoms[instance]
+        ):
             atom_str = f"({atom_predicate}"
             for obj in atom_grounding:
                 type_obj = self.locm_types.get_obj_type((instance, obj))
@@ -258,6 +288,26 @@ class PDDLGenerator:
             pddl_str +=  "    " + "\n    ".join(atom_str_chunks) + "\n"
             pddl_str +=  "  )\n"
         #goal condition
+        atom_str_list = list()
+        atom_str_chunks = list()
+        for feature, variant, sign, atom_grounding in goal:
+            atom_str = f"({self.predicates[(feature, variant, sign)]}"
+            for obj in atom_grounding:
+                type_obj = self.locm_types.get_obj_type((instance, obj))
+                atom_str += f" {self.object_names_dict[instance][type_obj][obj]}"
+            atom_str += ")"
+            atom_str_list.append(atom_str)
+            if len(atom_str_list) >= self.display_chunk_size:
+                atom_str_chunks.append(" ".join(atom_str_list))
+                atom_str_list = list()
+        if atom_str_list:
+            atom_str_chunks.append(" ".join(atom_str_list))
+        if atom_str_chunks:
+            pddl_str +=  "  (:goal\n"
+            pddl_str +=  "    (and\n"
+            pddl_str +=  "      " + "\n      ".join(atom_str_chunks) + "\n"
+            pddl_str +=  "    )\n"
+            pddl_str +=  "  )\n"
 
         #closing problem
         pddl_str += ")\n"

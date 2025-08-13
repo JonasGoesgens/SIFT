@@ -521,6 +521,7 @@ def process_instance(args: argparse.Namespace):
             ar_sift.sift_iterations[iteration].LOCM_types,
             oi_features,
             features,
+            ar_sift.sift_iterations[iteration].all_ground_edges,
             recovered_graphs,
             instance_atoms_dict,
             instance_object_names_dict,
@@ -560,6 +561,7 @@ def process_instance(args: argparse.Namespace):
             sift.LOCM_types,
             oi_features,
             features,
+            sift.all_ground_edges,
             instance_dict,
             instance_atoms_dict,
             instance_object_names_dict,
@@ -588,6 +590,7 @@ if __name__ == '__main__':
                     LOCM_types,
                     oi_features,
                     features,
+                    all_ground_edges,
                     recovered_graphs,
                     instance_atoms_dict,
                     instance_object_names_dict,
@@ -665,6 +668,7 @@ if __name__ == '__main__':
             LOCM_types,
             oi_features,
             features,
+            all_ground_edges,
             recovered_graphs,
             instance_atoms_dict,
             instance_object_names_dict,
@@ -780,8 +784,14 @@ if __name__ == '__main__':
         pddl_gen = PDDLGenerator()
         pddl_gen.import_sift_result(
             LOCM_types,
-            pddl_features
+            pddl_features,
+            all_ground_edges
         )
         print(pddl_gen.get_domain_pddl("test"))
         for instance in LOCM_types.known_instances:
-            print(pddl_gen.get_instance_pddl("test", instance, None))
+            goals = list()
+            for atom in pddl_features[0].get_color_split_combination(0)[6]:
+                if atom[0] == instance:
+                    goals.append((pddl_features[0],0,0,atom[1]))
+                    break
+            print(pddl_gen.get_instance_pddl("test", instance, goals))
