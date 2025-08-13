@@ -611,7 +611,10 @@ if __name__ == '__main__':
                 with open(output_path, "w") as out_file:
                     out_file.write(str(LOCM_types)+"\n")
                     feature_numbers = dict()
-                    feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in oi_features]
+                    feature_typecombinaton_pairs = [
+                        (feature, feature.get_type_combination())
+                        for feature in oi_features
+                    ]
                     for i, (feature, _) in enumerate(
                         sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
                     ):
@@ -619,14 +622,17 @@ if __name__ == '__main__':
                         out_file.write(f"OI Feature {i+1}:\n")
                         out_file.write(str(feature))
 
-                    feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
+                    feature_typecombinaton_pairs = [
+                        (feature, feature.get_type_combination())
+                        for feature in features
+                    ]
                     for i, (feature, _) in enumerate(
                         sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
                     ):
                         #if feature.has_unique_colouring():
                         out_file.write(f"Feature {i+1}:\n")
                         out_file.write(str(feature))
-                    for action, assignments in meta_info['action_argument_assignments'].items():
+                    for action, assignments in meta_info.get('action_argument_assignments',dict()).items():
                         output_line = f"Implicit agruments {action}: "
                         #as action is stated already only pattern[1] is needed
                         for index, (oi_feature, pattern) in assignments.items():
@@ -715,7 +721,10 @@ if __name__ == '__main__':
 
         #print identifier features
         feature_numbers = dict()
-        feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in oi_features]
+        feature_typecombinaton_pairs = [
+            (feature, feature.get_type_combination())
+            for feature in oi_features
+        ]
         for i, (feature, _) in enumerate(
             sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
         ):
@@ -725,7 +734,10 @@ if __name__ == '__main__':
             print(feature)
 
         #print features
-        feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
+        feature_typecombinaton_pairs = [
+            (feature, feature.get_type_combination())
+            for feature in features
+        ]
         for i, (feature, _) in enumerate(
             sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
         ):
