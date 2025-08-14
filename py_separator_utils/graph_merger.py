@@ -2,14 +2,15 @@ import py_separator_utils.py_types as pt
 from py_separator_utils.object_types import LOCM_Types
 from py_separator_utils.equivalence_classes import EquivalenceClasses
 from multiprocessing import Manager
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 import networkx as nx
 import copy
 import warnings
 class Graph_Holder:
     def __init__(self, graph : pt.GraphT,
         initial_state : pt.NodeT,
-        locm_types : LOCM_Types
+        locm_types : LOCM_Types,
+        instance_id : int
     ):
         if not nx.is_weakly_connected(graph):
             raise ValueError("Sift is only implented for weakly connected instances, components are seperate instances.")
@@ -19,7 +20,8 @@ class Graph_Holder:
         self.simple_merged_graphs = dict()
         self.switching_merged_graphs = dict()
         self.final_merged_graphs = dict()
-        self.zeronary_graph = None
+        self.final_node_mappings = dict()
+        self.instance_id = instance_id
 
     @classmethod
     def get_sub_grounding(cls,
@@ -355,7 +357,7 @@ class Graph_Holder:
         return graph, initial_state, dead_patterns, equivalent_patterns
 
     def set_switching_graph_for_grounding(
-        self, grounding : pt.GroundingT, type_combination : pt.TypeCombi,
+        self, grounding : pt.GroundingT,
         graph : pt.GraphT, initial_state : pt.NodeT
     ) -> None:
         self.switching_merged_graphs[grounding] = (graph, initial_state)
@@ -366,8 +368,7 @@ class Graph_Holder:
         return grounding in self.switching_merged_graphs
 
     def get_switching_graph_for_grounding(
-        self, grounding : pt.GroundingT,
-        type_combination : pt.TypeCombi
+        self, grounding : pt.GroundingT
     ) -> Tuple[pt.GraphT, pt.NodeT]:
         if grounding in self.switching_merged_graphs:
             return self.switching_merged_graphs[grounding]
@@ -379,19 +380,24 @@ class Graph_Holder:
             #make a deep copy as we need the old graph intact as intermediate result.
             graph, initial_state = self.get_simple_graph_for_grounding(grounding)
             graph = copy.deepcopy(graph)
-            all_patterns = self.locm_types.get_all_patterns_for_typecombination(type_combination)
+            type_combination = self.locm_types.get_type_combination_of_grounding(
+                self.instance_id, grounding
+            )
+            all_patterns = self.locm_types.get_all_patterns_for_typecombination(
+                type_combination
+            )
 
             graph, initial_state, _ , _ = self.__class__.merge_graph_for_dead_patterns(
                 graph, initial_state, grounding, all_patterns,
                 set(), None, True
             )
             self.set_switching_graph_for_grounding(
-                grounding, type_combination, graph, initial_state
+                grounding, graph, initial_state
             )
             return graph, initial_state
 
     def set_final_graph_for_grounding(
-        self, grounding : pt.GroundingT, type_combination : pt.TypeCombi,
+        self, grounding : pt.GroundingT,
         graph : pt.GraphT, initial_state : pt.NodeT
     ) -> None:
         self.final_merged_graphs[grounding] = (graph, initial_state)
@@ -402,8 +408,7 @@ class Graph_Holder:
         return grounding in self.final_merged_graphs
 
     def get_final_graph_for_grounding(
-        self, grounding : pt.GroundingT,
-        type_combination : pt.TypeCombi
+        self, grounding : pt.GroundingT
     ) -> Tuple[pt.GraphT, pt.NodeT]:
         if grounding in self.final_merged_graphs:
             return self.final_merged_graphs[grounding]
@@ -414,16 +419,35 @@ class Graph_Holder:
             )
             #make a deep copy as we need the old graph intact as intermediate result.
             graph, initial_state = self.get_switching_graph_for_grounding(
-                grounding, type_combination
+                grounding
             )
             graph = copy.deepcopy(graph)
-            all_patterns = self.locm_types.get_all_patterns_for_typecombination(type_combination)
+            type_combination = self.locm_types.get_type_combination_of_grounding(
+                self.instance_id, grounding
+            )
+            all_patterns = self.locm_types.get_all_patterns_for_typecombination(
+                type_combination
+            )
 
             graph, initial_state, _ , _ = self.__class__.merge_graph_for_dead_patterns(
                 graph, initial_state, grounding, all_patterns,
                 set(), None, False
             )
             self.set_final_graph_for_grounding(
-                grounding, type_combination, graph, initial_state
+                grounding, graph, initial_state
             )
             return graph, initial_state
+
+    def get_final_node_mapping_for_grounding(
+        self, grounding : pt.GroundingT
+    ) -> Dict[pt.NodeT, pt.NodeT]:
+        if grounding in self.final_node_mappings:
+            return self.final_node_mappings[grounding]
+        else:
+            self.final_node_mappings[grounding] = dict()
+            graph = self.get_final_graph_for_grounding(grounding)
+            for node in graph.nodes():
+                for node_rem in graph.nodes[node].get('merged', set()):
+                    self.final_node_mappings[grounding][node_rem] = node
+                self.final_node_mappings[grounding][node] = node
+            return self.final_node_mappings[grounding]

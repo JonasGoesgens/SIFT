@@ -234,3 +234,11 @@ class LOCM_Types:
                     else:
                         self.all_groundings_per_type_combination[type_combination][inst] = {opt}
             return self.all_groundings_per_type_combination[type_combination]
+
+    def get_type_combination_of_grounding(
+        self, instance : int, grounding : pt.GroundingT
+    ) -> pt.TypeCombi:
+        type_combination = pt.TypeCombi()
+        for obj in grounding:
+            type_combination.add(self.get_obj_type((instance, obj)))
+        return pt.TypeCombi(type_combination)
