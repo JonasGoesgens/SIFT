@@ -670,6 +670,15 @@ if __name__ == '__main__':
                     output_instance_path = 'output/pddl/{}_{}.pddl'.format(output_file, instance)
                     with open(output_instance_path, "w") as out_file:
                         goals = list()
+                        for feature in pddl_features:
+                            for atom in feature.get_color_split_combination(0)[6]:
+                                if atom[0] == instance:
+                                    goals.append((feature,0,0,atom[1]))
+                                    break
+                            for atom in feature.get_color_split_combination(0)[5]:
+                                if atom[0] == instance:
+                                    goals.append((feature,0,1,atom[1]))
+                                    break
                         out_file.write(pddl_gen.get_instance_pddl(name, instance, goals) + "\n")
 
             success_rate = 100*successful_runs/runs
@@ -833,8 +842,13 @@ if __name__ == '__main__':
         print(pddl_gen.get_domain_pddl(name))
         for instance in LOCM_types.known_instances:
             goals = list()
-            for atom in pddl_features[0].get_color_split_combination(0)[6]:
-                if atom[0] == instance:
-                    goals.append((pddl_features[0],0,0,atom[1]))
-                    break
+            for feature in pddl_features:
+                for atom in feature.get_color_split_combination(0)[6]:
+                    if atom[0] == instance:
+                        goals.append((feature,0,0,atom[1]))
+                        break
+                for atom in feature.get_color_split_combination(0)[5]:
+                    if atom[0] == instance:
+                        goals.append((feature,0,1,atom[1]))
+                        break
             print(pddl_gen.get_instance_pddl(name, instance, goals))
