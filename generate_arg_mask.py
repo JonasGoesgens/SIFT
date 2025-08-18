@@ -104,13 +104,13 @@ def create_graphs_from_input(
 
     for num_input in range(number_inputs):
         if mode == 'fg':
-            G, init = get_nx_graph_from_state_space(pddl_holder, introduce_false_edge)
+            G, init, _, _ = get_nx_graph_from_state_space(pddl_holder, introduce_false_edge)
         elif mode == 'pg':
-            G, init = bfs_state_space(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, _, _ = bfs_state_space(pddl_holder, number_edges, num_input, introduce_false_edge)
         elif mode == 'rl':
-            G, init = get_trace_rl(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, _, _ = get_trace_rl(pddl_holder, number_edges, num_input, introduce_false_edge)
         elif mode == 'st':
-            G, init = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, _, _ = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge)
         else:
             #return None
             continue
@@ -158,7 +158,6 @@ def generate_clingo_from_instance(args: argparse.Namespace):
     )
 
     instance_list = list()
-    meta_info = dict()
 
     for instance_path in args.instance:
 
@@ -183,9 +182,6 @@ def generate_clingo_from_instance(args: argparse.Namespace):
     graph_number = len(instance_list)
     for instance in instance_list:
         graph_size += instance[0].number_of_edges()
-    meta_info['graph_size'] = graph_size
-    meta_info['graph_number'] = graph_number
-    meta_info['number_samples'] = number_samples
 
     ar_sift = ARSift(instance_list)
     old_arities = ar_sift.sift_iterations[0].LOCM_types.action_arities.copy()
@@ -198,12 +194,6 @@ def generate_clingo_from_instance(args: argparse.Namespace):
             old_arities
         )
     features = ar_sift.sift_iterations[iteration].admissible_features
-
-    meta_info['action_argument_assignments'] = all_arg_feature_assignments
-    meta_info['all_features'] = len(ar_sift.sift_iterations[iteration].all_features)
-    meta_info['admissible_features'] = len(features)
-    meta_info['all_oi_features'] = len(ar_sift.order_id_features)
-    meta_info['admissible_oi_features'] = len(oi_features)
 
     oi_feature_index_list = dict()
     oi_feature_requirement_mask = dict()

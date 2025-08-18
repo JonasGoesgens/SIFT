@@ -65,7 +65,7 @@ class Argument_Recovery_Sift:
         ).items():
             for grounding in groundings:
                 graph, initial_state = self.sift_iterations[iteration].all_graphs[instance].get_switching_graph_for_grounding(
-                    grounding, type_combination
+                    grounding
                 )
                 check_list.append((instance, graph, grounding))
         return check_list

@@ -40,7 +40,7 @@ class SIFT:
                 self._add_graph(instance_id, graph, init)
 
     def _add_graph(self, instance_id : int, graph : pt.GraphT, init : pt.NodeT) -> None:
-        self.all_graphs[instance_id] = Graph_Holder(graph, init, self.LOCM_types)
+        self.all_graphs[instance_id] = Graph_Holder(graph, init, self.LOCM_types, instance_id)
         self.all_ground_edges[instance_id] = set()
         edges = graph.out_edges(graph.nodes(),data='action')
         for edge in edges:
@@ -89,8 +89,7 @@ class SIFT:
         ).items():
             for grounding in groundings:
                 graph, initial_state = self.all_graphs[instance].get_final_graph_for_grounding(
-                    grounding,
-                    type_combination
+                    grounding
                 )
                 check_list.append((instance, graph, initial_state, grounding))
         return check_list
@@ -248,10 +247,14 @@ class SIFT:
                                     #we dont have complex merged yet for this grounding, take simple merge as start.
                                     #make a deep copy as we need the old graph intact as intermediate result.
 
-                                    graph, initial_state = graphholder.get_simple_graph_for_grounding(grounding)
+                                    graph, initial_state = graphholder.get_simple_graph_for_grounding(
+                                        grounding
+                                    )
                                     graph = copy.deepcopy(graph)
                                 else:
-                                    graph, initial_state = graphholder.get_final_graph_for_grounding(grounding, type_combination)
+                                    graph, initial_state = graphholder.get_final_graph_for_grounding(
+                                        grounding
+                                    )
                                 runs[(arity,type_combination,instance,grounding)] = process_pool.submit(
                                     classtype.merge_graph_for_dead_patterns,
                                     graph, initial_state, grounding, all_patterns,
@@ -264,7 +267,7 @@ class SIFT:
                     try:
                         graph, initial_state, dead_patterns, equivalent_patterns = future.result()
                         self.all_graphs[instance].set_switching_graph_for_grounding(
-                            grounding, type_combination, graph, initial_state
+                            grounding, graph, initial_state
                         )
                         self.update_dead_switching_patterns_for_typecombination(type_combination, dead_patterns)
                         local_dead_patterns[(type_combination, instance, grounding)] = dead_patterns
@@ -320,11 +323,13 @@ class SIFT:
                                     #make a deep copy as we need the old graph intact as intermediate result.
 
                                     graph, initial_state = graphholder.get_switching_graph_for_grounding(
-                                        grounding, type_combination
+                                        grounding
                                     )
                                     graph = copy.deepcopy(graph)
                                 else:
-                                    graph, initial_state = graphholder.get_final_graph_for_grounding(grounding, type_combination)
+                                    graph, initial_state = graphholder.get_final_graph_for_grounding(
+                                        grounding
+                                    )
                                 runs[(arity,type_combination,instance,grounding)] = process_pool.submit(
                                     classtype.merge_graph_for_dead_patterns,
                                     graph, initial_state, grounding, all_patterns,
@@ -337,7 +342,7 @@ class SIFT:
                     try:
                         graph, initial_state, dead_patterns, equivalent_patterns = future.result()
                         self.all_graphs[instance].set_final_graph_for_grounding(
-                            grounding, type_combination, graph, initial_state
+                            grounding, graph, initial_state
                         )
                         self.update_dead_patterns_for_typecombination(type_combination, dead_patterns)
                         local_dead_patterns[(type_combination, instance, grounding)] = dead_patterns
