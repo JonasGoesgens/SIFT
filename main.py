@@ -432,6 +432,7 @@ def process_instance(args: argparse.Namespace):
             ar_sift.sift_iterations[iteration].LOCM_types,
             oi_features,
             features,
+            ar_sift.sift_iterations[iteration].all_ground_edges,
             verification_val,
             meta_info
         )
