@@ -410,7 +410,7 @@ class SIFT:
     def calculate_minimization_constraints(self) -> Set[FrozenSet[Tuple[Feature, Optional[pt.PatternT]]]]:
         raw_constraints_dict = dict()
         for feature in self.admissible_features:
-            if not feature.has_unique_colouring:
+            if not feature.has_unique_colouring():
                 continue
             split_index = 0
 
