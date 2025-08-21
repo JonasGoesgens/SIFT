@@ -10,6 +10,7 @@ import warnings
 import argparse
 import typing
 import copy
+import clingo
 from pathlib import Path
 import networkx as nx
 from py_separator_utils.pddl_generator import PDDLGenerator
@@ -296,6 +297,101 @@ def read_dict_from_file(filename):
 
     return result
 
+def generate_clingo_for_minimization(
+    minimization_constraints_sets #: Set[FrozenSet[Tuple[Feature, Optional[pt.PatternT]]]]
+):
+    clingo_input = ""
+    feature_numbers = dict()
+    pattern_numbers = dict()
+    constraint_numbers = dict()
+    for constraints_set in minimization_constraints_sets:
+        if constraints_set not in constraint_numbers:
+            constraint_numbers[constraints_set] = len(constraint_numbers)
+        for feature, pattern in constraints_set:
+            if feature not in feature_numbers:
+                feature_numbers[feature] = len(feature_numbers)
+            if pattern is not None and (feature, pattern) not in pattern_numbers:
+                pattern_numbers[(feature, pattern)] = len(pattern_numbers)
+
+    for feature, feature_number in feature_numbers.items():
+        clingo_input += f"%Feature({feature_number}) {repr(feature)}\n"
+        clingo_input += f"feature({feature_number}).\n"
+
+    for (feature, pattern), pattern_number in pattern_numbers.items():
+        clingo_input += f"%Feature Pattern Pair({pattern_number}) {repr(feature)}, {repr(pattern)}\n"
+        clingo_input += f"feature_pattern_pair({pattern_number}).\n"
+        clingo_input += f"feature_sel({feature_numbers[feature]}) :- feature_pattern_pair_sel({pattern_number}).\n"
+
+    for constraints_set, constraint_number in constraint_numbers.items():
+        clingo_input += f"constraint({constraint_number}).\n"
+        for feature, pattern in constraints_set:
+            if pattern is None:
+                clingo_input += f"constraint_fulfilled({constraint_number}) :- feature_sel({feature_numbers[feature]}).\n"
+            else:
+                clingo_input += f"constraint_fulfilled({constraint_number}) :- feature_pattern_pair_sel({pattern_numbers[(feature, pattern)]}).\n"
+    #print(clingo_input)
+    #output_path = 'clingo/generated/test_input_min.lp'
+    #with open(output_path, "w") as out_file:
+    #    out_file.write(clingo_input)
+    return clingo_input, feature_numbers, pattern_numbers
+
+def extract_raw_from_clingo_value(symbol : clingo.Symbol) -> typing.Union[str,int]:
+    if symbol.type == clingo.SymbolType.String:
+        return symbol.string
+    elif symbol.type == clingo.SymbolType.Number:
+        return symbol.number
+    else:
+        raise ValueError("Operation only provided for type int or str.")
+
+def extract_necessary_features(model):
+    return set(
+        extract_raw_from_clingo_value(atom.arguments[0])
+        for atom in model.symbols(shown=True)
+        if atom.name == "feature_sel"
+    ), set(
+        extract_raw_from_clingo_value(atom.arguments[0])
+        for atom in model.symbols(shown=True)
+        if atom.name == "feature_pattern_pair_sel"
+    )
+
+def run_clingo_with_rules_minimization(clingo_input):
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    ctl = clingo.Control()
+
+    with open(os.path.join(dir_path, "clingo", "Domain_Minimization_rules.lp"), "r") as f:
+        ctl.add("base", [], f.read())
+
+    # Füge den dynamischen Input hinzu
+    ctl.add("base", [], clingo_input)
+
+    ctl.ground([("base", [])])
+
+    solutions = list()
+
+    def on_model(model):
+        solutions.append((str(model),extract_necessary_features(model)))
+
+    ctl.solve(on_model=on_model)
+
+    return solutions
+
+def map_back_feature_numbers(clingo_solution, feature_numbers, pattern_numbers):
+    inversed_feature_numbers = {
+        value : key
+        for key, value in feature_numbers.items()
+    }
+    inversed_pattern_numbers = {
+        value : key
+        for key, value in pattern_numbers.items()
+    }
+    features_needed = dict()
+    for feature_number in clingo_solution[1][0]:
+        features_needed[inversed_feature_numbers[feature_number]] = set()
+    for pattern_number in clingo_solution[1][1]:
+        feature, pattern = inversed_pattern_numbers[pattern_number]
+        features_needed[feature].add(pattern)
+    return features_needed
+
 def process_instance(args: argparse.Namespace):
     # create domain paths
     domain_path = os.path.join(
@@ -337,6 +433,14 @@ def process_instance(args: argparse.Namespace):
     meta_info['all_features'] = len(sift.all_features)
     meta_info['admissible_features'] = len(features)
     #print("sift main run completed")
+
+    minimization_constraints_set = sift.calculate_minimization_constraints()
+    clingo_input, feature_numbers, pattern_numbers = generate_clingo_for_minimization(
+        minimization_constraints_set
+    )
+    solutions = run_clingo_with_rules_minimization(clingo_input)
+    minimal_domain = map_back_feature_numbers(solutions[-1], feature_numbers, pattern_numbers)
+
     verification_val = 0
     if args.verification_instance is not None:
         verifier = copy.deepcopy(sift)
@@ -349,6 +453,7 @@ def process_instance(args: argparse.Namespace):
         )
         for (early_termination, neg_mode, graphs) in verification_cases:
             if neg_mode or not early_termination:
+
                 for graph in graphs:
                     graph = [graph]
                     local_verifier = copy.deepcopy(verifier)
@@ -373,6 +478,7 @@ def process_instance(args: argparse.Namespace):
     return (
         sift.LOCM_types,
         features,
+        minimal_domain,
         sift.all_ground_edges,
         verification_val,
         meta_info
@@ -399,6 +505,7 @@ if __name__ == '__main__':
                 (
                     LOCM_types,
                     features,
+                    minimal_domain,
                     all_ground_edges,
                     verification_val,
                     meta_info
@@ -416,6 +523,7 @@ if __name__ == '__main__':
                 with open(output_path, "w") as out_file:
                     out_file.write(str(LOCM_types)+"\n")
 
+                    out_file.write("Maximal Domain:\n")
                     feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
                     for i, (feature, _) in enumerate(
                         sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
@@ -429,9 +537,23 @@ if __name__ == '__main__':
                         out_file.write(f"Verification failed on {verification_val} instances.\n")
                     out_file.write("Meta informations: " + str(meta_info) + "\n")
 
+                    #print minimal model
+                    feature_typecombinaton_filter_triplets = [
+                        (feature, feature.get_type_combination(), preconditions)
+                        for feature, preconditions in minimal_domain.items()
+                    ]
+                    out_file.write("Minimal Domain:\n")
+                    for index, (feature, type_combination, preconditions) in enumerate(sorted(feature_typecombinaton_filter_triplets, key=lambda pair: pair[1])):
+                        out_file.write(f"Feature {index + 1}:\n")
+                        out_file.write(f"Type Combination: {type_combination}\n")
+                        out_file.write(feature.get_color_split_combination_string(0, preconditions) + "\n\n")
+
                 #print pddl files
                 pddl_features = list()
-                feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
+                feature_typecombinaton_pairs = [
+                    (feature, feature.get_type_combination())
+                    for feature in minimal_domain.keys()
+                ]
                 for i, (feature, _) in enumerate(
                     sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
                 ):
@@ -442,7 +564,8 @@ if __name__ == '__main__':
                 pddl_gen.import_sift_result(
                     LOCM_types,
                     pddl_features,
-                    all_ground_edges
+                    all_ground_edges,
+                    minimal_domain
                 )
 
                 name = os.path.splitext(os.path.basename(args.domain))[0]
@@ -486,6 +609,7 @@ if __name__ == '__main__':
         (
             LOCM_types,
             features,
+            minimal_domain,
             all_ground_edges,
             verification_val,
             meta_info
@@ -500,6 +624,7 @@ if __name__ == '__main__':
         print("Meta informations: " + str(meta_info))
 
         #print features
+        print("Maximal Domain:")
         feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
         for i, (feature, _) in enumerate(
             sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
@@ -508,9 +633,25 @@ if __name__ == '__main__':
             print(f"Feature {i+1}:")
             print(feature)
 
+        #print minimal model
+        feature_typecombinaton_filter_triplets = [
+            (feature, feature.get_type_combination(), preconditions)
+            for feature, preconditions in minimal_domain.items()
+        ]
+        print("Minimal Domain:")
+        for index, (feature, type_combination, preconditions) in enumerate(sorted(
+            feature_typecombinaton_filter_triplets, key=lambda pair: pair[1]
+        )):
+            print(f"Feature {index + 1}:")
+            print(f"Type Combination: {type_combination}")
+            print(feature.get_color_split_combination_string(0, preconditions) + "\n")
+
         #print pddl files
         pddl_features = list()
-        feature_typecombinaton_pairs = [(feature, feature.get_type_combination()) for feature in features]
+        feature_typecombinaton_pairs = [
+            (feature, feature.get_type_combination())
+            for feature in minimal_domain.keys()
+        ]
         for i, (feature, _) in enumerate(
             sorted(feature_typecombinaton_pairs, key=lambda pair: pair[1])
         ):
@@ -521,7 +662,8 @@ if __name__ == '__main__':
         pddl_gen.import_sift_result(
             LOCM_types,
             pddl_features,
-            all_ground_edges
+            all_ground_edges,
+            minimal_domain
         )
         name = os.path.splitext(os.path.basename(args.domain))[0]
         print(pddl_gen.get_domain_pddl(name))

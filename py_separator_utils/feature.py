@@ -2,7 +2,7 @@ import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 from py_separator_utils.object_types import LOCM_Types
 from itertools import permutations
-from typing import Optional
+from typing import Optional, Tuple, Set, FrozenSet, Dict, List
 import sys
 #features will invalitate themselfs on a color failure
 #remember to deepcopy them for testing unsafe graphs
@@ -213,7 +213,7 @@ class Feature:
                             #invalid coloring
                             self.invalitate()
                             return None
-                        
+
                         for col_pat in matching_selected_pattens:
                             #pattern get the same color as target nodes
                             pattern_colors[node_color[edge[1]]].add(col_pat)
@@ -237,6 +237,99 @@ class Feature:
             return None
 
         return node_color
+
+    def find_non_applicable_edges(self,
+        instance : int,
+        Graph : pt.GraphT,
+        grounding : pt.GroundingT,
+        all_ground_edges : pt.SetLike[pt.Ground_Edge_Info],
+        split_index : int = 0
+    ) -> Optional[Set[Tuple[int, pt.NodeT, pt.Ground_Edge_Info, Optional[pt.PatternT]]]]:
+        if self.is_invalid():
+            return None
+        add_list, del_list, pos_precs, neg_precs, _, _, _ = self.get_color_split_combination(split_index)
+        not_applicable_edges = set()
+        unvisited_nodes = set(Graph.nodes())
+        node_color = {i: None for i in Graph.nodes()}
+        while unvisited_nodes:
+            node = next(iter(unvisited_nodes))
+            node_color[node] = 0
+            pattern_colors = (set(),set(),set(),set(),set(),set())
+            open_nodes = {node}
+            initial_color = None
+            hypo_not_applicable_edges = [set(),set()]
+            while open_nodes:
+                node = open_nodes.pop()
+                unvisited_nodes.discard(node)
+                for edges, a, b in [
+                    [Graph.out_edges([node],data='action'), 1, 0],
+                    [Graph.in_edges([node],data='action'), 0, 1]
+                ]:
+                    #note every edge is seen twice this is neccesary for the open list
+                    #checking for duplicates would take as much time as running them
+                    for edge in edges:
+                        (found_matching, found_unmatching,
+                        matching_selected_pattens, matching_unselected_pattens
+                        ) = self.parse_edge_label(edge[2], grounding)
+                        #print(edge)
+                        if found_matching:
+                            #feature edge switch color
+                            if edge[a] in unvisited_nodes:
+                                open_nodes.add(edge[a])
+                            if initial_color is None:
+                                if matching_selected_pattens.intersection(add_list):
+                                    initial_color = a
+                                else:
+                                    initial_color = b
+                            node_color[edge[a]] = 1 - node_color[edge[b]]
+
+                        elif found_unmatching:
+                            #neutral edge keep color
+                            if edge[a] in unvisited_nodes:
+                                open_nodes.add(edge[a])
+                            node_color[edge[a]] = node_color[edge[b]]
+
+                        else:
+                            #uncertain edge with unknown arguments,
+                            #handle as if it does not exist.
+                            #This may disconnect the graph.
+                            continue
+
+                merged_nodes = {node}.union(Graph.nodes[node].get('merged', set()))
+                #print(all_ground_edges)
+                for edge_label in all_ground_edges:
+                    (found_matching, found_unmatching,
+                    matching_selected_pattens, matching_unselected_pattens
+                    ) = self.parse_edge_label({edge_label}, grounding)
+
+                    #print(matching_selected_pattens, add_list)
+                    if matching_selected_pattens.intersection(add_list):
+                        for merged_node in merged_nodes:
+                            hypo_not_applicable_edges[node_color[node]].add((
+                                instance, merged_node, edge_label, None
+                            ))
+                    if matching_selected_pattens.intersection(del_list):
+                        for merged_node in merged_nodes:
+                            hypo_not_applicable_edges[1 - node_color[node]].add((
+                                instance, merged_node, edge_label, None
+                            ))
+                    patterns = matching_unselected_pattens.intersection(pos_precs)
+                    for pattern in patterns:
+                        for merged_node in merged_nodes:
+                            hypo_not_applicable_edges[1 - node_color[node]].add((
+                                instance, merged_node, edge_label, pattern
+                            ))
+                    patterns = matching_unselected_pattens.intersection(neg_precs)
+                    for pattern in patterns:
+                        for merged_node in merged_nodes:
+                            hypo_not_applicable_edges[node_color[node]].add((
+                                instance, merged_node, edge_label, pattern
+                            ))
+            
+            if initial_color is not None:
+                not_applicable_edges.update(hypo_not_applicable_edges[initial_color])
+
+        return not_applicable_edges
 
     def extend_seen_patterns(self, new_patterns : pt.PatternTSetLike,
         new_type_combination : pt.TypeCombi
@@ -309,7 +402,38 @@ class Feature:
             return self.get_extended_identifier() == other.get_extended_identifier()
         return False
 
-    def __str__(self):
+    def get_color_split_combination_string(
+        self, index : int,
+        precondition_filter : Optional[pt.PatternTSetLike] = None
+    ) -> str:
+        output_lines = []
+        (
+            add_list, del_list,
+            pos_precs, neg_precs,
+            undefined_precs,
+            init_true_atoms, init_false_atoms
+        ) = self.get_color_split_combination(index)
+        if precondition_filter is not None:
+            pos_precs = pos_precs.intersection(precondition_filter)
+            neg_precs = neg_precs.intersection(precondition_filter)
+            undefined_precs = undefined_precs.intersection(precondition_filter)
+        if add_list:
+            output_lines.append(f"  Add List: {add_list}")
+        if del_list:
+            output_lines.append(f"  Delete List: {del_list}")
+        if pos_precs:
+            output_lines.append(f"  Positive Preconditions: {pos_precs}")
+        if neg_precs:
+            output_lines.append(f"  Negative Preconditions: {neg_precs}")
+        if undefined_precs:
+            output_lines.append(f"  Undecided Preconditions: {undefined_precs}")
+        if init_true_atoms:
+            output_lines.append(f"  True initial Atoms: {init_true_atoms}")
+        if init_false_atoms:
+            output_lines.append(f"  False initial Atoms: {init_false_atoms}")
+        return "\n".join(output_lines)
+
+    def __str__(self) -> str:
         if self.is_invalid():
             return f"Feature is invalid. {self.get_identifier()}"
 
@@ -317,16 +441,9 @@ class Feature:
         output_lines.append(f"Type Combination: {self.type_combination}")
 
         for i in range(self.get_number_of_split_combinations()):
-            add_list, del_list, pos_precs, neg_precs, undefined_precs, init_true_atoms, init_false_atoms = self.get_color_split_combination(i)
             if not self.has_unique_colouring():
                 output_lines.append(f"Kombination {i + 1}:")
-            output_lines.append(f"  Add List: {add_list}")
-            output_lines.append(f"  Delete List: {del_list}")
-            output_lines.append(f"  Positive Preconditions: {pos_precs}")
-            output_lines.append(f"  Negative Preconditions: {neg_precs}")
-            output_lines.append(f"  Undecided Preconditions: {undefined_precs}")
-            output_lines.append(f"  True initial Atoms: {init_true_atoms}")
-            output_lines.append(f"  False initial Atoms: {init_false_atoms}")
+            output_lines.append(self.get_color_split_combination_string(i))
             output_lines.append("")
 
         return "\n".join(output_lines)

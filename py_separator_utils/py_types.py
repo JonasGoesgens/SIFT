@@ -31,7 +31,7 @@ PatternT = typing.Tuple[ActionT,typing.Tuple[int]]
 #It has different usecases as PatterT
 Ground_Edge_Info = typing.Tuple[ActionT,typing.Tuple[int]]
 #Edge_Label is a set of Ground_Edge_Info holding all actions that caused this edge
-Edge_LabelT = set[Ground_Edge_Info]
+Edge_LabelT = typing.Set[Ground_Edge_Info]
 #Graph is a nx.digraph
 GraphT = nx.DiGraph
 #Graph edges are annotated with the key action
