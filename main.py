@@ -638,6 +638,7 @@ if __name__ == '__main__':
                         out_file.write(f"OI Feature {i+1}:\n")
                         out_file.write(str(feature))
 
+                    out_file.write("Maximal Domain:\n")
                     feature_typecombinaton_pairs = [
                         (feature, feature.get_type_combination())
                         for feature in features
@@ -763,6 +764,7 @@ if __name__ == '__main__':
             print(feature)
 
         #print features
+        print("Maximal Domain:")
         feature_typecombinaton_pairs = [
             (feature, feature.get_type_combination())
             for feature in features

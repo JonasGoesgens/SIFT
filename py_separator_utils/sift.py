@@ -420,7 +420,9 @@ class SIFT:
             ).items():
                 all_ground_edges = self.all_ground_edges[instance]
                 for grounding in groundings:
-                    graph = self.all_graphs[instance].get_final_graph_for_grounding(grounding)[0]
+                    graph = self.all_graphs[instance].get_final_graph_for_grounding(
+                        grounding
+                    )[0]
                     result = feature.find_non_applicable_edges(
                         instance,
                         graph,
