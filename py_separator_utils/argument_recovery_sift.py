@@ -12,8 +12,9 @@ from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed,
 
 class StratificationError(Exception):
     """Execption for issues with applying a previous stratification."""
-    def __init__(self, message: str):
+    def __init__(self, iteration: int, message: str):
         super().__init__(message)
+        self.iteration = iteration
 
 class Argument_Recovery_Sift:
     def __init__(self, graphs : Union[List[Tuple[pt.GraphT, pt.NodeT]],
@@ -291,7 +292,7 @@ class Argument_Recovery_Sift:
                     oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])
                     for oi_feature in self.argument_identifier_features[iteration]
                 ):
-                    raise StratificationError("An OI Feature or Pattern used to setup the next graph became invalid")
+                    raise StratificationError(iteration, f"An OI Feature or Pattern used to setup the next graph became invalid in iteration {iteration}")
             else:
                 new_oi_features = tuple(
                     self.admissible_order_id_features[iteration].difference(self.argument_identifier_features[iteration])

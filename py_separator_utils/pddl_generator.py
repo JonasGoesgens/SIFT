@@ -1,7 +1,7 @@
 from py_separator_utils.feature import Feature
 from py_separator_utils.object_types import LOCM_Types
 import py_separator_utils.py_types as pt
-from typing import Iterable, List, Dict, Set, Tuple
+from typing import Iterable, List, Dict, Set, Tuple, Optional
 class PDDLGenerator:
     def __init__(self, display_chunk_size : int = 4):
         self.type_mapping = dict()
@@ -21,7 +21,8 @@ class PDDLGenerator:
 
     def import_feature(self,
         feature : Feature,
-        all_atoms : pt.SetLike[pt.GroundingInstT] = set()
+        all_atoms : pt.SetLike[pt.GroundingInstT] = set(),
+        precondition_filter : Optional[pt.SetLike[pt.PatternT]] = None
     ) -> None:
         if feature.is_invalid():
             return
@@ -38,6 +39,9 @@ class PDDLGenerator:
                 atoms[0],
                 atoms[1]
             ) = feature.get_color_split_combination(split_number)
+            if precondition_filter is not None:
+                preconditions[0] = preconditions[0].intersection(precondition_filter)
+                preconditions[1] = preconditions[1].intersection(precondition_filter)
             for sign in {0,1}:
                 if feature not in self.predicate_base_names:
                     self.predicate_base_names[feature] = f"Feature_{len(self.predicate_base_names)}"
@@ -83,7 +87,8 @@ class PDDLGenerator:
     def import_sift_result(self,
         locm_types : LOCM_Types,
         admissible_features : Iterable[Feature],
-        all_ground_edges : Dict[int,Set[pt.Ground_Edge_Info]]
+        all_ground_edges : Dict[int,pt.SetLike[pt.Ground_Edge_Info]],
+        precondition_filters : Optional[Dict[Feature,pt.SetLike[pt.PatternT]]] = None
     ):
         self.locm_types = locm_types
         for number, type_id in enumerate(locm_types.type_args.keys()):
@@ -114,13 +119,17 @@ class PDDLGenerator:
                 continue
             #if not feature.has_unique_colouring():
             #    continue
+            precondition_filter = None
+            if precondition_filters is not None:
+                precondition_filter = precondition_filters.get(feature, None)
             self.import_feature(
                 feature,
                 all_atoms_dict.get(
                     locm_types.update_type_combination(
                         feature.get_type_combination()
                     ), set()
-                )
+                ),
+                precondition_filter
             )
         for type_obj, inst_objects in locm_types.type_objs.items():
             for instance in locm_types.known_instances:

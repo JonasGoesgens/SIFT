@@ -6,7 +6,7 @@ import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 import copy
 import sys
-from typing import Set, List, Tuple, Dict, Union
+from typing import Set, FrozenSet, List, Tuple, Dict, Union, Optional
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 
 class SIFT:
@@ -406,3 +406,40 @@ class SIFT:
                 self.admissible_features.add(feature)
 
         return self.admissible_features
+
+    def calculate_minimization_constraints(self) -> Set[FrozenSet[Tuple[Feature, Optional[pt.PatternT]]]]:
+        raw_constraints_dict = dict()
+        for feature in self.admissible_features:
+            if not feature.has_unique_colouring():
+                continue
+            split_index = 0
+
+            type_combination = feature.get_type_combination()
+            for instance, groundings in self.LOCM_types.get_all_groundings_for_typecombination(
+                type_combination
+            ).items():
+                all_ground_edges = self.all_ground_edges[instance]
+                for grounding in groundings:
+                    graph = self.all_graphs[instance].get_final_graph_for_grounding(
+                        grounding
+                    )[0]
+                    result = feature.find_non_applicable_edges(
+                        instance,
+                        graph,
+                        grounding,
+                        all_ground_edges,
+                        split_index
+                    )
+                    if result is None:
+                        continue
+                    for instance, node, label, prec_pattern in result:
+                        key = (instance, node, label)
+                        if key not in raw_constraints_dict:
+                            raw_constraints_dict[key] = set()
+                        raw_constraints_dict[key].add((feature,prec_pattern))
+
+        constraints_set = set()
+        for (key, blocking_set) in raw_constraints_dict.items():
+            constraints_set.add(frozenset(blocking_set))
+
+        return constraints_set
