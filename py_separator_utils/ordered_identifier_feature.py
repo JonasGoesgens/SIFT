@@ -32,7 +32,7 @@ class Ordered_Identifier_Feature:
         self.del_patterns = frozenset(del_patterns)
         self.pre_patterns = set(pre_patterns)
         self.disabled_pre_patterns = set()
-        self.extend_identifier = None
+        self.extended_identifier = None
         #We need an ordered way to iterate over additional arguments in case
         #a single feature indroduce multiple arguments to a single edge.
         self.argument_identifier_patterns = tuple(sorted(
@@ -376,13 +376,13 @@ class Ordered_Identifier_Feature:
         #in theory a feature is completly determined by the selected patterns
         #all other vars are merly computional caches
         #converging into the same form for the same input no matter the order
-        if self.extend_identifier is not None:
-            return self.extend_identifier
+        if self.extended_identifier is not None:
+            return self.extended_identifier
         arity = self.get_type_combination().size()
         if arity < 2:
-            self.extend_identifier = frozenset({self.get_identifier()})
-            return self.extend_identifier
-        extend_identifier = set()
+            self.extended_identifier = frozenset({self.get_identifier()})
+            return self.extended_identifier
+        extended_identifier = set()
         for permutation in permutations(range(arity)):
             identifier = [set(), set()]
             for pattern in self.get_identifier()[0]:
@@ -395,12 +395,12 @@ class Ordered_Identifier_Feature:
                     pattern[1][index]
                     for index in permutation
                 )))
-            extend_identifier.add(tuple(
+            extended_identifier.add(tuple(
                 frozenset(identifier_set)
                 for identifier_set in identifier
             ))
-        self.extend_identifier = frozenset(extend_identifier)
-        return self.extend_identifier
+        self.extended_identifier = frozenset(extended_identifier)
+        return self.extended_identifier
 
     def get_value_feature_identifier(self,
         arg_feature_assignments : pt.Arg_Feature_Multi_AssignmentT
