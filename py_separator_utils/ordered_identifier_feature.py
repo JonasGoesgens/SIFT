@@ -404,7 +404,7 @@ class Ordered_Identifier_Feature:
 
     def get_value_feature_identifier(self,
         arg_feature_assignments : pt.Arg_Feature_Multi_AssignmentT
-    ) -> FrozenSet[pt.PatternT]:
+    ) -> Optional[FrozenSet[pt.PatternT]]:
         #returns the identifier of the sift feature that has the same values as this oi_feature-
         identifier = set()
         identifier.update(self.add_patterns)
@@ -415,15 +415,20 @@ class Ordered_Identifier_Feature:
                         continue
                     if pattern not in self.del_patterns:
                         continue
+                    if arg == pt.ObjectNotKnown:
+                        return None
                     identifier.add((pattern[0],pattern[1]+(arg,)))
         return frozenset(identifier)
 
     def get_value_feature_extended_identifier(self,
         arg_feature_assignments : pt.Arg_Feature_Multi_AssignmentT
-    ) -> FrozenSet[FrozenSet[pt.PatternT]]:
+    ) -> Optional[FrozenSet[FrozenSet[pt.PatternT]]]:
         #returns the identifier of the sift feature that has the same values as this oi_feature-
+        identifier = self.get_value_feature_identifier(arg_feature_assignments)
+        if identifier is None:
+            return None
         return Feature.extend_identifier(
-            self.get_value_feature_identifier(arg_feature_assignments),
+            identifier,
             self.get_type_combination().size() + 1
         )
 
