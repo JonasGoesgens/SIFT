@@ -426,13 +426,13 @@ class Feature:
             return frozenset({identifier})
         extended_identifier = set()
         for permutation in permutations(range(arity)):
-            identifier = set()
+            sub_identifier = set()
             for pattern in identifier:
-                identifier.add((pattern[0],tuple(
+                sub_identifier.add((pattern[0],tuple(
                     pattern[1][index]
                     for index in permutation
                 )))
-            extended_identifier.add(frozenset(identifier))
+            extended_identifier.add(frozenset(sub_identifier))
         return frozenset(extended_identifier)
 
     def get_extended_identifier(self) -> FrozenSet[FrozenSet[pt.PatternT]]:
