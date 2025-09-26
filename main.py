@@ -558,6 +558,7 @@ def process_instance(args: argparse.Namespace):
         meta_info['all_oi_features'] = len(all_tested_oi_features)
         meta_info['admissible_oi_features'] = len(oi_features)
         meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
+        meta_info['action_argument_multi_assignments'] = ar_sift.multi_arg_feature_assignment
         meta_info['action_arities'] = ar_sift.sift_iterations[iteration].LOCM_types.action_arities
 
         minimization_constraints_set = ar_sift.sift_iterations[iteration].calculate_minimization_constraints()
@@ -860,6 +861,8 @@ if __name__ == '__main__':
         print("Meta informations: " + str(meta_info))
 
         #print identifier features
+        multi_assignment = meta_info.get('action_argument_multi_assignments',dict())
+        print(multi_assignment)
         feature_numbers = dict()
         feature_typecombinaton_pairs = [
             (feature, feature.get_type_combination())
@@ -872,6 +875,7 @@ if __name__ == '__main__':
             #if feature.has_unique_colouring():
             print(f"OI Feature {i+1}:")
             print(feature)
+            print(feature.get_value_feature_extended_identifier(multi_assignment))
 
         #print features
         print("Maximal Domain:")

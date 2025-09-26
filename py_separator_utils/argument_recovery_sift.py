@@ -25,6 +25,7 @@ class Argument_Recovery_Sift:
         self.order_id_features = dict()
         self.order_id_features[0] = set()
         self.arg_feature_assignments = dict()
+        self.multi_arg_feature_assignment = dict()
         self.admissible_order_id_features = dict()
         self.argument_identifier_features = dict()
         self.argument_identifier_features[0] = tuple()
@@ -366,6 +367,16 @@ class Argument_Recovery_Sift:
                 else:
                     for index, assignment in assignments.items():
                         self.arg_feature_assignments[action][index] = assignment
+
+            #TODO fix assignments added to wrong actions
+            for action, assignments in multi_arg_feature_assignment.items():
+                if action not in self.multi_arg_feature_assignment:
+                    self.multi_arg_feature_assignment[action] = assignments
+                else:
+                    for index, assignment in assignments.items():
+                        if index not in self.multi_arg_feature_assignment[action]:
+                            self.multi_arg_feature_assignment[action][index] = set()
+                        self.multi_arg_feature_assignment[action][index].update(assignment)
 
         #Main Loop terminated, finalize and cleanup depending on termination cause.
         #input_changed == True  termination by runlinmit execute last run.

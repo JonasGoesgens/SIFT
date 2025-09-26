@@ -415,6 +415,8 @@ class Ordered_Identifier_Feature:
                         continue
                     if pattern not in self.del_patterns:
                         continue
+                    if pattern[0] != action:
+                        continue
                     if arg == pt.ObjectNotKnown:
                         return None
                     identifier.add((pattern[0],pattern[1]+(arg,)))
