@@ -67,6 +67,9 @@ PreconditionSplitT = ColorSplitT
 Arg_Feature_AssignmentT = typing.Dict[ActionT, typing.Dict[
     int, typing.Tuple['Ordered_Identifier_Feature', PatternT]
 ]]
+Arg_Feature_Multi_AssignmentT = typing.Dict[ActionT, typing.Dict[
+    int, typing.Set[typing.Tuple['Ordered_Identifier_Feature', PatternT]]
+]]
 #Sets of used types
 T = typing.TypeVar('T')
 SetLike = typing.Union[typing.Set[T], typing.FrozenSet[T]]

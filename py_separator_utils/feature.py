@@ -60,7 +60,7 @@ class Feature:
         self.unselected_patterns = set(
             self.all_patterns.difference(self.selected_patterns)
         )
-        self.extend_identifier = None
+        self.extended_identifier = None
         self.backup_color_splits = None
         self.precondition_splits = None
         self.undefined_preconditions = None
@@ -192,6 +192,16 @@ class Feature:
                 new_split[5].update(color_split[4])
                 del self.color_splits[i]
         if new_split[0] or new_split[1]:
+            if len(new_split[5]) < len(new_split[4]):
+                #try to have positive atoms more rare than negative atoms.
+                new_split = (
+                    new_split[1],
+                    new_split[0],
+                    new_split[3],
+                    new_split[2],
+                    new_split[5],
+                    new_split[4]
+                )
             self.color_splits.append(new_split)
             self.precondition_splits = None
             self.undefined_preconditions = None
@@ -408,29 +418,35 @@ class Feature:
         #converging into the same form for the same input no matter the order
         return self.selected_patterns
 
+    @classmethod
+    def extend_identifier(cls,
+        identifier : FrozenSet[pt.PatternT], arity : int
+    ) -> FrozenSet[FrozenSet[pt.PatternT]]:
+        if arity < 2:
+            return frozenset({identifier})
+        extended_identifier = set()
+        for permutation in permutations(range(arity)):
+            identifier = set()
+            for pattern in identifier:
+                identifier.add((pattern[0],tuple(
+                    pattern[1][index]
+                    for index in permutation
+                )))
+            extended_identifier.add(frozenset(identifier))
+        return frozenset(extended_identifier)
+
     def get_extended_identifier(self) -> FrozenSet[FrozenSet[pt.PatternT]]:
         #returns a frozenset of all the frozensets
         #with the same meaning to use as key in dicts
         #in theory a feature is completly determined by the selected patterns
         #all other vars are merly computional caches
         #converging into the same form for the same input no matter the order
-        if self.extend_identifier is not None:
-            return self.extend_identifier
-        arity = self.get_type_combination().size()
-        if arity < 2:
-            self.extend_identifier = frozenset({self.get_identifier()})
-            return self.extend_identifier
-        extend_identifier = set()
-        for permutation in permutations(range(arity)):
-            identifier = set()
-            for pattern in self.get_identifier():
-                identifier.add((pattern[0],tuple(
-                    pattern[1][index]
-                    for index in permutation
-                )))
-            extend_identifier.add(frozenset(identifier))
-        self.extend_identifier = frozenset(extend_identifier)
-        return self.extend_identifier
+        if self.extended_identifier is not None:
+            return self.extended_identifier
+        self.extended_identifier = self.__class__.extend_identifier(
+            self.get_identifier(), self.get_type_combination().size()
+        )
+        return self.extended_identifier
 
     def __hash__(self) -> int:
         #implemented hash to allow direct use in dicts
@@ -441,6 +457,8 @@ class Feature:
     def __eq__(self, other : object) -> bool:
         if isinstance(other, Feature):
             return self.get_extended_identifier() == other.get_extended_identifier()
+        if isinstance(other, frozenset):
+            return self.get_extended_identifier() == other
         return False
 
     def get_color_split_combination_string(

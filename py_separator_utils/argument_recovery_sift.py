@@ -344,7 +344,12 @@ class Argument_Recovery_Sift:
 
             #TODO clean up oifeatures additional_arguments.
             old_arities = self.sift_iterations[iteration - 1].LOCM_types.action_arities.copy()
-            input_changed, arg_feature_assignment, _ = self.update_graphs(
+            (
+                input_changed,
+                arg_feature_assignment,
+                multi_arg_feature_assignment,
+                _
+            ) = self.update_graphs(
                 self.revised_oi_features[iteration - 1],
                 iteration,
                 old_arities
@@ -403,10 +408,15 @@ class Argument_Recovery_Sift:
         new_oi_features : tuple[OIFeature],
         iteration : int,
         old_arities : Dict[pt.ActionT,int]
-    ) -> Tuple[bool, pt.Arg_Feature_AssignmentT]:
+    ) -> Tuple[bool,
+        pt.Arg_Feature_AssignmentT,
+        pt.Arg_Feature_Multi_AssignmentT,
+        pt.Arg_Feature_AssignmentT
+    ]:
         new_graphs = dict()
         arities = dict()
         arg_feature_assignment = dict()
+        multi_arg_feature_assignment = dict()
         all_arg_feature_assignments = dict()
         arg_conflicts = ConflictManager[Tuple[pt.ActionT,int]]()
         arg_emulations = ConflictManager[Tuple[pt.ActionT,int]]()
@@ -462,7 +472,8 @@ class Argument_Recovery_Sift:
         #Identify duplicated arguments that were deduced in multiple ways
         args_to_delete = dict()
         for action, arity in arities.items():
-            args_to_delete[action] = set()
+            #args to delete dict action -> dict arg -> cause
+            args_to_delete[action] = dict()
             for first_arg in range(arity):
                 later_args = set((action, arg) for arg in range(
                     max(first_arg + 1, old_arities[action]), arity
@@ -470,14 +481,18 @@ class Argument_Recovery_Sift:
                 for _, arg in arg_conflicts.find_non_conflicting_elements(
                     (action, first_arg), later_args
                 ):
-                    args_to_delete[action].add(arg)
+                    args_to_delete[action][arg] = min(
+                        first_arg, args_to_delete[action].get(arg, first_arg)
+                    )
             later_args = set((action, arg) for arg in range(
                 old_arities[action], arity
             ))
             for _, arg in arg_conflicts.find_non_conflicting_elements(
                 (action, pt.ObjectNotKnown), later_args
             ):
-                args_to_delete[action].add(arg)
+                args_to_delete[action][arg] = min(
+                    pt.ObjectNotKnown, args_to_delete[action].get(arg, pt.ObjectNotKnown)
+                )
 
         for action, arity in old_arities.items():
             arg_feature_assignment[action] = dict()
@@ -502,12 +517,24 @@ class Argument_Recovery_Sift:
 
         for action, arity in old_arities.items():
             index = arity
+            index_mapping = dict()
             action_arg_feature_assignment = dict()
+            action_multi_arg_feature_assignment = dict()
             for old_index, assignment in sorted(arg_feature_assignment[action].items()):
                 if old_index not in args_to_delete[action]:
                     action_arg_feature_assignment[index] = assignment
+                    index_mapping[old_index] = index
                     index += 1
+
+            for old_index, assignment in sorted(arg_feature_assignment[action].items()):
+                multi_index = args_to_delete[action].get(old_index, old_index)
+                multi_index = index_mapping.get(multi_index, multi_index)
+                if multi_index not in action_multi_arg_feature_assignment:
+                    action_multi_arg_feature_assignment[multi_index] = set()
+                action_multi_arg_feature_assignment[multi_index].add(assignment)
+
             arg_feature_assignment[action] = action_arg_feature_assignment
+            multi_arg_feature_assignment[action] = action_multi_arg_feature_assignment
 
         for action, arity in arities.items():
             protected_pos = old_arities.get(action,0)
@@ -543,4 +570,5 @@ class Argument_Recovery_Sift:
             arities[key] > old_arities[key]
             for key in arities
         ), arg_feature_assignment,
+        multi_arg_feature_assignment,
         all_arg_feature_assignments)

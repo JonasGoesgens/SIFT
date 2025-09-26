@@ -1,0 +1,235 @@
+{
+    "domain": {
+        "name":"blocks sokoban json example",
+        "types": [
+            0
+        ],
+        "predicates":[
+            {
+                "name": "on",
+                "arity": 2,
+                "_comment":"full,concluded,example",
+                "knowledge":"concluded",
+                "behavior":"fluent",
+                "arg_types":[
+                    [
+                        0
+                    ],
+                    [
+                        0
+                    ]
+                ],
+                "feature": {
+                    "add_effects": [
+                        {
+                            "name": "move_blocks",
+                            "args":[0,2]
+                        }
+                    ],
+                    "del_effects": [
+                        {
+                            "name": "move_blocks",
+                            "args":[0,1]
+                        }
+                    ],
+                    "pos_preconditions": [
+                        {
+                            "name": "move_blocks",
+                            "args":[0,1]
+                        }
+                    ],
+                    "neg_preconditions": [
+                        {
+                            "name": "move_blocks",
+                            "args":[0,2]
+                        }
+                    ],
+                    "undef_preconditions": [
+                    ]
+                }
+            },
+            {
+                "name": "at",
+                "arity": 1,
+                "_comment":"full,concluded,example",
+                "knowledge":"concluded",
+                "behavior":"fluent",
+                "arg_types":[
+                    [
+                        0
+                    ]
+                ]
+            },
+            {
+                "name": "adj",
+                "arity": 2,
+                "_comment":"full,concluded,example",
+                "knowledge":"full",
+                "behavior":"static",
+                "arg_types":[
+                    [
+                        0
+                    ],
+                    [
+                        0
+                    ]
+                ]
+            }
+        ],
+        "actions":[
+            {
+                "name": "move_blocks",
+                "arity": 3,
+                "arg_types": [
+                    [0],
+                    [0],
+                    [0]
+                ],
+                "queries":[
+                    null,
+                    [
+                        {
+                            "negated": true,
+                            "predicate": "name",
+                            "_comment": ["exists", "all", "res", "pos"],
+                            "args": ["exists", "all", "res", 1]
+                        },
+                        {
+                            "negated": false,
+                            "predicate": "on",
+                            "args": [0, "res"]
+                        }
+                    ],
+                    null
+                ]
+            },
+            {
+                "name": "move_soko",
+                "arity": 2,
+                "arg_types": [
+                    [0],
+                    [0]
+                ],
+                "queries":[
+                    [
+                        {
+                            "negated": false,
+                            "predicate": "at",
+                            "args": ["res"]
+                        }
+                    ],
+                    null
+                ]
+            }
+        ]
+    },
+    "instances": [
+        {
+            "instance_id": 1,
+            "objects": {
+                "c_0_0":0,
+                "c_0_1":1,
+                "c_0_2":2,
+                "c_1_0":3,
+                "c_1_1":4,
+                "c_1_2":5,
+                "c_2_0":6,
+                "c_2_1":7,
+                "c_2_2":8
+            },
+            "static_atoms": [
+                {
+                    "name":"adj",
+                    "True_atoms":[
+                        ["c_0_0","c_0_1"],
+                        ["c_0_1","c_0_2"],
+                        ["c_1_0","c_1_1"],
+                        ["c_1_1","c_1_2"],
+                        ["c_2_0","c_2_1"],
+                        ["c_2_1","c_2_2"],
+                        ["c_0_1","c_0_0"],
+                        ["c_0_2","c_0_1"],
+                        ["c_1_1","c_1_0"],
+                        ["c_1_2","c_1_1"],
+                        ["c_2_1","c_2_0"],
+                        ["c_2_2","c_2_1"],
+                        ["c_0_0","c_1_0"],
+                        ["c_1_0","c_2_0"],
+                        ["c_0_1","c_1_1"],
+                        ["c_1_1","c_2_1"],
+                        ["c_0_2","c_1_2"],
+                        ["c_1_2","c_2_2"],
+                        ["c_1_0","c_0_0"],
+                        ["c_2_0","c_1_0"],
+                        ["c_1_1","c_0_1"],
+                        ["c_2_1","c_1_1"],
+                        ["c_1_2","c_0_2"],
+                        ["c_2_2","c_1_2"]
+                    ],
+                    "False_atoms":"Omitted"
+                }
+            ],
+            "initial_state":0,
+            "states":[
+                {
+                    "id":0,
+                    "fluent_atoms":[
+                        {
+                            "name":"at",
+                            "True_atoms":[
+                                ["c_0_0"]
+                            ],
+                            "False_atoms":[
+                                ["c_0_1"],
+                                ["c_0_2"],
+                                ["c_1_0"],
+                                ["c_1_1"],
+                                ["c_1_2"],
+                                ["c_2_0"],
+                                ["c_2_1"],
+                                ["c_2_2"]
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id":1,
+                    "fluent_atoms":[
+                        {
+                            "name":"at",
+                            "True_atoms":[
+                                ["c_0_1"]
+                            ],
+                            "False_atoms":[
+                                ["c_0_0"],
+                                ["c_0_2"],
+                                ["c_1_0"],
+                                ["c_1_1"],
+                                ["c_1_2"],
+                                ["c_2_0"],
+                                ["c_2_1"],
+                                ["c_2_2"]
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "transitions":[
+                {
+                    "in_state":0,
+                    "out_state":1,
+                    "ground_actions":[
+                        {
+                            "name":"move_soko",
+                            "args":[
+                                "c_0_0",
+                                "c_0_1"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {}
+    ]
+}

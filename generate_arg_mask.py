@@ -188,7 +188,7 @@ def generate_clingo_from_instance(args: argparse.Namespace):
     iteration = 0
     oi_features = ar_sift.run_iteration(iteration, process_pool_args, False)
     new_oi_features = tuple(oi_features)
-    _, _, all_arg_feature_assignments = ar_sift.update_graphs(
+    _, _, _, all_arg_feature_assignments = ar_sift.update_graphs(
             new_oi_features,
             iteration,
             old_arities

@@ -402,6 +402,31 @@ class Ordered_Identifier_Feature:
         self.extend_identifier = frozenset(extend_identifier)
         return self.extend_identifier
 
+    def get_value_feature_identifier(self,
+        arg_feature_assignments : pt.Arg_Feature_Multi_AssignmentT
+    ) -> FrozenSet[pt.PatternT]:
+        #returns the identifier of the sift feature that has the same values as this oi_feature-
+        identifier = set()
+        identifier.update(self.add_patterns)
+        for action, arg_feature_action_assignment in arg_feature_assignments.items():
+            for arg, assignments in arg_feature_action_assignment.items():
+                for oi_feature, pattern in assignments:
+                    if oi_feature != self:
+                        continue
+                    if pattern not in self.del_patterns:
+                        continue
+                    identifier.add((pattern[0],pattern[1]+(arg,)))
+        return frozenset(identifier)
+
+    def get_value_feature_extended_identifier(self,
+        arg_feature_assignments : pt.Arg_Feature_Multi_AssignmentT
+    ) -> FrozenSet[FrozenSet[pt.PatternT]]:
+        #returns the identifier of the sift feature that has the same values as this oi_feature-
+        return Feature.extend_identifier(
+            self.get_value_feature_identifier(arg_feature_assignments),
+            self.get_type_combination().size() + 1
+        )
+
     def get_argument_identifier_patterns(self) -> Tuple[pt.PatternT, ...]:
         #returns the identifier patterns to correctly iterate over added arguments.
         return self.argument_identifier_patterns
