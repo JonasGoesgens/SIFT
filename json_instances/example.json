@@ -20,6 +20,58 @@
                     ]
                 ],
                 "feature": {
+                    "color_slits": [
+                        [
+                            [
+                                {
+                                    "name":"move",
+                                    "args":[1, 0]
+                                },
+                                {
+                                    "name":"stack",
+                                    "args":[1, 0]
+                                }
+                            ],
+                            [
+                                {
+                                    "name":"newtower",
+                                    "args":[1, 0]
+                                },
+                                {
+                                    "name":"move",
+                                    "args":[2, 0]
+                                }
+                            ],
+                            [],
+                            [
+                                {
+                                    "name":"newtower",
+                                    "args":[0, 1]
+                                },
+                                {
+                                    "name":"stack",
+                                    "args":[0, 1]
+                                },
+                                {
+                                    "name":"move",
+                                    "args":[1, 2]
+                                },
+                                {
+                                    "name":"move",
+                                    "args":[0, 2]
+                                },
+                                {
+                                    "name":"move",
+                                    "args":[2, 1]
+                                },
+                                {
+                                    "name":"move",
+                                    "args":[0, 1]
+                                }
+                            ]
+                        ]
+                    ],
+                    "_comment":"May be just drop the first 4 entries of the color_splits here.",
                     "add_effects": [
                         {
                             "name": "move_blocks",
