@@ -20,11 +20,71 @@
                     ]
                 ],
                 "feature": {
+                    "selected_patterns": [
+                        {
+                            "name":"move_blocks",
+                            "args":[1, 0]
+                        },
+                        {
+                            "name":"stack",
+                            "args":[1, 0]
+                        },
+                        {
+                            "name":"newtower",
+                            "args":[1, 0]
+                        },
+                        {
+                            "name":"move_blocks",
+                            "args":[2, 0]
+                        }
+                    ],
+                    "all_patterns": [
+                        {
+                            "name":"move_blocks",
+                            "args":[0, 1]
+                        },
+                        {
+                            "name":"stack",
+                            "args":[0, 1]
+                        },
+                        {
+                            "name":"newtower",
+                            "args":[0, 1]
+                        },
+                        {
+                            "name":"move_blocks",
+                            "args":[0, 2]
+                        },
+                        {
+                            "name":"move_blocks",
+                            "args":[1, 2]
+                        },
+                        {
+                            "name":"move_blocks",
+                            "args":[1, 0]
+                        },
+                        {
+                            "name":"stack",
+                            "args":[1, 0]
+                        },
+                        {
+                            "name":"newtower",
+                            "args":[1, 0]
+                        },
+                        {
+                            "name":"move_blocks",
+                            "args":[2, 0]
+                        },
+                        {
+                            "name":"move_blocks",
+                            "args":[2, 1]
+                        }
+                    ],
                     "color_slits": [
                         [
                             [
                                 {
-                                    "name":"move",
+                                    "name":"move_blocks",
                                     "args":[1, 0]
                                 },
                                 {
@@ -38,7 +98,7 @@
                                     "args":[1, 0]
                                 },
                                 {
-                                    "name":"move",
+                                    "name":"move_blocks",
                                     "args":[2, 0]
                                 }
                             ],
@@ -53,25 +113,25 @@
                                     "args":[0, 1]
                                 },
                                 {
-                                    "name":"move",
+                                    "name":"move_blocks",
                                     "args":[1, 2]
                                 },
                                 {
-                                    "name":"move",
+                                    "name":"move_blocks",
                                     "args":[0, 2]
                                 },
                                 {
-                                    "name":"move",
+                                    "name":"move_blocks",
                                     "args":[2, 1]
                                 },
                                 {
-                                    "name":"move",
+                                    "name":"move_blocks",
                                     "args":[0, 1]
                                 }
                             ]
                         ]
                     ],
-                    "_comment":"May be just drop the first 4 entries of the color_splits here.",
+                    "_comment":"May be just drum the first 4 entries of the color_splits here and skip the lists below.",
                     "add_effects": [
                         {
                             "name": "move_blocks",
