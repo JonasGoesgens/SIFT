@@ -311,7 +311,7 @@ if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.realpath(__file__))
     if batch_mode:
         os.makedirs(os.path.join(dir_path, "output"          ), exist_ok=True)
-        os.makedirs(os.path.join(dir_path, "output", "tables"), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "arg_masks"), exist_ok=True)
         stats_table_out = ""
         max_all_features = 0
         for line_num, (runs, args) in enumerate(parsed_args):
@@ -336,13 +336,16 @@ if __name__ == '__main__':
                         for action, arg in necessary_arguments:
                             out_file.write(f"{action}, {arg}\n")
                         argument_mask = get_unnecessary_argument_mask(necessary_arguments, arities)
-                        out_file.write(argument_mask + "\n")
-                        write_dict_to_file(dir_path + f"/output/test_{index}.txt", argument_mask)
+                        out_file.write(str(argument_mask) + "\n")
+                        write_dict_to_file(dir_path + f"/output/arg_masks/{output_file}_{index}.txt", argument_mask)
     else:
         #parse and run
+        os.makedirs(os.path.join(dir_path, "output"          ), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "arg_masks"), exist_ok=True)
         args = parsed_args
         clingo_input, arities = generate_clingo_from_instance(args)
         models = run_clingo_with_rules(clingo_input)
+        output_file = "test"
         print(clingo_input)
         print(f"Found {len(models)} models")
         for index, (model_str, necessary_arguments) in enumerate(models):
@@ -351,4 +354,4 @@ if __name__ == '__main__':
                 print(action, arg)
             argument_mask = get_unnecessary_argument_mask(necessary_arguments, arities)
             print(argument_mask)
-            write_dict_to_file(dir_path + f"/output/test_{index}.txt", argument_mask)
+            write_dict_to_file(dir_path + f"/output/arg_masks/{output_file}_{index}.txt", argument_mask)
