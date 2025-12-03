@@ -4,7 +4,7 @@
 #SBATCH --error=job_%A_%a.err
 #SBATCH --array=5
 #SBATCH --cpus-per-task=10
-#SBATCH --mem=180G
+#SBATCH --mem=160G
 #SBATCH --gpus=0
 #SBATCH --time=4:00:00
 
