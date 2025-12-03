@@ -274,6 +274,9 @@ def run_clingo_with_rules(clingo_input):
 
     ctl = clingo.Control()
 
+    ctl.configuration.solve.opt_mode='optN'
+    ctl.configuration.solve.models = 0
+
     with open(dir_path + "/clingo/Optimization_rules.lp", "r") as f:
         ctl.add("base", [], f.read())
 
@@ -285,7 +288,8 @@ def run_clingo_with_rules(clingo_input):
     solutions = list()
 
     def on_model(model):
-        solutions.append((str(model),extract_necessary_arguments(model)))
+        if model.optimality_proven:
+            solutions.append((str(model),extract_necessary_arguments(model)))
 
     ctl.solve(on_model=on_model)
 
@@ -327,15 +331,13 @@ if __name__ == '__main__':
                 with open(output_path, "w") as out_file:
                     out_file.write(clingo_input)
                     out_file.write(f"Found{len(models)} models\n")
-                    for model_str, necessary_arguments in models:
+                    for index, (model_str, necessary_arguments) in enumerate(models):
                         out_file.write(f"Model quality {len(necessary_arguments)}\n")
                         for action, arg in necessary_arguments:
                             out_file.write(f"{action}, {arg}\n")
-                    if models:
-                        _, best_model = models[-1]
-                        argument_mask = get_unnecessary_argument_mask(best_model, arities)
+                        argument_mask = get_unnecessary_argument_mask(necessary_arguments, arities)
                         out_file.write(argument_mask + "\n")
-                        write_dict_to_file(dir_path + '/output/test.txt', argument_mask)
+                        write_dict_to_file(dir_path + f"/output/test_{index}.txt", argument_mask)
     else:
         #parse and run
         args = parsed_args
@@ -343,12 +345,10 @@ if __name__ == '__main__':
         models = run_clingo_with_rules(clingo_input)
         print(clingo_input)
         print(f"Found {len(models)} models")
-        for model_str, necessary_arguments in models:
+        for index, (model_str, necessary_arguments) in enumerate(models):
             print("Model quality ", len(necessary_arguments))
             for action, arg in necessary_arguments:
                 print(action, arg)
-        if models:
-            _, best_model = models[-1]
-            argument_mask = get_unnecessary_argument_mask(best_model, arities)
+            argument_mask = get_unnecessary_argument_mask(necessary_arguments, arities)
             print(argument_mask)
-            write_dict_to_file(dir_path + '/output/test.txt', argument_mask)
+            write_dict_to_file(dir_path + f"/output/test_{index}.txt", argument_mask)
