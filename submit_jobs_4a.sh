@@ -2,7 +2,7 @@
 #SBATCH --job-name=graph_separator
 #SBATCH --output=job_%A_%a.out
 #SBATCH --error=job_%A_%a.err
-#SBATCH --array=0-4,6-12
+#SBATCH --array=0-4,7-13
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=20G
 #SBATCH --gpus=0
