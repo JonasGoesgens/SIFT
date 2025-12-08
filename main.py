@@ -18,6 +18,7 @@ from pathlib import Path
 import networkx as nx
 from py_separator_utils.pddl_generator import PDDLGenerator
 from py_separator_utils.mimir_holder import mimir_holder
+from py_separator_utils.conflict_manager import ConflictManager
 from graph_generator import get_trace_rl, get_trace_simple
 from graph_generator import bfs_state_space, get_nx_graph_from_state_space
 from concurrent.futures import ProcessPoolExecutor
@@ -364,6 +365,54 @@ def compare_features(
 
     return failure_servity
 
+def compare_action_arguments(
+    conflicts : ConflictManager[typing.Tuple[bool,pt.ActionT,int]],
+    orig_graph : pt.GraphT, rec_graph : pt.GraphT, arities : pt.ArityInfoT
+) -> ConflictManager[typing.Tuple[bool,pt.ActionT,int]]:
+    orig_indices = dict()
+    for u,v in orig_graph.edges():
+        orig_labels = orig_graph[u][v].get("action")
+        if orig_labels is None:
+            continue
+        try:
+            rec_labels = rec_graph[u][v]["action"]
+        except KeyError:
+            #Add conflicts for all actions that should be listed.
+            for label in orig_labels:
+                action = label[0]
+                if action not in orig_indices:
+                    orig_indices[action] = set()
+                arity = arities.get(action, len(label[1]))
+                for index in range(len(label[1])):
+                    orig_indices[action].add(index)
+                    for pos in range(arity):
+                        conflicts.add_conflict(
+                            (True,action,index),
+                            (False,action,pos)
+                        )
+            continue
+
+        for label in orig_labels:
+            action = label[0]
+            if action not in orig_indices:
+                orig_indices[action] = set()
+            arity = arities.get(action, len(label[1]))
+            for index, argument in enumerate(label[1]):
+                orig_indices[action].add(index)
+                if argument == pt.ObjectNotKnown:
+                    continue
+                matches = set()
+                for rec_label in rec_labels:
+                    if action != rec_label[0]:
+                        continue
+                    for pos, rec_argument in enumerate(rec_label[1]):
+                        if argument == rec_argument:
+                            matches.add(pos)
+                for pos in range(arity):
+                    if pos not in matches:
+                        conflicts.add_conflict((True,action,index),(False,action,pos))
+    return conflicts, orig_indices
+
 def read_dict_from_file(filename):
     result = {}
 
@@ -491,6 +540,7 @@ def process_instance(args: argparse.Namespace):
             find_oi_features_in_last_iteration = True
 
     instance_dict = dict()
+    instance_backup_dict = dict()
     instance_atoms_dict = dict()
     instance_object_names_dict = dict()
     id_gen = ut.UniqueIDAllocator()
@@ -505,8 +555,10 @@ def process_instance(args: argparse.Namespace):
             args.learning_mode, args.learning_size,
             args.learning_number_inputs, False
         )
+        backup_graphs = list()
         if recover_args_mode:
             for graph, _, _, _ in instance_graph_list:
+                backup_graphs.append(copy.deepcopy(graph))
                 for u, v, data in graph.edges(data=True):
                     labels = data['action']
                     new_labels = set()
@@ -519,9 +571,11 @@ def process_instance(args: argparse.Namespace):
                         new_labels.add(new_label)
                     data['action'] = new_labels
         
-        for graph, init, state_atom_dict, object_names_dict in instance_graph_list:
+        for index, (graph, init, state_atom_dict, object_names_dict) in enumerate(instance_graph_list):
             instance = id_gen.take_free_id()
             instance_dict[instance] = (graph,init)
+            if recover_args_mode:
+                instance_backup_dict[instance] = backup_graphs[index]
             #split atom data here to make transparent sift does not need or use it.
             instance_atoms_dict[instance] = state_atom_dict
             instance_object_names_dict[instance] = object_names_dict
@@ -559,7 +613,49 @@ def process_instance(args: argparse.Namespace):
         meta_info['admissible_oi_features'] = len(oi_features)
         meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
         meta_info['action_argument_multi_assignments'] = ar_sift.multi_arg_feature_assignment
-        meta_info['action_arities'] = ar_sift.sift_iterations[iteration].LOCM_types.action_arities
+        action_arities = ar_sift.sift_iterations[iteration].LOCM_types.action_arities
+        meta_info['action_arities'] = action_arities
+
+        conflicts = ConflictManager[typing.Tuple[bool,pt.ActionT,int]]()
+        orig_indices = dict()
+        extra_args = 0
+        recovered_args = 0
+        for instance, graph in instance_backup_dict.items():
+            rec_graph = recovered_graphs.get(instance)[0]
+            if rec_graph is None:
+                meta_info['recovered_args'] = 0
+                for action, arity in action_arities.items():
+                    extra_args += max(
+                        0,
+                        arity - ar_sift.sift_iterations[0].LOCM_types.action_arities.get(action,0)
+                    )
+                meta_info['recovered_args'] = 0
+                meta_info['extra_args'] = extra_args
+                break
+            _, indices = compare_action_arguments(
+                conflicts,
+                graph,
+                rec_graph,
+                action_arities
+            )
+            for key, value in indices.items():
+                if key in orig_indices:
+                    orig_indices[key].update(value)
+                else:
+                    orig_indices[key] = value
+        if 'recovered_args' not in meta_info:
+            for action, arity in action_arities.items():
+                indices = orig_indices.get(action, set())
+                candidates = set((False,action,pos) for pos in range(arity))
+                used_candidates = set()
+                for index in indices:
+                    simulators = conflicts.find_non_conflicting_elements((True,action,index),candidates)
+                    if len(simulators):
+                        recovered_args += 1
+                        used_candidates.update(simulators)
+                extra_args += len(candidates.difference(used_candidates))
+            meta_info['recovered_args'] = recovered_args
+            meta_info['extra_args'] = extra_args
 
         minimization_constraints_set = ar_sift.sift_iterations[iteration].calculate_minimization_constraints()
         clingo_input, feature_numbers, pattern_numbers = generate_clingo_for_minimization(
@@ -875,7 +971,7 @@ if __name__ == '__main__':
             #if feature.has_unique_colouring():
             print(f"OI Feature {i+1}:")
             print(feature)
-            print(feature.get_value_feature_extended_identifier(multi_assignment))
+            #print(feature.get_value_feature_extended_identifier(multi_assignment))
 
         #print features
         print("Maximal Domain:")
