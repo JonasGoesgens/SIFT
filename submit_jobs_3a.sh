@@ -22,7 +22,7 @@ trap 'rm -f "$temp_file"' EXIT
 
 sed -n "$((line_index + 1))p" "$input_dir/$input_file" > "$temp_file"
 
-apptainer run --bind .:/graph-separator --bind /tmp:/tmp ../graph-separator.sif /graph-separator/main.py -br "$temp_file" -p 10
+apptainer run --bind .:/sift --bind /tmp:/tmp ../sift-container.sif /sift/main.py -br "$temp_file" -p 10
 
 exit_status=$?
 

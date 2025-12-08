@@ -2,7 +2,7 @@
 #SBATCH --job-name=graph_separator
 #SBATCH --output=job_%A_%a.out
 #SBATCH --error=job_%A_%a.err
-#SBATCH --array=5
+#SBATCH --array=0-4
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=160G
 #SBATCH --gpus=0
@@ -10,7 +10,7 @@
 
 # Benchmarks
 input_dir="./benchmark"
-input_files=("generate_all_arg_masks.txt")
+input_files=("test_generate_some_arg_masks.txt")
 
 file_index=0
 line_index=$((SLURM_ARRAY_TASK_ID))

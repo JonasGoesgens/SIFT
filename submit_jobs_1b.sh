@@ -21,6 +21,6 @@ temp_file=$(mktemp "/tmp/${input_file%.txt}_table1_line${line_index}.XXXXXX")
 
 sed -n "$((line_index + 1))p" "$input_dir/$input_file" > "$temp_file"
 
-apptainer run --bind .:/graph-separator --bind /tmp:/tmp ../graph-separator.sif /graph-separator/main.py -br "$temp_file" -p 22
+apptainer run --bind .:/sift --bind /tmp:/tmp ../sift-container.sif /sift/main.py -br "$temp_file" -p 22
 
 rm "$temp_file"
