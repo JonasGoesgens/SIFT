@@ -35,7 +35,8 @@ From: python:3.11
     mkdir -p output/resource_usage
     resource_file="resource_usage_${processed_args%_}.txt"
     #resource_file="resource_usage_$(echo "$@" | sed 's/[^a-zA-Z0-9_-]/_/g').txt"
-    /usr/bin/time -v --output="output/resource_usage/$resource_file" python3.11 "$@"
+    resource_file="output/resource_usage/$resource_file"
+    /usr/bin/time -v --output="$resource_file" python3.11 "$@"
     end_time=$(date +%s)
     end_date=$(date)
     duration=$(( end_time - start_time ))
