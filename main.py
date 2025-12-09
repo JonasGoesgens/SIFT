@@ -522,6 +522,7 @@ def map_back_feature_numbers(clingo_solution, feature_numbers, pattern_numbers):
 
 def process_instance(args: argparse.Namespace):
     # create domain paths
+    start_time = time.time()
     domain_path = os.path.join(
         os.path.dirname(
             os.path.realpath(__file__)
@@ -591,6 +592,7 @@ def process_instance(args: argparse.Namespace):
     meta_info['graph_size'] = graph_size
     meta_info['graph_number'] = graph_number
     meta_info['number_samples'] = number_samples
+    run_time = time.time()
     #recovered_graphs = dict()
     if recover_args_mode:
         ar_sift = ARSift(instance_dict)
@@ -620,6 +622,9 @@ def process_instance(args: argparse.Namespace):
         orig_indices = dict()
         extra_args = 0
         recovered_args = 0
+        given_args = 0
+        for action in action_arities:
+            given_args += ar_sift.sift_iterations[0].LOCM_types.action_arities.get(action,0)
         for instance, graph in instance_backup_dict.items():
             rec_graph = recovered_graphs.get(instance)[0]
             if rec_graph is None:
@@ -654,8 +659,13 @@ def process_instance(args: argparse.Namespace):
                         recovered_args += 1
                         used_candidates.update(simulators)
                 extra_args += len(candidates.difference(used_candidates))
-            meta_info['recovered_args'] = recovered_args
+            meta_info['recovered_args'] = recovered_args - given_args
             meta_info['extra_args'] = extra_args
+        orig_args = 0
+        for key, value in orig_indices.items():
+            orig_args += len(value)
+        meta_info['orig_args'] = orig_args
+        meta_info['num_objects'] = len(ar_sift.sift_iterations[iteration].LOCM_types.obj_types)
 
         minimization_constraints_set = ar_sift.sift_iterations[iteration].calculate_minimization_constraints()
         clingo_input, feature_numbers, pattern_numbers = generate_clingo_for_minimization(
@@ -664,7 +674,15 @@ def process_instance(args: argparse.Namespace):
         solutions = run_clingo_with_rules_minimization(clingo_input)
         minimal_domain = map_back_feature_numbers(solutions[-1], feature_numbers, pattern_numbers)
 
+        verifi_time = time.time()
         verification_val = 0
+        graph_size = 0
+        graph_number = 0
+        num_objects = 0
+        if recovered_args < orig_args:
+            verification_val += 1
+            print(recovered_args, orig_args)
+            print(conflicts)
         if args.verification_instance is not None:
             verifier = copy.deepcopy(ar_sift)
             #add empty list on purpose to speed up further deep copies.
@@ -674,9 +692,10 @@ def process_instance(args: argparse.Namespace):
                 domain_path,
                 args.verification_instance
             )
-
             for early_termination, neg_mode, graph_list in verification_cases:
                 for graph, _ in graph_list:
+                    graph_number += 1
+                    graph_size += graph.number_of_edges()
                     for u, v, data in graph.edges(data=True):
                         labels = data['action']
                         new_labels = set()
@@ -702,12 +721,14 @@ def process_instance(args: argparse.Namespace):
                             verification_mode = True
                         )
                     except StratificationError as e:
+                        num_objects += len(local_verifier.sift_iterations[0].LOCM_types.obj_types)
                         if neg_mode:
                             #Something was expected to fail so this is correct.
                             continue
                         else:
                             verification_val += 1
                             continue
+                    num_objects += len(local_verifier.sift_iterations[iteration].LOCM_types.obj_types)
                     #All arguments should be correctly recovered so check normal sift features
                     failure_servity = compare_features(
                         features, local_features
@@ -717,6 +738,14 @@ def process_instance(args: argparse.Namespace):
                     elif not neg_mode and failure_servity > 0:
                         verification_val += 1
 
+        meta_info['graph_size_verifi'] = graph_size
+        meta_info['graph_number_verifi'] = graph_number
+        meta_info['num_objects_verifi'] = num_objects
+
+        end_time = time.time()
+        meta_info['datagen_time'] = run_time - start_time
+        meta_info['run_time'] = verifi_time - run_time
+        meta_info['verifi_time'] = end_time - verifi_time
         return(
             ar_sift.sift_iterations[iteration].LOCM_types,
             oi_features,
@@ -743,6 +772,7 @@ def process_instance(args: argparse.Namespace):
         solutions = run_clingo_with_rules_minimization(clingo_input)
         minimal_domain = map_back_feature_numbers(solutions[-1], feature_numbers, pattern_numbers)
 
+        verifi_time = time.time()
         verification_val = 0
         if args.verification_instance is not None:
             verifier = copy.deepcopy(sift)
@@ -766,6 +796,10 @@ def process_instance(args: argparse.Namespace):
                         verification_val += 1
                     elif not neg_mode and failure_servity > 0:
                         verification_val += 1
+        end_time = time.time()
+        meta_info['datagen_time'] = run_time - start_time
+        meta_info['run_time'] = verifi_time - run_time
+        meta_info['verifi_time'] = end_time - verifi_time
         return (
             sift.LOCM_types,
             oi_features,
@@ -788,13 +822,23 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(dir_path, "output", "tables"), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "pddl"), exist_ok=True)
         stats_table_out = ""
-        max_all_features = 0
         for line_num, (runs, args) in enumerate(parsed_args):
             successful_runs = 0
             sum_admissible_features = 0
             sum_graph_size = 0
+            sum_graph_size_verifi = 0
+            #sum_graph_number_verifi = 0
             sum_time = 0
+            sum_time_data = 0
+            sum_time_learning = 0
+            sum_time_verifi = 0
             max_number_samples = 1
+            max_all_features = 0
+            avg_objects_learning = 0
+            avg_objects_verifi = 0
+            orig_args = 0
+            rec_args = 0
+            extra_args = 0
             for run in range(runs):
                 start_time = time.time()
                 (
@@ -813,10 +857,10 @@ if __name__ == '__main__':
                 sum_time += end_time - start_time
                 if verification_val == 0:
                     successful_runs += 1
-                sum_admissible_features += meta_info['admissible_features']
+                sum_admissible_features += meta_info.get('admissible_oi_features',0)
                 sum_graph_size += meta_info['graph_size']
                 max_number_samples = meta_info['number_samples']
-                max_all_features = max(max_all_features, meta_info['all_features'])
+                max_all_features = max(max_all_features, meta_info.get('all_oi_features',0))
                 output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
                 output_path = 'output/{}.txt'.format(output_file)
                 with open(output_path, "w") as out_file:
@@ -908,27 +952,62 @@ if __name__ == '__main__':
                                     break
                         out_file.write(pddl_gen.get_instance_pddl(name, instance, goals) + "\n")
 
+                num_instances = max(1,meta_info.get('graph_number',0))
+                num_instances_verify = max(1,meta_info.get('graph_number_verifi',0))
+                orig_args = max(orig_args, meta_info.get('orig_args',0))
+                rec_args = max(rec_args, meta_info.get('recovered_args',0))
+                extra_args = max(extra_args, meta_info.get('extra_args',0))
+                avg_objects_learning += meta_info.get('num_objects',0)/num_instances
+                avg_objects_verifi += meta_info.get('num_objects_verifi',0)/num_instances_verify
+                sum_time_data += meta_info.get('datagen_time',0)
+                sum_time_learning += meta_info.get('run_time',0)
+                sum_time_verifi += meta_info.get('verifi_time',0)
+                sum_graph_size_verifi += meta_info.get('graph_size_verifi',0)/num_instances_verify
+                #sum_graph_number_verifi += meta_info.get('graph_number_verifi',0)
+
             success_rate = 100*successful_runs/runs
             avg_admissible_features = sum_admissible_features/runs
             avg_graph_size = sum_graph_size/runs
+            avg_graph_size_verifi = sum_graph_size_verifi/runs
+            avg_objects_learning = avg_objects_learning/runs
+            avg_objects_verifi = avg_objects_verifi/runs
             avg_time = sum_time/runs
-            if max_number_samples <= 1:
-                stats_table_out += '&${:3.1f}$&${:6.0f} $&${:5.0f}\seconds$&${:3.0f}\%$'.format(
-                    avg_admissible_features,
-                    avg_graph_size,
-                    avg_time,
-                    success_rate
-                )
-            else:
-                stats_table_out += '&${:3.1f}$&${:2} \\times {:6.0f} $&${:5.0f}\seconds$&${:3.0f}\%$'.format(
-                    avg_admissible_features,
-                    max_number_samples,
-                    avg_graph_size/max_number_samples,
-                    avg_time,
-                    success_rate
-                )
-        stats_table_out = '&${:5}$   {}'.format(max_all_features, stats_table_out)
-        stats_table_out = stats_table_out+'\n'
+            avg_time_data = sum_time_data/runs
+            avg_time_learning = sum_time_learning/runs
+            avg_time_verifi = sum_time_verifi/runs
+            num_edges_learning = avg_graph_size
+            num_edges_verifi = avg_graph_size_verifi
+            stats_table_out += '&${:3.0f}$&${:5.0f}$&${:2.0f}$&${:2.0f}$&${:2.0f}$&${:5.0f}$&${:3.0f}$&${:5.0f}\seconds$&${:3.0f}$&${:5.0f}$&${:5.0f}\seconds$&${:3.0f}\%$\n'.format(
+                avg_objects_learning,
+                num_edges_learning,
+                orig_args,
+                rec_args,
+                extra_args,
+                max_all_features,
+                avg_admissible_features,
+                avg_time_learning,
+                avg_objects_verifi,
+                num_edges_verifi,
+                avg_time_verifi,
+                success_rate
+            )
+            #if max_number_samples <= 1:
+            #    stats_table_out += '&${:3.1f}$&${:6.0f} $&${:5.0f}\seconds$&${:3.0f}\%$'.format(
+            #        avg_admissible_features,
+            #        avg_graph_size,
+            #        avg_time,
+            #        success_rate
+            #    )
+            #else:
+            #    stats_table_out += '&${:3.1f}$&${:2} \\times {:6.0f} $&${:5.0f}\seconds$&${:3.0f}\%$'.format(
+            #        avg_admissible_features,
+            #        max_number_samples,
+            #        avg_graph_size/max_number_samples,
+            #        avg_time,
+            #        success_rate
+            #    )
+        #stats_table_out = '&${:5}$   {}'.format(max_all_features, stats_table_out)
+        #stats_table_out = stats_table_out+'\n'
         output_table_path = 'output/tables/{}_table.txt'.format(benchmark_name)
         with open(output_table_path, "w") as output_table:
             output_table.write(stats_table_out)
