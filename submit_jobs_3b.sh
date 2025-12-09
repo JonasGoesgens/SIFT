@@ -10,7 +10,7 @@
 
 # Benchmarks
 input_dir="./benchmark"
-input_files=("test_all_small_fg_recovery.txt")
+input_files=("test_all_small_fg_recovery_verif.txt")
 
 file_index=0
 line_index=$((SLURM_ARRAY_TASK_ID))
