@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=graph_separator
-#SBATCH --output=job_%A_%a.out
-#SBATCH --error=job_%A_%a.err
+#SBATCH --job-name=sift
+#SBATCH --output=output/stdout/job_%A_%a.out
+#SBATCH --error=output/stderr/job_%A_%a.err
 #SBATCH --array=0-47
 #SBATCH --cpus-per-task=22
 #SBATCH --mem=32G
