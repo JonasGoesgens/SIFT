@@ -189,7 +189,7 @@ class Ordered_Identifier_Feature:
                                     return None
                             else:
                                 out_state_identified_object = pt.ObjectNotExisting
-                        if in_state_identified_object is not None:
+                        if in_state_identified_object is not None and in_state_identified_object != pt.ObjectNotKnown:
                             for state in state_label:
                                 if (
                                     instance, state, label, sel_pat
