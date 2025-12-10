@@ -17,7 +17,7 @@ line_index=$((SLURM_ARRAY_TASK_ID))
 
 input_file="${input_files[$file_index]}"
 
-temp_file=$(mktemp "/tmp/${input_file%.txt}_table1_line${line_index}.XXXXXX")
+temp_file=$(mktemp "/tmp/${input_file%.txt}_table1_line$(printf "%02d" $line_index).XXXXXX")
 trap 'rm -f "$temp_file"' EXIT
 
 sed -n "$((line_index + 1))p" "$input_dir/$input_file" > "$temp_file"
