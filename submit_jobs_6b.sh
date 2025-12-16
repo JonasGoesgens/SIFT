@@ -2,10 +2,11 @@
 #SBATCH --job-name=arg_rec_sift
 #SBATCH --output=output/stdout/job_%A_%a.out
 #SBATCH --error=output/stderr/job_%A_%a.err
-#SBATCH --array=3,5
+#SBATCH --array=3
 #SBATCH --cpus-per-task=10
-#SBATCH --mem=160G
+#SBATCH --mem=360G
 #SBATCH --gpus=0
+#SBATCH --time=7-00:00:00
 
 # Benchmarks
 input_dir="./benchmark"

@@ -482,6 +482,8 @@ class Argument_Recovery_Sift:
 
         #Identify duplicated arguments that were deduced in multiple ways
         args_to_delete = dict()
+        for action in old_arities:
+            args_to_delete[action] = dict()
         for action, arity in arities.items():
             #args to delete dict action -> dict arg -> cause
             args_to_delete[action] = dict()
