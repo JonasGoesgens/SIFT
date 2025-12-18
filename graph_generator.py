@@ -145,7 +145,7 @@ def bfs_state_space(
 
         new_id = max(all_nodes) + 1
 
-        print(exclusion_set)
+        #print(exclusion_set)
         while len(all_nodes):
             node = all_nodes.pop(0)
 
@@ -161,7 +161,7 @@ def bfs_state_space(
             else:
                 break
 
-        print(node, negative_action_mapping, mimir_stuff.print_state(node_and_corrensponding_state[node]))
+        #print(node, negative_action_mapping, mimir_stuff.print_state(node_and_corrensponding_state[node]))
         G.add_edge(node, new_id, action={negative_action_mapping})
 
     return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
