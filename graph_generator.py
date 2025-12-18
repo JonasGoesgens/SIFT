@@ -101,6 +101,17 @@ def bfs_state_space(
                 mapped_action_to_mimir_action[current_action] = _act
                 G.add_edge(cur_id, node, action={current_action})
 
+    for node in queue:
+        applicable_actions = mimir_stuff.get_applicable_actions(node)
+        for _act in applicable_actions:
+            action_name = _act.get_name()
+            action_objects = tuple([object_mapping[_obj.get_name()] for _obj in _act.get_objects()])
+            current_action = (action_name, action_objects)
+            mapped_action_to_mimir_action[current_action] = _act
+            #all_actions means all really used actions
+            #mapped_action_to_mimir_action.keys() means all actions that would be available
+            #all_actions.add(current_action)
+
     all_nodes = [i for i in G.nodes()]
     all_atoms = set()
     for node in all_nodes:
