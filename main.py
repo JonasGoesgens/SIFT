@@ -108,7 +108,8 @@ def create_graphs_from_input(
     mode : str,
     number_edges : int,
     number_inputs : int,
-    introduce_false_edge : bool = False
+    introduce_false_edge : bool = False,
+    arg_mask : dict = dict()
 ) -> list[tuple[nx.DiGraph, int]]:
     # create state space and parser
     pddl_holder = mimir_holder(domain_path, problem_path)
@@ -116,13 +117,13 @@ def create_graphs_from_input(
 
     for num_input in range(number_inputs):
         if mode == 'fg':
-            G, init, state_atom_dict, object_names_dict = get_nx_graph_from_state_space(pddl_holder, introduce_false_edge)
+            G, init, state_atom_dict, object_names_dict = get_nx_graph_from_state_space(pddl_holder, introduce_false_edge, arg_mask)
         elif mode == 'pg':
-            G, init, state_atom_dict, object_names_dict = bfs_state_space(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, state_atom_dict, object_names_dict = bfs_state_space(pddl_holder, number_edges, num_input, introduce_false_edge, arg_mask)
         elif mode == 'rl':
-            G, init, state_atom_dict, object_names_dict = get_trace_rl(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, state_atom_dict, object_names_dict = get_trace_rl(pddl_holder, number_edges, num_input, introduce_false_edge, arg_mask)
         elif mode == 'st':
-            G, init, state_atom_dict, object_names_dict = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, state_atom_dict, object_names_dict = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge, arg_mask)
         else:
             #return None
             continue
@@ -142,7 +143,7 @@ def create_graphs_from_input(
     #print(act_map)
     return instance_list
 
-def get_verification_instances(domain_path : str, verification_input : list[str]):
+def get_verification_instances(domain_path : str, verification_input : list[str], arg_mask : dict = dict()):
     instances = list()
     pos_modes = ['fg', 'st', 'rl', 'pg']
     neg_modes = ['nfg', 'nst', 'nrl', 'npg']
@@ -211,7 +212,8 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
             instance_mode,
             instance_edges,
             instance_samples,
-            instance_neg_sample
+            instance_neg_sample,
+            arg_mask
         ))
 
         instances.append((instance_early_term,
@@ -690,7 +692,8 @@ def process_instance(args: argparse.Namespace):
 
             verification_cases = get_verification_instances(
                 domain_path,
-                args.verification_instance
+                args.verification_instance,
+                mask_dict
             )
             for early_termination, neg_mode, graph_list in verification_cases:
                 for graph, _ in graph_list:
@@ -781,7 +784,8 @@ def process_instance(args: argparse.Namespace):
 
             verification_cases = get_verification_instances(
                 domain_path,
-                args.verification_instance
+                args.verification_instance,
+                dict()
             )
             for (early_termination, neg_mode, graphs) in verification_cases:
                 for graph in graphs:

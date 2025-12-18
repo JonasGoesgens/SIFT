@@ -15,7 +15,11 @@ def create_random_initial_state(mimir_stuff: mimir_holder,cur,distance):
     return cur 
 
 # create a partial graph in bfs style
-def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, introduce_false_edge: bool):
+def bfs_state_space(
+    mimir_stuff: mimir_holder,
+    num_edges, number_of_input,
+    introduce_false_edge: bool,
+    arg_mask : dict = dict()):
 
     # get object mapping
     object_mapping = mimir_stuff.get_object_mapping()
@@ -121,6 +125,17 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
         negative_action_mapping = random.choice(list(all_actions))
         negative_action = mapped_action_to_mimir_action[negative_action_mapping]
 
+        exclusion_set = {negative_action_mapping}
+        for (action_name, action_objects), action in mapped_action_to_mimir_action.items():
+            if negative_action_mapping[0] != action_name:
+                continue
+            if any(
+                arg1 != arg2 and pos not in arg_mask.get(action_name, set())
+                for pos,(arg1,arg2) in enumerate(zip(negative_action_mapping[1],action_objects))
+            ):
+                continue
+            exclusion_set.add((action_name, action_objects))
+
         # QUICK BUGFIX
         # TODO SEE WHY THIS NOT WORK
         #print('Graph', G.nodes())
@@ -130,23 +145,35 @@ def bfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
 
         new_id = max(all_nodes) + 1
 
+        print(exclusion_set)
         while len(all_nodes):
             node = all_nodes.pop(0)
 
             applicable_actions = mimir_stuff.get_applicable_actions(node_and_corrensponding_state[node])
 
-            if negative_action in applicable_actions:
+            if any(mapped_action_to_mimir_action[
+                    (action_name, action_objects)
+                ] in applicable_actions
+                for (action_name, action_objects) in exclusion_set
+            ):
                 pass
                 #print('THE OTHER CASE CAN HAPPEN')
             else:
                 break
 
+        print(node, negative_action_mapping, mimir_stuff.print_state(node_and_corrensponding_state[node]))
         G.add_edge(node, new_id, action={negative_action_mapping})
 
     return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
 
 # create a partial graph in dfs style
-def dfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, introduce_false_edge: bool):
+def dfs_state_space(
+    mimir_stuff: mimir_holder,
+    num_edges,
+    number_of_input,
+    introduce_false_edge: bool,
+    arg_mask : dict = dict()
+):
 
     # get object mapping
     object_mapping = mimir_stuff.get_object_mapping()
@@ -277,7 +304,13 @@ def dfs_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, intro
     return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
 
 # create a partial graph in dfs style
-def dfs_lookahead_state_space(mimir_stuff: mimir_holder, num_edges, number_of_input, introduce_false_edge: bool):
+def dfs_lookahead_state_space(
+    mimir_stuff: mimir_holder,
+    num_edges,
+    number_of_input,
+    introduce_false_edge: bool,
+    arg_mask : dict = dict()
+):
 
     # get object mapping
     object_mapping = mimir_stuff.get_object_mapping()
@@ -436,7 +469,13 @@ def dfs_lookahead_state_space(mimir_stuff: mimir_holder, num_edges, number_of_in
     return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
 
 # create a rl style trace
-def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, introduce_false_edge: bool):
+def get_trace_rl(
+    mimir_stuff: mimir_holder,
+    number_edges,
+    number_of_input,
+    introduce_false_edge: bool,
+    arg_mask : dict = dict()
+):
 
     if (introduce_false_edge and (number_edges < 2)):
         return None
@@ -549,7 +588,13 @@ def get_trace_rl(mimir_stuff: mimir_holder, number_edges, number_of_input, intro
     return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
 
 # create a simple trace in random style
-def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introduce_false_edge: bool):
+def get_trace_simple(
+    mimir_stuff: mimir_holder,
+    length,
+    number_of_input,
+    introduce_false_edge: bool,
+    arg_mask : dict = dict()
+):
 
     if (introduce_false_edge and (length < 2)):
         return None
@@ -659,7 +704,11 @@ def get_trace_simple(mimir_stuff: mimir_holder, length, number_of_input, introdu
 
 # for a state space create the corresponding graph as directed nx graph 
 # label: 'action': *grounded action*
-def get_nx_graph_from_state_space(mimir_stuff: mimir_holder, introduce_false_edge: bool) -> nx.DiGraph:
+def get_nx_graph_from_state_space(
+    mimir_stuff: mimir_holder,
+    introduce_false_edge: bool,
+    arg_mask : dict = dict()
+) -> (nx.DiGraph, int, dict, dict):
 
     # get object mapping
     object_mapping = mimir_stuff.get_object_mapping()
