@@ -37,6 +37,7 @@ def get_single_instance_argparser():
         description='This parser parses all arguments for a single execution of the sift arlgorithm and a followup verification.'
     )
     parser.add_argument("-d", "--domain", type=Path, required=True, help="specify domain that is in the pddl_files folder.")
+    parser.add_argument("-ds", "--static_relaxed_domain", type=Path, default=argparse.SUPPRESS, help="specify the static relaxed domain that is in the pddl_files folder.")
     parser.add_argument("-i", "--instance", type=Path, nargs='+', required=True, help="specify list of instances that is in the pddl_files folder.")
     parser.add_argument("-v", "--verification_instance", type=str, action='append', required=False, help="specify list of instances that is in the pddl_files folder.")
     parser.add_argument("-p", "--processes", type=int, required=True, help="number of max. parallel processes, 1 means sequential algorihtm")
@@ -53,6 +54,12 @@ def get_single_instance_argparser():
     parser.add_argument("-am", "--argument_mask", type=Path, required=False, help="hide certain implicit arguments from sift to test argument recovery.")
     parser.add_argument("-ai", "--argument_recovery_max_iterations", type=int, default=0, required=False, help="how may iterations to search for implicit arguments.")
     return parser
+
+def parse_args_single(single_run_parser, arguments=None):
+    args = single_run_parser.parse_args(arguments)
+    if not hasattr(args, "static_relaxed_domain"):
+        args.static_relaxed_domain = args.domain
+    return args
 
 def get_arguments():
     batch_run_parser = get_batch_run_parser()
@@ -83,7 +90,7 @@ def get_arguments():
                     sys.stderr.write(f"Invalid number of runs: {runs_str}\n")
                     continue
                 try:
-                    args = single_run_parser.parse_args(arguments)
+                    args = parse_args_single(single_run_parser, arguments)
                 except SystemExit:
                     sys.stderr.write(f"Invalid arguments in line {str(i)}.\n")
                     continue
@@ -93,7 +100,7 @@ def get_arguments():
         try:
             #block argparse from writing error messages directly.
             with redirect_stderr(parse_err):
-                parsed_args = single_run_parser.parse_args()
+                parsed_args = parse_args_single(single_run_parser)
         except SystemExit:
             parse_err.seek(0)
             sys.stderr.write("All parsing attempts failed. Errors:\n")
@@ -529,6 +536,11 @@ def process_instance(args: argparse.Namespace):
         os.path.dirname(
             os.path.realpath(__file__)
         ), args.domain
+    )
+    static_relaxed_domain_path = os.path.join(
+        os.path.dirname(
+            os.path.realpath(__file__)
+        ), args.static_relaxed_domain
     )
 
     recover_args_mode = False
