@@ -116,21 +116,51 @@ def create_graphs_from_input(
     number_edges : int,
     number_inputs : int,
     introduce_false_edge : bool = False,
+    static_relaxed_domain_path : str = None,
     arg_mask : dict = dict()
 ) -> list[tuple[nx.DiGraph, int]]:
+    if static_relaxed_domain_path is None:
+        static_relaxed_domain_path = domain_path
     # create state space and parser
     pddl_holder = mimir_holder(domain_path, problem_path)
+    static_relaxed_pddl_holder = mimir_holder(static_relaxed_domain_path, problem_path)
     instance_list = list()
 
     for num_input in range(number_inputs):
         if mode == 'fg':
-            G, init, state_atom_dict, object_names_dict = get_nx_graph_from_state_space(pddl_holder, introduce_false_edge, arg_mask)
+            G, init, state_atom_dict, object_names_dict = get_nx_graph_from_state_space(
+                pddl_holder,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
         elif mode == 'pg':
-            G, init, state_atom_dict, object_names_dict = bfs_state_space(pddl_holder, number_edges, num_input, introduce_false_edge, arg_mask)
+            G, init, state_atom_dict, object_names_dict = bfs_state_space(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
         elif mode == 'rl':
-            G, init, state_atom_dict, object_names_dict = get_trace_rl(pddl_holder, number_edges, num_input, introduce_false_edge, arg_mask)
+            G, init, state_atom_dict, object_names_dict = get_trace_rl(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
         elif mode == 'st':
-            G, init, state_atom_dict, object_names_dict = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge, arg_mask)
+            G, init, state_atom_dict, object_names_dict = get_trace_simple(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
         else:
             #return None
             continue
@@ -150,7 +180,14 @@ def create_graphs_from_input(
     #print(act_map)
     return instance_list
 
-def get_verification_instances(domain_path : str, verification_input : list[str], arg_mask : dict = dict()):
+def get_verification_instances(
+    domain_path : str,
+    verification_input : list[str],
+    static_relaxed_domain_path : str = None,
+    arg_mask : dict = dict()
+):
+    if static_relaxed_domain_path is None:
+        static_relaxed_domain_path = domain_path
     instances = list()
     pos_modes = ['fg', 'st', 'rl', 'pg']
     neg_modes = ['nfg', 'nst', 'nrl', 'npg']
@@ -220,6 +257,7 @@ def get_verification_instances(domain_path : str, verification_input : list[str]
             instance_edges,
             instance_samples,
             instance_neg_sample,
+            static_relaxed_domain_path,
             arg_mask
         ))
 
@@ -705,6 +743,7 @@ def process_instance(args: argparse.Namespace):
             verification_cases = get_verification_instances(
                 domain_path,
                 args.verification_instance,
+                static_relaxed_domain_path,
                 mask_dict
             )
             for early_termination, neg_mode, graph_list in verification_cases:
@@ -797,6 +836,7 @@ def process_instance(args: argparse.Namespace):
             verification_cases = get_verification_instances(
                 domain_path,
                 args.verification_instance,
+                static_relaxed_domain_path,
                 dict()
             )
             for (early_termination, neg_mode, graphs) in verification_cases:

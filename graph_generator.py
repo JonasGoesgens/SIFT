@@ -4,24 +4,45 @@ import random
 import math
 from py_separator_utils.mimir_holder import mimir_holder
 
-def create_random_initial_state(mimir_stuff: mimir_holder,cur,distance):
+def create_random_initial_state(
+    mimir_stuff: mimir_holder,
+    cur,
+    distance,
+    static_relaxation: mimir_holder,
+    cur_static
+):
 
     random_number = int(math.pow(2,random.randint(1, math.ceil(math.log2(5 * distance)))))
     for _ in range(random_number):
         applicable_actions = mimir_stuff.get_applicable_actions(cur)
         random_action = random.choice(applicable_actions)
+        applicable_actions_static = static_relaxation.get_applicable_actions(cur_static)
+        action_name = random_action.get_name()
+        action_objects = tuple(_obj.get_name() for _obj in random_action.get_objects())
+        for _act in applicable_actions_static:
+            _act_name = _act.get_name()
+            _act_objects = tuple(_obj.get_name() for _obj in _act.get_objects())
+            if _act_name != action_name:
+                continue
+            if _act_objects != action_objects:
+                continue
+            random_action_static = _act
+            break
         cur = mimir_stuff.get_successor_state(cur, random_action)
+        cur_static = static_relaxation.get_successor_state(cur_static, random_action_static)
     
-    return cur 
+    return cur, cur_static
 
 # create a partial graph in bfs style
 def bfs_state_space(
     mimir_stuff: mimir_holder,
     num_edges, number_of_input,
     introduce_false_edge: bool,
+    static_relaxation: mimir_holder,
     arg_mask : dict = dict()):
 
     # get object mapping
+    # object mapping also valid for static relaxation as Instance is identical
     object_mapping = mimir_stuff.get_object_mapping()
     action_mapping, _ = mimir_stuff.get_action_mapping_and_arity()
 
@@ -29,32 +50,65 @@ def bfs_state_space(
     G = nx.DiGraph()
 
     node_atoms_dict = dict()
+    id_to_static_id_dict = dict()
 
     # nodes that have be seen
     seen_nodes = set()
 
     # applicable action generator and successive state generatpr
 
-    successor_dict = {}
+    successor_dict = dict()
+    successor_static_dict = dict()
 
     # queue of state to visit, create initial state
     initial_node = mimir_stuff.get_SSG().get_or_create_initial_state()
+    initial_node_static = static_relaxation.get_SSG().get_or_create_initial_state()
+    id_to_static_id_dict[initial_node.get_id()] = initial_node_static.get_id()
     if number_of_input != 0:
-        initial_node = create_random_initial_state(mimir_stuff,initial_node,num_edges)
+        initial_node, initial_node_static = create_random_initial_state(
+            mimir_stuff,
+            initial_node,
+            num_edges,
+            static_relaxation,
+            initial_node_static
+        )
     #print("initial state: ", mimir_stuff.print_state(initial_node))
+    id_to_static_id_dict[initial_node.get_id()] = initial_node_static.get_id()
     successor_dict[initial_node.get_id()] = dict()
+    successor_static_dict[initial_node_static.get_id()] = dict()
+
+    mapped_action_to_mimir_action = dict()
+    state_action_static_successor_dict = dict()
+    state_action_static_successor_dict[initial_node_static.get_id()] = dict()
+    mapped_action_static_to_mimir_action = dict()
+    id_static_to_state_static_dict = dict()
+    id_static_to_state_static_dict[initial_node_static.get_id()] = initial_node_static
+
+    applicable_actions = static_relaxation.get_applicable_actions(initial_node_static)
+    for app_act in applicable_actions:
+        action_name = app_act.get_name()
+        action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
+        current_action = (action_name, action_objects)
+        mapped_action_static_to_mimir_action[current_action] = app_act
+        succ_state = static_relaxation.get_successor_state(initial_node_static, app_act)
+        successor_static_dict[initial_node_static.get_id()][succ_state.get_id()] = app_act
+        state_action_static_successor_dict[initial_node_static.get_id()][current_action] = succ_state.get_id()
+        id_static_to_state_static_dict[succ_state.get_id()] = succ_state
 
     queue = []
     applicable_actions = mimir_stuff.get_applicable_actions(initial_node)
     for app_act in applicable_actions:
+        action_name = app_act.get_name()
+        action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
+        current_action = (action_name, action_objects)
+        mapped_action_to_mimir_action[current_action] = app_act
         succ_state = mimir_stuff.get_successor_state(initial_node, app_act)
+        id_to_static_id_dict[succ_state.get_id()] = state_action_static_successor_dict[initial_node_static.get_id()][current_action]
         queue.append(succ_state)
         successor_dict[initial_node.get_id()][succ_state.get_id()] = app_act
 
     node_and_corrensponding_state = dict()
     node_and_corrensponding_state[initial_node.get_id()] = initial_node
-
-    mapped_action_to_mimir_action = dict()
 
     # set that contains all possible actions
     all_actions, seen = set(), set()
@@ -70,20 +124,40 @@ def bfs_state_space(
         cur_state = queue.pop(0)
 
         cur_id = cur_state.get_id()
-        applicable_actions = mimir_stuff.get_applicable_actions(cur_state)
+        cur_id_static = id_to_static_id_dict[cur_id]
+        cur_state_static = id_static_to_state_static_dict[cur_id_static]
 
         successor_dict[cur_id] = dict()
+        successor_static_dict[cur_id_static] = dict()
+        state_action_static_successor_dict[cur_id_static] = dict()
 
         node_and_corrensponding_state[cur_id] = cur_state
 
+        applicable_actions = static_relaxation.get_applicable_actions(cur_state_static)
+        for app_act in applicable_actions:
+            action_name = app_act.get_name()
+            action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
+            current_action = (action_name, action_objects)
+            mapped_action_static_to_mimir_action[current_action] = app_act
+            succ_state = static_relaxation.get_successor_state(cur_state_static, app_act)
+            successor_static_dict[cur_state_static.get_id()][succ_state.get_id()] = app_act
+            state_action_static_successor_dict[cur_state_static.get_id()][current_action] = succ_state.get_id()
+            id_static_to_state_static_dict[succ_state.get_id()] = succ_state
+
+        applicable_actions = mimir_stuff.get_applicable_actions(cur_state)
         for app_act in applicable_actions:
             succ_state = mimir_stuff.get_successor_state(cur_state, app_act)
             if succ_state.get_id() not in seen:
                 queue.append(succ_state)
                 seen.add(succ_state.get_id())
             successor_dict[cur_id][succ_state.get_id()] = app_act
+            action_name = app_act.get_name()
+            action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
+            current_action = (action_name, action_objects)
+            id_to_static_id_dict[succ_state.get_id()] = state_action_static_successor_dict[cur_id_static][current_action]
 
         for node in list(G.nodes()):
+            #incomming edges
             if cur_id in successor_dict[node].keys():
                 _act = successor_dict[node][cur_id]
                 action_name = _act.get_name()
@@ -92,6 +166,7 @@ def bfs_state_space(
                 mapped_action_to_mimir_action[current_action] = _act
                 all_actions.add(current_action)
                 G.add_edge(node, cur_id, action={current_action})
+            #outgoing edges
             if node in successor_dict[cur_id].keys():
                 _act = successor_dict[cur_id][node]
                 action_name = _act.get_name()
@@ -101,16 +176,17 @@ def bfs_state_space(
                 mapped_action_to_mimir_action[current_action] = _act
                 G.add_edge(cur_id, node, action={current_action})
 
-    for node in queue:
-        applicable_actions = mimir_stuff.get_applicable_actions(node)
-        for _act in applicable_actions:
-            action_name = _act.get_name()
-            action_objects = tuple([object_mapping[_obj.get_name()] for _obj in _act.get_objects()])
-            current_action = (action_name, action_objects)
-            mapped_action_to_mimir_action[current_action] = _act
-            #all_actions means all really used actions
-            #mapped_action_to_mimir_action.keys() means all actions that would be available
-            #all_actions.add(current_action)
+    #populate dict for visible actions
+    #for node in queue:
+    #    applicable_actions = mimir_stuff.get_applicable_actions(node)
+    #    for _act in applicable_actions:
+    #        action_name = _act.get_name()
+    #        action_objects = tuple([object_mapping[_obj.get_name()] for _obj in _act.get_objects()])
+    #        current_action = (action_name, action_objects)
+    #        mapped_action_to_mimir_action[current_action] = _act
+    #        #all_actions means all really used actions
+    #        #mapped_action_to_mimir_action.keys() means all actions that would be available
+    #        #all_actions.add(current_action)
 
     all_nodes = [i for i in G.nodes()]
     all_atoms = set()
@@ -133,47 +209,53 @@ def bfs_state_space(
             node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), False))
 
     if introduce_false_edge:
-        negative_action_mapping = random.choice(list(all_actions))
-        negative_action = mapped_action_to_mimir_action[negative_action_mapping]
+        selected_node = None
+        while selected_node is None:
+            negative_action_mapping = random.choice(list(all_actions))
+            negative_action = mapped_action_to_mimir_action[negative_action_mapping]
 
-        exclusion_set = {negative_action_mapping}
-        for (action_name, action_objects), action in mapped_action_to_mimir_action.items():
-            if negative_action_mapping[0] != action_name:
-                continue
-            if any(
-                arg1 != arg2 and pos not in arg_mask.get(action_name, set())
-                for pos,(arg1,arg2) in enumerate(zip(negative_action_mapping[1],action_objects))
-            ):
-                continue
-            exclusion_set.add((action_name, action_objects))
+            exclusion_set = {negative_action_mapping}
+            for (action_name, action_objects) in mapped_action_static_to_mimir_action.keys():
+                if negative_action_mapping[0] != action_name:
+                    continue
+                if any(
+                    arg1 != arg2 and pos not in arg_mask.get(action_name, set())
+                    for pos,(arg1,arg2) in enumerate(zip(negative_action_mapping[1],action_objects))
+                ):
+                    continue
+                exclusion_set.add((action_name, action_objects))
 
-        # QUICK BUGFIX
-        # TODO SEE WHY THIS NOT WORK
-        #print('Graph', G.nodes())
-        #print('Dict', node_and_corrensponding_state)
-        node = None
-        random.shuffle(all_nodes)
+            # QUICK BUGFIX
+            # TODO SEE WHY THIS NOT WORK
+            #print('Graph', G.nodes())
+            #print('Dict', node_and_corrensponding_state)
+            node = None
+            nodes_to_try = all_nodes.copy()
+            random.shuffle(nodes_to_try)
 
-        new_id = max(all_nodes) + 1
+            new_id = max(nodes_to_try) + 1
 
-        #print(exclusion_set)
-        while len(all_nodes):
-            node = all_nodes.pop(0)
+            #print(f"gen run{number_of_input+1}")
+            #print(object_mapping, exclusion_set)
+            while len(nodes_to_try):
+                node = nodes_to_try.pop(0)
 
-            applicable_actions = mimir_stuff.get_applicable_actions(node_and_corrensponding_state[node])
+                applicable_actions = static_relaxation.get_applicable_actions(
+                    id_static_to_state_static_dict[id_to_static_id_dict[node]]
+                )
 
-            if any(mapped_action_to_mimir_action[
-                    (action_name, action_objects)
-                ] in applicable_actions
-                for (action_name, action_objects) in exclusion_set
-            ):
-                pass
-                #print('THE OTHER CASE CAN HAPPEN')
-            else:
-                break
+                if any(mapped_action_static_to_mimir_action[
+                        (action_name, action_objects)
+                    ] in applicable_actions
+                    for (action_name, action_objects) in exclusion_set
+                ):
+                    continue
+                else:
+                    selected_node = node
+                    break
 
-        #print(node, negative_action_mapping, mimir_stuff.print_state(node_and_corrensponding_state[node]))
-        G.add_edge(node, new_id, action={negative_action_mapping})
+        #print(selected_node, negative_action_mapping, mimir_stuff.print_state(node_and_corrensponding_state[selected_node]))
+        G.add_edge(selected_node, new_id, action={negative_action_mapping})
 
     return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
 
@@ -183,6 +265,7 @@ def dfs_state_space(
     num_edges,
     number_of_input,
     introduce_false_edge: bool,
+    static_relaxation: mimir_holder,
     arg_mask : dict = dict()
 ):
 
@@ -204,8 +287,15 @@ def dfs_state_space(
 
     # queue of state to visit, create initial state
     initial_node = mimir_stuff.get_SSG().get_or_create_initial_state()
+    initial_node_static = static_relaxation.get_SSG().get_or_create_initial_state()
     if number_of_input != 0:
-        initial_node = create_random_initial_state(mimir_stuff,initial_node,num_edges)
+        initial_node, initial_node_static = create_random_initial_state(
+            mimir_stuff,
+            initial_node,
+            num_edges,
+            static_relaxation,
+            initial_node_static
+        )
     #print("initial state: ", mimir_stuff.print_state(initial_node))
     successor_dict[initial_node.get_id()] = dict()
 
@@ -320,6 +410,7 @@ def dfs_lookahead_state_space(
     num_edges,
     number_of_input,
     introduce_false_edge: bool,
+    static_relaxation: mimir_holder,
     arg_mask : dict = dict()
 ):
 
@@ -341,8 +432,15 @@ def dfs_lookahead_state_space(
 
     # queue of state to visit, create initial state
     initial_node = mimir_stuff.get_SSG().get_or_create_initial_state()
+    initial_node_static = static_relaxation.get_SSG().get_or_create_initial_state()
     if number_of_input != 0:
-        initial_node = create_random_initial_state(mimir_stuff,initial_node,num_edges)
+        initial_node, initial_node_static = create_random_initial_state(
+            mimir_stuff,
+            initial_node,
+            num_edges,
+            static_relaxation,
+            initial_node_static
+        )
     #print("initial state: ", mimir_stuff.print_state(initial_node))
     successor_dict[initial_node.get_id()] = dict()
 
@@ -485,6 +583,7 @@ def get_trace_rl(
     number_edges,
     number_of_input,
     introduce_false_edge: bool,
+    static_relaxation: mimir_holder,
     arg_mask : dict = dict()
 ):
 
@@ -504,8 +603,15 @@ def get_trace_rl(
 
     # create initial state
     next_state = mimir_stuff.get_SSG().get_or_create_initial_state()
+    initial_node_static = static_relaxation.get_SSG().get_or_create_initial_state()
     if number_of_input != 0:
-        next_state = create_random_initial_state(mimir_stuff,next_state,number_edges)
+        next_state, initial_node_static = create_random_initial_state(
+            mimir_stuff,
+            next_state,
+            number_edges,
+            static_relaxation,
+            initial_node_static
+        )
     #print("initial state: ", mimir_stuff.print_state(next_state))
 
     node_and_corrensponding_state = dict()
@@ -604,6 +710,7 @@ def get_trace_simple(
     length,
     number_of_input,
     introduce_false_edge: bool,
+    static_relaxation: mimir_holder,
     arg_mask : dict = dict()
 ):
 
@@ -623,8 +730,15 @@ def get_trace_simple(
  
     # create initial state
     next_state = mimir_stuff.get_SSG().get_or_create_initial_state()
+    initial_node_static = static_relaxation.get_SSG().get_or_create_initial_state()
     if number_of_input != 0:
-        next_state = create_random_initial_state(mimir_stuff,next_state,length)
+        next_state, initial_node_static = create_random_initial_state(
+            mimir_stuff,
+            next_state,
+            length,
+            static_relaxation,
+            initial_node_static
+        )
     #print("initial state: ", mimir_stuff.print_state(next_state))
 
     next_state_index = 1
@@ -718,6 +832,7 @@ def get_trace_simple(
 def get_nx_graph_from_state_space(
     mimir_stuff: mimir_holder,
     introduce_false_edge: bool,
+    static_relaxation: mimir_holder,
     arg_mask : dict = dict()
 ) -> (nx.DiGraph, int, dict, dict):
 
