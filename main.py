@@ -117,13 +117,16 @@ def create_graphs_from_input(
     number_inputs : int,
     introduce_false_edge : bool = False,
     static_relaxed_domain_path : str = None,
+    static_relaxed_problem_path : str = None,
     arg_mask : dict = dict()
 ) -> list[tuple[nx.DiGraph, int]]:
     if static_relaxed_domain_path is None:
         static_relaxed_domain_path = domain_path
+    if static_relaxed_problem_path is None:
+        static_relaxed_problem_path = problem_path
     # create state space and parser
     pddl_holder = mimir_holder(domain_path, problem_path)
-    static_relaxed_pddl_holder = mimir_holder(static_relaxed_domain_path, problem_path)
+    static_relaxed_pddl_holder = mimir_holder(static_relaxed_domain_path, static_relaxed_problem_path)
     instance_list = list()
 
     for num_input in range(number_inputs):
@@ -228,20 +231,35 @@ def get_verification_instances(
             sys.stderr.write('For input {} no specification of input size!\n'.format(instance))
             continue
 
-        if len(split_input) >= 3:
-            instance_edges = int(split_input[2])
+        index = 2
+        if len(split_input) > index:
+            instance_edges = int(split_input[index])
             if instance_edges < 1:
                 sys.stderr.write('No valid number of edges!\n')
                 continue
 
-        if len(split_input) >= 4:
-            instance_samples = int(split_input[3])
+        index += 1
+        if len(split_input) > index:
+            instance_samples = int(split_input[index])
             if instance_samples < 1:
                 sys.stderr.write('No valid number of traces!\n')
                 continue
 
-        if len(split_input) == 5:
-            split_input_val_5 = int(split_input[4])
+        if instance_neg_sample:
+            index += 1
+            if len(split_input) > index:
+                static_relaxed_instance_path = split_input[index]
+                if not os.path.exists(static_relaxed_instance_path):
+                    sys.stderr.write('For input {} the path {} does not exist\n'.format(instance, static_relaxed_instance_path))
+                    continue
+            else:
+                static_relaxed_instance_path = instance_path
+        else:
+            static_relaxed_instance_path = instance_path
+
+        index += 1
+        if len(split_input) > index:
+            split_input_val_5 = int(split_input[index])
             if split_input_val_5 == 0:
                 instance_early_term = False
             elif split_input_val_5 == 1:
@@ -258,6 +276,7 @@ def get_verification_instances(
             instance_samples,
             instance_neg_sample,
             static_relaxed_domain_path,
+            static_relaxed_instance_path,
             arg_mask
         ))
 

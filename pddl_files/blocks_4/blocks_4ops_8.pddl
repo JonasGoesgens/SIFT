@@ -17,6 +17,6 @@
         (ontable F)
         (ontable G)
         (ontable H) 
-        (HANDEMPTY))
+        (handempty))
 (:goal (and (on E D) (on D C) (on C B) (on B A)))
 )
