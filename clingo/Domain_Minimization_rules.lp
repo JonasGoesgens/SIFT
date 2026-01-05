@@ -11,3 +11,6 @@
 #minimize{1@1, feature_pattern_pair_sel(FeatPat) : feature_pattern_pair_sel(FeatPat)}.
 #show feature_sel/1.
 #show feature_pattern_pair_sel/1.
+%suppress warnings for feature_pattern_pair not appearing in rule head
+%as some instance only need feature facts.
+#defined feature_pattern_pair/1.
