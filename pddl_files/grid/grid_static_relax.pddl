@@ -17,7 +17,7 @@
 
 (:action unlock
 :parameters (?curpos ?lockpos ?key ?shape)
-:precondition (and (at-robot ?curpos) 
+:precondition (and (at-robot ?curpos) (shape ?shape)
                    (locked ?lockpos) (holding ?key))
 :effect (and  (open ?lockpos) (not (locked ?lockpos))))
 

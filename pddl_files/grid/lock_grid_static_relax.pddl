@@ -18,13 +18,13 @@
 ;lock-shape is only set for previously locked positions and stays set.
 (:action lock
 :parameters (?curpos ?lockpos ?key ?shape)
-:precondition (and (at-robot ?curpos) 
+:precondition (and (at-robot ?curpos) (shape ?shape)
                    (open ?lockpos) (holding ?key))
 :effect (and  (not (open ?lockpos)) (locked ?lockpos)))
 
 (:action unlock
 :parameters (?curpos ?lockpos ?key ?shape)
-:precondition (and (at-robot ?curpos) 
+:precondition (and (at-robot ?curpos) (shape ?shape)
                    (locked ?lockpos) (holding ?key))
 :effect (and  (open ?lockpos) (not (locked ?lockpos))))
 
