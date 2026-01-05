@@ -23,7 +23,7 @@
 
    ;; Non-static predicates:
    (at ?x ?l) ;; ?x (package or vehicle) is at location ?l
-   (not_at ?x ?l) ;; ?x (package or vehicle) is not at location ?l
+   (not-at ?x ?l) ;; ?x (package or vehicle) is not at location ?l
    (in ?p ?v) ;; package ?p is in vehicle ?v
    )
 
