@@ -49,7 +49,7 @@
   ;; unnecessay).
   (:action drive
     :parameters (?t ?l1 ?l2 ?c)
-    :precondition (and (at ?t ?l1) (not-at ?t ?l2))
+    :precondition (and (at ?t ?l1) (not-at ?t ?l2) (city ?c))
     :effect (and (at ?t ?l2) (not (at ?t ?l1))))
 
   ;; Fly an airplane between two airports.
