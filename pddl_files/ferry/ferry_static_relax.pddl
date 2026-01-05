@@ -7,6 +7,7 @@
 
    (:predicates
 		(at-ferry ?l - location)
+		(not-at-ferry ?l - location)
 		(at ?c - car ?l - location)
 		(empty-ferry)
 		(on ?c - car)
@@ -14,7 +15,7 @@
 
    (:action sail
        :parameters  (?from - location ?to - location)
-       :precondition (and (at-ferry ?from) (not (at-ferry ?to)))
+       :precondition (and (at-ferry ?from) (not-at-ferry ?to))
        :effect (and  (at-ferry ?to) (not (at-ferry ?from))))
 
 
