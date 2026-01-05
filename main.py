@@ -246,6 +246,7 @@ def get_verification_instances(
                 continue
 
         if instance_neg_sample:
+            static_relaxed_domain_path_local = static_relaxed_domain_path
             index += 1
             if len(split_input) > index:
                 static_relaxed_instance_path = split_input[index]
@@ -255,6 +256,7 @@ def get_verification_instances(
             else:
                 static_relaxed_instance_path = instance_path
         else:
+            static_relaxed_domain_path_local = domain_path
             static_relaxed_instance_path = instance_path
 
         index += 1
@@ -275,7 +277,7 @@ def get_verification_instances(
             instance_edges,
             instance_samples,
             instance_neg_sample,
-            static_relaxed_domain_path,
+            static_relaxed_domain_path_local,
             static_relaxed_instance_path,
             arg_mask
         ))
