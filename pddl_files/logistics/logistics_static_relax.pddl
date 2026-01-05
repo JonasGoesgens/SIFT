@@ -23,6 +23,7 @@
 
    ;; Non-static predicates:
    (at ?x ?l) ;; ?x (package or vehicle) is at location ?l
+   (not_at ?x ?l) ;; ?x (package or vehicle) is not at location ?l
    (in ?p ?v) ;; package ?p is in vehicle ?v
    )
 
@@ -48,12 +49,12 @@
   ;; unnecessay).
   (:action drive
     :parameters (?t ?l1 ?l2 ?c)
-    :precondition (and (at ?t ?l1) (not (at ?t ?l2)))
+    :precondition (and (at ?t ?l1) (not-at ?t ?l2))
     :effect (and (at ?t ?l2) (not (at ?t ?l1))))
 
   ;; Fly an airplane between two airports.
   (:action fly
     :parameters (?p ?a1 ?a2)
-    :precondition (and (at ?p ?a1) (not (at ?p ?a2)))
+    :precondition (and (at ?p ?a1) (not-at ?p ?a2))
     :effect (and (at ?p ?a2) (not (at ?p ?a1))))
   ) 
