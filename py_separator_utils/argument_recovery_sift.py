@@ -6,6 +6,7 @@ from py_separator_utils.ordered_identifier_feature import Ordered_Identifier_Fea
 from py_separator_utils.conflict_manager import ConflictManager
 import copy
 import sys
+import time
 import warnings
 from typing import Set, List, Tuple, Dict, Union
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
@@ -182,7 +183,9 @@ class Argument_Recovery_Sift:
         self, iteration : int, process_pool_args : dict,
         verification_mode : bool = False
     ) -> set[OIFeature]:
+        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Running Normal Sift")
         features = self.sift_iterations[iteration].run(process_pool_args)
+        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Creating mutex features")
         action_arities = self.sift_iterations[iteration].LOCM_types.get_action_arities()
         equivalent_switching_patterns = self.sift_iterations[iteration].equivalent_switching_patterns
 
@@ -218,6 +221,7 @@ class Argument_Recovery_Sift:
                         )
                     )
         #run ar sift
+        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Testing mutex features")
         with ProcessPoolExecutor(**process_pool_args) as process_pool:
             runs = dict()
             for oi_feature in self.order_id_features[iteration]:
@@ -310,6 +314,7 @@ class Argument_Recovery_Sift:
                 )
 
             #Interpretation of current run complete prepare next run.
+            print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Updating action labels")
             iteration += 1
 
             #update input graphs for next iteration.

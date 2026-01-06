@@ -620,6 +620,7 @@ def process_instance(args: argparse.Namespace):
     id_gen = ut.UniqueIDAllocator()
     meta_info = dict()
 
+    print(f"{ut.format_cur_time()}: Input generation")
     for instance_path in args.instance:
 
         # create problem path
@@ -666,6 +667,7 @@ def process_instance(args: argparse.Namespace):
     meta_info['graph_number'] = graph_number
     meta_info['number_samples'] = number_samples
     run_time = time.time()
+    print(f"{ut.format_cur_time()}: Learning Domain")
     #recovered_graphs = dict()
     if recover_args_mode:
         ar_sift = ARSift(instance_dict)
@@ -748,6 +750,7 @@ def process_instance(args: argparse.Namespace):
         minimal_domain = map_back_feature_numbers(solutions[-1], feature_numbers, pattern_numbers)
 
         verifi_time = time.time()
+        print(f"{ut.format_cur_time()}: Verification input generation")
         verification_val = 0
         graph_size = 0
         graph_number = 0
@@ -783,6 +786,7 @@ def process_instance(args: argparse.Namespace):
                             new_labels.add(new_label)
                         data['action'] = new_labels
 
+            print(f"{ut.format_cur_time()}: Verifing learned Domain")
             for (early_termination, neg_mode, graphs) in verification_cases:
                 for graph in graphs:
                     graph = [graph]
@@ -848,6 +852,7 @@ def process_instance(args: argparse.Namespace):
         minimal_domain = map_back_feature_numbers(solutions[-1], feature_numbers, pattern_numbers)
 
         verifi_time = time.time()
+        print(f"{ut.format_cur_time()}: Verification input generation")
         verification_val = 0
         if args.verification_instance is not None:
             verifier = copy.deepcopy(sift)
@@ -860,6 +865,7 @@ def process_instance(args: argparse.Namespace):
                 static_relaxed_domain_path,
                 dict()
             )
+            print(f"{ut.format_cur_time()}: Verifing learned Domain")
             for (early_termination, neg_mode, graphs) in verification_cases:
                 for graph in graphs:
                     graph = [graph]
@@ -900,6 +906,7 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(dir_path, "output", "pddl"), exist_ok=True)
         stats_table_out = ""
         for line_num, (runs, args) in enumerate(parsed_args):
+            print(f"{ut.format_cur_time()}: Batchmode line {line_num}")
             successful_runs = 0
             sum_admissible_features = 0
             sum_graph_size = 0
@@ -917,6 +924,7 @@ if __name__ == '__main__':
             rec_args = 0
             extra_args = 0
             for run in range(runs):
+                print(f"{ut.format_cur_time()}: Batchmode line {line_num} run {run}")
                 start_time = time.time()
                 (
                     LOCM_types,

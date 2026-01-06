@@ -1,5 +1,6 @@
 import typing
 import itertools
+import time
 import py_separator_utils.py_types as pt
 class UniqueIDAllocator:
     def __init__(self):
@@ -41,3 +42,6 @@ def extract_from_double_packed_frozensets(
 
 def safe_copy(value : T) -> T:
     return value.copy() if value is not None else None
+
+def format_cur_time() -> str:
+    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
