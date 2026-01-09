@@ -686,6 +686,18 @@ def process_instance(args: argparse.Namespace):
         all_tested_oi_features = set()
         for _, tested_oi_features in reversed(sorted(ar_sift.order_id_features.items())):
             all_tested_oi_features.update(tested_oi_features)
+        feature_variants = 0
+        num_preconditions = [0,0,0]
+        for feature in features:
+            variants = feature.get_number_of_split_combinations()
+            feature_variants += variants
+            for variant in range(variants):
+                _, _, pos_precs, neg_precs, undefined_precs, _, _ = feature.get_color_split_combination(variant)
+                num_preconditions[0] += len(pos_precs)
+                num_preconditions[1] += len(neg_precs)
+                num_preconditions[2] += len(undefined_precs)
+        meta_info['feature_variants'] = feature_variants
+        meta_info['num_preconditions'] = num_preconditions
         meta_info['all_oi_features'] = len(all_tested_oi_features)
         meta_info['admissible_oi_features'] = len(oi_features)
         meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
@@ -848,6 +860,18 @@ def process_instance(args: argparse.Namespace):
         features = sift.run(process_pool_args)
         meta_info['all_features'] = len(sift.all_features)
         meta_info['admissible_features'] = len(features)
+        feature_variants = 0
+        num_preconditions = [0,0,0]
+        for feature in features:
+            variants = feature.get_number_of_split_combinations()
+            feature_variants += variants
+            for variant in range(variants):
+                _, _, pos_precs, neg_precs, undefined_precs, _, _ = feature.get_color_split_combination(variant)
+                num_preconditions[0] += len(pos_precs)
+                num_preconditions[1] += len(neg_precs)
+                num_preconditions[2] += len(undefined_precs)
+        meta_info['feature_variants'] = feature_variants
+        meta_info['num_preconditions'] = num_preconditions
 
         minimization_constraints_set = sift.calculate_minimization_constraints()
         clingo_input, feature_numbers, pattern_numbers = generate_clingo_for_minimization(

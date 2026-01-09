@@ -395,10 +395,13 @@ class Argument_Recovery_Sift:
         if input_changed:
             if find_oi_features_in_last_iteration:
                 #Search for both types of features in last run
+                print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Finalizing Running Normal Sift and searching for new mutex features")
                 self.run_iteration(iteration, process_pool_args)
             else:
                 #Only search for base Sift features in last run
-                self.sift_iterations[iteration].run(process_pool_args)
+                print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Finalizing Running Normal Sift")
+                features = self.sift_iterations[iteration].run(process_pool_args)
+                print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(features)}/{len(self.sift_iterations[iteration].all_features)} Normal Features")
         else:
             #Remove prepared iteration as it wont change anything anymore
             _ = self.sift_iterations.pop(iteration, None)
