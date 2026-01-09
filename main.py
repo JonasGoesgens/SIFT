@@ -804,11 +804,11 @@ def process_instance(args: argparse.Namespace):
                         num_objects += len(local_verifier.sift_iterations[0].LOCM_types.obj_types)
                         if neg_mode:
                             #Something was expected to fail so this is correct.
-                            print({ut.format_cur_time()}: "Expected stratification Exception on negative sample")
+                            print(f"{ut.format_cur_time()}: Expected stratification Exception on negative sample")
                             continue
                         else:
                             verification_val += 1
-                            print({ut.format_cur_time()}: "Unexpected stratification Exception on positive sample")
+                            print(f"{ut.format_cur_time()}: Unexpected stratification Exception on positive sample")
                             continue
                     num_objects += len(local_verifier.sift_iterations[iteration].LOCM_types.obj_types)
                     #All arguments should be correctly recovered so check normal sift features
