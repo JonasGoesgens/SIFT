@@ -158,6 +158,7 @@ class SIFT:
 
     def run(self, process_pool_args : dict) -> Set[Feature]:
         #premerge graphs parallel to speed up things
+        print(f"{ut.format_cur_time()}: Sift: Merging graphs by missing arguments")
         for arity, type_combinations in sorted(
             self.LOCM_types.get_all_type_combinations().items()
             #, key=lambda item: item[0]
@@ -217,6 +218,7 @@ class SIFT:
                     except Exception as e:
                         sys.stderr.write(f"Error processing simple merge for {(arity,instance,grounding_key)}: {e}")
 
+        print(f"{ut.format_cur_time()}: Sift: Merging graphs by by dead patterns with weak constraints")
         #as the simple merges are all done the switching merges all
         #only require local data and can run all in parallel
         merge = True
@@ -287,6 +289,7 @@ class SIFT:
                     merge = True
                     break
 
+        print(f"{ut.format_cur_time()}: Sift: Merging graphs by by dead patterns with strong constraints")
         #as the switching merges are all done the complex merges all
         #only require local data and can run all in parallel
         self.equivalent_patterns.update(self.equivalent_switching_patterns)
@@ -360,6 +363,7 @@ class SIFT:
                     merge = True
                     break
 
+        print(f"{ut.format_cur_time()}: Sift: generating features")
         #generate all features, typecombinations for zeronary features included
         for arity, type_combinations in sorted(
             self.LOCM_types.get_all_type_combinations().items()
@@ -383,7 +387,7 @@ class SIFT:
                         all_patterns,
                         pats
                     ))
-
+        print(f"{ut.format_cur_time()}: Sift: Testing {len(self.all_features)} features")
         #run sift
         with ProcessPoolExecutor(**process_pool_args) as process_pool:
             runs = dict()

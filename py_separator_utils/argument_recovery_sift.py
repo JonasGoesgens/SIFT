@@ -222,7 +222,7 @@ class Argument_Recovery_Sift:
                         )
                     )
         #run ar sift
-        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Testing mutex features")
+        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Testing {len(self.order_id_features[iteration])} mutex features")
         with ProcessPoolExecutor(**process_pool_args) as process_pool:
             runs = dict()
             for oi_feature in self.order_id_features[iteration]:
