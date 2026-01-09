@@ -757,6 +757,7 @@ def process_instance(args: argparse.Namespace):
         num_objects = 0
         if recovered_args < orig_args:
             verification_val += 1
+            print(f"{ut.format_cur_time()}: Verification failed to recover original arguments")
             print(recovered_args, orig_args)
             print(conflicts)
         if args.verification_instance is not None:
@@ -803,9 +804,11 @@ def process_instance(args: argparse.Namespace):
                         num_objects += len(local_verifier.sift_iterations[0].LOCM_types.obj_types)
                         if neg_mode:
                             #Something was expected to fail so this is correct.
+                            print({ut.format_cur_time()}: "Expected stratification Exception on negative sample")
                             continue
                         else:
                             verification_val += 1
+                            print({ut.format_cur_time()}: "Unexpected stratification Exception on positive sample")
                             continue
                     num_objects += len(local_verifier.sift_iterations[iteration].LOCM_types.obj_types)
                     #All arguments should be correctly recovered so check normal sift features
@@ -813,8 +816,10 @@ def process_instance(args: argparse.Namespace):
                         features, local_features
                     )
                     if neg_mode and failure_servity < 2:
+                        print(f"{ut.format_cur_time()}: Verification negative Sample compatible with learned domain")
                         verification_val += 1
                     elif not neg_mode and failure_servity > 0:
+                        print(f"{ut.format_cur_time()}: Verification positive Sample incompatible with learned domain")
                         verification_val += 1
 
         meta_info['graph_size_verifi'] = graph_size

@@ -185,6 +185,7 @@ class Argument_Recovery_Sift:
     ) -> set[OIFeature]:
         print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Running Normal Sift")
         features = self.sift_iterations[iteration].run(process_pool_args)
+        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(features)}/{len(self.sift_iterations[iteration].all_features)} Normal Features")
         print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Creating mutex features")
         action_arities = self.sift_iterations[iteration].LOCM_types.get_action_arities()
         equivalent_switching_patterns = self.sift_iterations[iteration].equivalent_switching_patterns
@@ -291,13 +292,17 @@ class Argument_Recovery_Sift:
                 for oi_feature in self.argument_identifier_features[iteration]:
                     previous_disabled_patterns[oi_feature] = oi_feature.disabled_pre_patterns.copy()
             self.run_iteration(iteration, process_pool_args, verification_mode)
+            print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(self.admissible_order_id_features[iteration])}/{len(self.order_id_features[iteration])} Mutex Features")
             if verification_mode:
                 if any(
                     oi_feature.is_invalid() or
                     oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])
                     for oi_feature in self.argument_identifier_features[iteration]
                 ):
-                    raise StratificationError(iteration, f"An OI Feature or Pattern used to setup the next graph became invalid in iteration {iteration}")
+                    raise StratificationError(
+                        iteration,
+                        f"An OI Feature or Pattern used to setup the next graph became invalid in iteration {iteration}"
+                    )
             else:
                 new_oi_features = tuple(
                     self.admissible_order_id_features[iteration].difference(self.argument_identifier_features[iteration])
