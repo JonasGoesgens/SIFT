@@ -104,24 +104,23 @@ class Feature:
                     else:
                         found = True
                         matching_selected_pattens.add(sel_pat)
-            if not found:
-                #There wont be any preconditions on effect labels to find anyway.
-                for unsel_pat in self.unselected_patterns:
-                    #if included set up list for preconditions
-                    mismatch = False
-                    if label[0] != unsel_pat[0]:
-                        mismatch = True
-                    else:
-                        #this loop will not run for zeronary features
-                        for index, entry in enumerate(unsel_pat[1]):
-                            object_pat = grounding[index]
-                            object_label = label[1][entry]
-                            if object_label == pt.ObjectNotKnown:
-                                mismatch = True
-                            elif object_label != object_pat:
-                                mismatch = True
-                    if not mismatch:
-                        matching_unselected_pattens.add(unsel_pat)
+            #There are only preconditions if found when there are identical arguments
+            for unsel_pat in self.unselected_patterns:
+                #if included set up list for preconditions
+                mismatch = False
+                if label[0] != unsel_pat[0]:
+                    mismatch = True
+                else:
+                    #this loop will not run for zeronary features
+                    for index, entry in enumerate(unsel_pat[1]):
+                        object_pat = grounding[index]
+                        object_label = label[1][entry]
+                        if object_label == pt.ObjectNotKnown:
+                            mismatch = True
+                        elif object_label != object_pat:
+                            mismatch = True
+                if not mismatch:
+                    matching_unselected_pattens.add(unsel_pat)
 
             if found:
                 found_matching = True
@@ -144,6 +143,13 @@ class Feature:
         new_split = (set(pattern_colors[0]),set(pattern_colors[1]),
             set(pattern_colors[2]),set(pattern_colors[3]),
             set(pattern_colors[4]),set(pattern_colors[5]))
+        if (
+            (not new_split[0]) and 
+            (not new_split[1])
+        ):
+            #not a useful input
+            return new_split
+
         if (
             (not new_split[0].issubset(self.selected_patterns)) or 
             (not new_split[1].issubset(self.selected_patterns))
@@ -231,6 +237,8 @@ class Feature:
 
             while open_nodes:
                 node = open_nodes.pop(0)
+                if node not in unvisited_nodes:
+                    continue
                 unvisited_nodes.discard(node)
                 for edges, a, b in [
                     [Graph.out_edges([node],data='action'), 1, 0],
@@ -259,9 +267,12 @@ class Feature:
                                 self.invalitate()
                                 return None
 
-                            for col_pat in matching_selected_pattens:
-                                #pattern get the same color as target nodes
-                                pattern_colors[node_color[edge[1]]].add(col_pat)
+                            #effect pattern get the same color as target nodes
+                            (pattern_colors[node_color[edge[1]]]
+                            .update(matching_selected_pattens))
+                            #precondition pattern get the same color as source nodes
+                            (pattern_colors[node_color[edge[0]]+2]
+                            .update(matching_unselected_pattens))
 
                         elif found_unmatching:
                             #neutral edge keep color
@@ -273,7 +284,8 @@ class Feature:
                                 self.invalitate()
                                 return None
 
-                            (pattern_colors[node_color[edge[1]]+2]
+                            #precondition pattern get the same color as source nodes
+                            (pattern_colors[node_color[edge[0]]+2]
                             .update(matching_unselected_pattens))
 
                         else:
@@ -285,7 +297,8 @@ class Feature:
             #check pattern consitency at the end to keep stuff readable
             result = self.add_color_constraint(pattern_colors)
             if result is None :
-                return None
+                if self.is_invalid():
+                    return None
 
         return node_color
 

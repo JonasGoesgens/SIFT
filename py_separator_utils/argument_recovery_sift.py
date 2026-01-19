@@ -27,12 +27,14 @@ class Argument_Recovery_Sift:
         self.order_id_features[0] = set()
         self.arg_feature_assignments = dict()
         self.multi_arg_feature_assignment = dict()
+        self.all_arg_feature_assignments = dict()
         self.admissible_order_id_features = dict()
         self.argument_identifier_features = dict()
         self.argument_identifier_features[0] = tuple()
         self.updated_oi_features = dict()
         self.updated_oi_features[0] = set()
         self.revised_oi_features = dict()
+        self.pre_pattern_disabling = True
 
     @classmethod
     def _check_feature(
@@ -45,6 +47,12 @@ class Argument_Recovery_Sift:
             oi_feature.label_graph(instance, graph, grounding)
         oi_feature.update_argument_identifier_patterns()
         return oi_feature
+
+    def set_pre_pattern_disabling(self, pre_pattern_disabling : bool = True):
+        self.pre_pattern_disabling = pre_pattern_disabling
+        for iteration, oi_features in self.order_id_features.items():
+            for oi_feature in oi_features:
+                oi_feature.pre_pattern_disabling = pre_pattern_disabling
 
     def replace_graphs(self, graphs : Union[List[Tuple[pt.GraphT, pt.NodeT]],
         Dict[int, Tuple[pt.GraphT, pt.NodeT]]]
@@ -203,7 +211,8 @@ class Argument_Recovery_Sift:
                         feature,
                         dead_patterns,
                         equivalent_switching_patterns,
-                        action_arities
+                        action_arities,
+                        self.pre_pattern_disabling
                     )
                 )
             #oi features from statics
@@ -218,7 +227,8 @@ class Argument_Recovery_Sift:
                             all_patterns,
                             dead_patterns,
                             equivalent_switching_patterns,
-                            action_arities
+                            action_arities,
+                            self.pre_pattern_disabling
                         )
                     )
         #run ar sift
@@ -359,7 +369,7 @@ class Argument_Recovery_Sift:
                 input_changed,
                 arg_feature_assignment,
                 multi_arg_feature_assignment,
-                _
+                all_arg_feature_assignments
             ) = self.update_graphs(
                 self.revised_oi_features[iteration - 1],
                 iteration,
@@ -387,6 +397,15 @@ class Argument_Recovery_Sift:
                         if index not in self.multi_arg_feature_assignment[action]:
                             self.multi_arg_feature_assignment[action][index] = set()
                         self.multi_arg_feature_assignment[action][index].update(assignment)
+
+            for action, assignments in all_arg_feature_assignments.items():
+                if action not in self.all_arg_feature_assignments:
+                    self.all_arg_feature_assignments[action] = assignments
+                else:
+                    for index, assignment in assignments.items():
+                        if index not in self.all_arg_feature_assignments[action]:
+                            self.all_arg_feature_assignments[action][index] = set()
+                        self.all_arg_feature_assignments[action][index].update(assignment)
 
         #Main Loop terminated, finalize and cleanup depending on termination cause.
         #input_changed == True  termination by runlinmit execute last run.

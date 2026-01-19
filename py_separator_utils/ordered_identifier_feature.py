@@ -14,7 +14,8 @@ class Ordered_Identifier_Feature:
         add_patterns : pt.PatternTSetLike,
         del_patterns : pt.PatternTSetLike,
         pre_patterns : pt.PatternTSetLike,
-        type_combination : Optional[pt.TypeCombi] = None
+        type_combination : Optional[pt.TypeCombi] = None,
+        pre_pattern_disabling : bool = True
     ):
         if existence_feature is not None:
             if (existence_feature.is_invalid()):
@@ -31,6 +32,7 @@ class Ordered_Identifier_Feature:
         self.add_patterns = frozenset(add_patterns)
         self.del_patterns = frozenset(del_patterns)
         self.pre_patterns = set(pre_patterns)
+        self.pre_pattern_disabling = pre_pattern_disabling
         self.disabled_pre_patterns = set()
         self.extended_identifier = None
         #We need an ordered way to iterate over additional arguments in case
@@ -355,10 +357,11 @@ class Ordered_Identifier_Feature:
                 #if we don't find an effect for this grounding we do not want to see the preconditions.
                 found_effect = True
             open_list = next_open_list
-        if not found_effect:
+        if not found_effect and self.pre_pattern_disabling:
             #Note this rule is only reliable for full graph inputs.
             #This blocks situations like y-coordinate above for horizontals moves in a grid.
             #This rule requires to see all fluent atoms of an instance changed.
+            #This rule is the equivalent of the synth rule that a query is not allowed to be empty when used.
             self.disabled_pre_patterns.update(active_precondition_patterns)
         return object_memory
 
@@ -548,7 +551,8 @@ class Ordered_Identifier_Feature:
     def expand_existence_feature(cls, feature : Feature,
         dead_patterns : pt.PatternTSetLike,
         equivalent_switching_patterns : EquivalenceClasses[pt.PatternT],
-        action_arities : pt.ArityInfoT
+        action_arities : pt.ArityInfoT,
+        pre_pattern_disabling : bool = True
     ) -> List['Ordered_Identifier_Feature']:
         new_feature_list = list()
         if not feature.has_unique_colouring():
@@ -588,7 +592,8 @@ class Ordered_Identifier_Feature:
                         feature,
                         add_sw_patterns,
                         del_patterns.union(sw_patterns),
-                        pre_patterns.difference(sw_patterns)
+                        pre_patterns.difference(sw_patterns),
+                        pre_pattern_disabling = pre_pattern_disabling
                     )
                     new_feature_list.append(id_feature)
         return new_feature_list
@@ -599,7 +604,8 @@ class Ordered_Identifier_Feature:
         all_patterns : pt.PatternTSetLike,
         dead_patterns : pt.PatternTSetLike,
         equivalent_switching_patterns : EquivalenceClasses[pt.PatternT],
-        action_arities : pt.ArityInfoT
+        action_arities : pt.ArityInfoT,
+        pre_pattern_disabling : bool = True
     ) -> List['Ordered_Identifier_Feature']:
         new_feature_list = list()
         switching_patterns = set(all_patterns)
@@ -624,7 +630,8 @@ class Ordered_Identifier_Feature:
                     add_sw_patterns,
                     sw_patterns,
                     all_patterns.difference(sw_patterns),
-                    type_combination
+                    type_combination,
+                    pre_pattern_disabling = pre_pattern_disabling
                 )
                 new_feature_list.append(id_feature)
         return new_feature_list

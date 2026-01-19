@@ -379,7 +379,7 @@ def compare_features(
     for feature in features:
         if feature not in temp_dict:
             failure_servity = max(failure_servity, 5)
-        compare_dict[feature] = temp_dict[feature]
+        compare_dict[feature] = temp_dict.get(feature,feature)
         if not feature.is_invalid() and compare_dict[feature].is_invalid():
             failure_servity = max(failure_servity, 4)
 
@@ -702,6 +702,8 @@ def process_instance(args: argparse.Namespace):
         meta_info['admissible_oi_features'] = len(oi_features)
         meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
         meta_info['action_argument_multi_assignments'] = ar_sift.multi_arg_feature_assignment
+        meta_info['all_action_argument_assignments'] = ar_sift.all_arg_feature_assignments
+        meta_info['all_ground_edges'] = ar_sift.sift_iterations[iteration].all_ground_edges
         action_arities = ar_sift.sift_iterations[iteration].LOCM_types.action_arities
         meta_info['action_arities'] = action_arities
 
@@ -774,6 +776,7 @@ def process_instance(args: argparse.Namespace):
             print(conflicts)
         if args.verification_instance is not None:
             verifier = copy.deepcopy(ar_sift)
+            verifier.set_pre_pattern_disabling(False)
             #add empty list on purpose to speed up further deep copies.
             verifier.replace_graphs(list())
 
@@ -822,7 +825,8 @@ def process_instance(args: argparse.Namespace):
                             verification_val += 1
                             print(f"{ut.format_cur_time()}: Unexpected stratification Exception on positive sample")
                             continue
-                    num_objects += len(local_verifier.sift_iterations[iteration].LOCM_types.obj_types)
+                    verifier_iteration = max(local_verifier.sift_iterations.keys())
+                    num_objects += len(local_verifier.sift_iterations[verifier_iteration].LOCM_types.obj_types)
                     #All arguments should be correctly recovered so check normal sift features
                     failure_servity = compare_features(
                         features, local_features
@@ -872,6 +876,7 @@ def process_instance(args: argparse.Namespace):
                 num_preconditions[2] += len(undefined_precs)
         meta_info['feature_variants'] = feature_variants
         meta_info['num_preconditions'] = num_preconditions
+        meta_info['all_ground_edges'] = sift.all_ground_edges
 
         minimization_constraints_set = sift.calculate_minimization_constraints()
         clingo_input, feature_numbers, pattern_numbers = generate_clingo_for_minimization(
@@ -933,6 +938,7 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(dir_path, "output"          ), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "tables"), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "pddl"), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "statics"), exist_ok=True)
         stats_table_out = ""
         for line_num, (runs, args) in enumerate(parsed_args):
             print(f"{ut.format_cur_time()}: Batchmode line {line_num}")
@@ -1026,6 +1032,17 @@ if __name__ == '__main__':
                         out_file.write(f"Type Combination: {type_combination}\n")
                         out_file.write(feature.get_color_split_combination_string(0, preconditions) + "\n\n")
 
+                #print statics analysis input
+                output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
+                output_path = 'output/statics/{}.txt'.format(output_file)
+                with open(output_path, "w") as out_file:
+                    out_file.write("arities: " + str(LOCM_types.action_arities)+"\n")
+                    out_file.write("arg types: " + str(LOCM_types.arg_types)+"\n")
+                    out_file.write("obj types: " + str(LOCM_types.obj_types)+"\n")
+                    out_file.write("mutex features: " + str(oi_features)+"\n")
+                    out_file.write("arg assignments: " + str(meta_info.get('all_action_argument_assignments',dict()))+"\n")
+                    out_file.write("arg assignments: " + str(meta_info.get('all_ground_edges',dict()))+"\n")
+
                 #print pddl files
                 pddl_features = list()
                 feature_typecombinaton_pairs = [
@@ -1055,15 +1072,15 @@ if __name__ == '__main__':
                     output_instance_path = 'output/pddl/{}_{}.pddl'.format(output_file, instance)
                     with open(output_instance_path, "w") as out_file:
                         goals = list()
-                        for feature in pddl_features:
-                            for atom in feature.get_color_split_combination(0)[6]:
-                                if atom[0] == instance:
-                                    goals.append((feature,0,0,atom[1]))
-                                    break
-                            for atom in feature.get_color_split_combination(0)[5]:
-                                if atom[0] == instance:
-                                    goals.append((feature,0,1,atom[1]))
-                                    break
+                        #for feature in pddl_features:
+                        #    for atom in feature.get_color_split_combination(0)[6]:
+                        #        if atom[0] == instance:
+                        #            goals.append((feature,0,0,atom[1]))
+                        #            break
+                        #    for atom in feature.get_color_split_combination(0)[5]:
+                        #        if atom[0] == instance:
+                        #            goals.append((feature,0,1,atom[1]))
+                        #            break
                         out_file.write(pddl_gen.get_instance_pddl(name, instance, goals) + "\n")
 
                 num_instances = max(1,meta_info.get('graph_number',0))
@@ -1140,6 +1157,8 @@ if __name__ == '__main__':
             verification_val,
             meta_info
         ) = process_instance(args)
+
+        os.makedirs(os.path.join(dir_path, "output", "statics"), exist_ok=True)
 
         #print secondary information
         if verification_val == 0:
@@ -1283,13 +1302,24 @@ if __name__ == '__main__':
         print(pddl_gen.get_domain_pddl(name))
         for instance in LOCM_types.known_instances:
             goals = list()
-            for feature in pddl_features:
-                for atom in feature.get_color_split_combination(0)[6]:
-                    if atom[0] == instance:
-                        goals.append((feature,0,0,atom[1]))
-                        break
-                for atom in feature.get_color_split_combination(0)[5]:
-                    if atom[0] == instance:
-                        goals.append((feature,0,1,atom[1]))
-                        break
+            #for feature in pddl_features:
+            #    for atom in feature.get_color_split_combination(0)[6]:
+            #        if atom[0] == instance:
+            #            goals.append((feature,0,0,atom[1]))
+            #            break
+            #    for atom in feature.get_color_split_combination(0)[5]:
+            #        if atom[0] == instance:
+            #            goals.append((feature,0,1,atom[1]))
+            #            break
             print(pddl_gen.get_instance_pddl(name, instance, goals))
+
+        #print statics analysis input
+        output_file = 'statistics_test'
+        output_path = 'output/statics/{}.txt'.format(output_file)
+        with open(output_path, "w") as out_file:
+            out_file.write("arities: " + str(LOCM_types.action_arities)+"\n")
+            out_file.write("arg types: " + str(LOCM_types.arg_types)+"\n")
+            out_file.write("obj types: " + str(LOCM_types.obj_types)+"\n")
+            out_file.write("mutex features: " + str(oi_features)+"\n")
+            out_file.write("arg assignments: " + str(meta_info.get('all_action_argument_assignments',dict()))+"\n")
+            out_file.write("action groundings: " + str(meta_info.get('all_ground_edges',dict()))+"\n")

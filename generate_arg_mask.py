@@ -104,14 +104,39 @@ def create_graphs_from_input(
 
     for num_input in range(number_inputs):
         if mode == 'fg':
-            G, init, _, _ = get_nx_graph_from_state_space(pddl_holder, introduce_false_edge)
+            G, init, _, _ = get_nx_graph_from_state_space(
+                pddl_holder,
+                introduce_false_edge,
+                pddl_holder,
+                dict()
+            )
         elif mode == 'pg':
-            G, init, _, _ = bfs_state_space(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, _, _ = bfs_state_space(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                pddl_holder,
+                dict()
+            )
         elif mode == 'rl':
-            G, init, _, _ = get_trace_rl(pddl_holder, number_edges, num_input, introduce_false_edge)
+            G, init, _, _ = get_trace_rl(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                pddl_holder,
+                dict()
+            )
         elif mode == 'st':
-            G, init, _, _ = get_trace_simple(pddl_holder, number_edges, num_input, introduce_false_edge)
-        else:
+            G, init, _, _ = get_trace_simple(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                pddl_holder,
+                dict()
+            )
             #return None
             continue
 
