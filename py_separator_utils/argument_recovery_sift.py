@@ -373,7 +373,8 @@ class Argument_Recovery_Sift:
             ) = self.update_graphs(
                 self.revised_oi_features[iteration - 1],
                 iteration,
-                old_arities
+                old_arities,
+                verification_mode
             )
             if not verification_mode:
                 self.updated_oi_features[iteration] = set()
@@ -450,7 +451,8 @@ class Argument_Recovery_Sift:
     def update_graphs(self,
         new_oi_features : tuple[OIFeature],
         iteration : int,
-        old_arities : Dict[pt.ActionT,int]
+        old_arities : Dict[pt.ActionT,int],
+        verification_mode : bool = False
     ) -> Tuple[bool,
         pt.Arg_Feature_AssignmentT,
         pt.Arg_Feature_Multi_AssignmentT,
@@ -467,6 +469,7 @@ class Argument_Recovery_Sift:
 
         some_label = None
 
+        whitelist = dict()
         #Add all deduced arguments to graph
         for instance, graphholder in self.sift_iterations[iteration].all_graphs.items():
             graph = graphholder.base_graph
@@ -474,6 +477,9 @@ class Argument_Recovery_Sift:
             for state, next_state, edge_label in graph.edges(data='action'):
                 for label in edge_label.copy():
                     new_label = label
+                    if verification_mode:
+                        if not label[0] in whitelist:
+                            whitelist[label[0]] = set()
                     for oi_feature in new_oi_features:
                         for ai_pattern in oi_feature.argument_identifier_patterns:
                             #if ai_pattern in oi_feature.disabled_pre_patterns:
@@ -484,6 +490,11 @@ class Argument_Recovery_Sift:
                             if new_arg is None:
                                 new_arg = pt.ObjectNotKnown
                             new_index = len(new_label[1])
+
+                            if verification_mode:
+                                if (oi_feature,ai_pattern) in self.arg_feature_assignments[label[0]].values():
+                                    whitelist[label[0]].add(new_index)
+
                             #Remember differences to already known arguments
                             #to later delete args that do not add new information
                             if new_arg != pt.ObjectNotKnown:
@@ -538,6 +549,18 @@ class Argument_Recovery_Sift:
                 args_to_delete[action][arg] = min(
                     pt.ObjectNotKnown, args_to_delete[action].get(arg, pt.ObjectNotKnown)
                 )
+
+        if verification_mode:
+            args_to_delete_old = args_to_delete
+            args_to_delete = dict()
+            for action in old_arities:
+                args_to_delete[action] = dict()
+            for action, arity in arities.items():
+                args_to_delete[action] = dict()
+                old_arity = old_arities.get(action, 0)
+                for arg in range(old_arity, arity):
+                    if arg not in whitelist[action]:
+                        args_to_delete[action][arg] = args_to_delete_old[action].get(arg, pt.ObjectNotKnown)
 
         for action, arity in old_arities.items():
             arg_feature_assignment[action] = dict()

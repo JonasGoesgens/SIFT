@@ -1,4 +1,5 @@
 import py_separator_utils.py_types as pt
+import py_separator_utils.utils as ut
 from py_separator_utils.object_types import LOCM_Types
 from py_separator_utils.equivalence_classes import EquivalenceClasses
 from multiprocessing import Manager
@@ -107,6 +108,7 @@ class Graph_Holder:
         labels : pt.Edge_LabelT, grounding_key : pt.GroundingKeyT
     ) -> bool:
         #TODO handle unknown object -2
+        #TODO + too short labels
         return any(len(grounding_key.difference(label[1])) > label[1].count(pt.ObjectNotKnown)
             for label in labels
         )
@@ -204,7 +206,7 @@ class Graph_Holder:
                     #this loop will not run for zeronary features
                     for index, entry in enumerate(pat[1]):
                         object_pat = grounding[index]
-                        object_label = label[1][entry]
+                        object_label = ut.tuple_get(label[1], entry, pt.ObjectNotKnown)
                         if object_label == pt.ObjectNotKnown:
                             unknown = True
                         if object_label != object_pat:

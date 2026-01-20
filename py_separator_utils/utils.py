@@ -45,3 +45,9 @@ def safe_copy(value : T) -> T:
 
 def format_cur_time() -> str:
     return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+def tuple_get(tup, index, default=None):
+    try:
+        return tup[index]
+    except IndexError:
+        return default

@@ -825,6 +825,11 @@ def process_instance(args: argparse.Namespace):
                             verification_val += 1
                             print(f"{ut.format_cur_time()}: Unexpected stratification Exception on positive sample")
                             continue
+                    except Exception as e:
+                        num_objects += len(local_verifier.sift_iterations[0].LOCM_types.obj_types)
+                        verification_val += 1
+                        print(f"{ut.format_cur_time()}: Unexpected Exception happened during Verification {e}")
+                        continue
                     verifier_iteration = max(local_verifier.sift_iterations.keys())
                     num_objects += len(local_verifier.sift_iterations[verifier_iteration].LOCM_types.obj_types)
                     #All arguments should be correctly recovered so check normal sift features
