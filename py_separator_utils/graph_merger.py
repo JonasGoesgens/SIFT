@@ -182,6 +182,36 @@ class Graph_Holder:
         return self.get_simple_graph_for_grounding_key(grounding_key)
 
     @classmethod
+    def check_label_needs_merge_complex(cls,
+        labels : pt.Edge_LabelT,
+        grounding : pt.GroundingT,
+        alive_patterns : pt.PatternTSetLike
+    ) -> bool:
+        #An edge has to be merged if one of its labels has no hope of fitting any alive patterns.
+        for label in labels:
+            found = False
+            for pat in alive_patterns:
+                mismatch = False
+                if label[0] != pat[0]:
+                    mismatch = True
+                else:
+                    for index, entry in enumerate(pat[1]):
+                        object_pat = grounding[index]
+                        object_label = ut.tuple_get(label[1], entry, pt.ObjectNotKnown)
+                        if object_label != pt.ObjectNotKnown and object_label != object_pat:
+                            mismatch = True
+                            break
+
+                if not mismatch:
+                    found = True
+                    break
+
+            if not found:
+                return True
+
+        return False
+
+    @classmethod
     def get_compatible_patterns_from_edge_label(cls,
         edge_labels : pt.Edge_LabelT,
         grounding : pt.GroundingT,
@@ -341,15 +371,10 @@ class Graph_Holder:
                 for neighbor in list(graph.successors(node)):
                     if neighbor != node:
                         edge_label = graph[node][neighbor].get('action')
-                        pat, multi_pat, _ = cls.get_compatible_patterns_from_edge_label(
+                        if cls.check_label_needs_merge_complex(
                             edge_label,
                             grounding,
-                            all_patterns
-                        )
-                        if dead_patterns.intersection(pat) or any(
-                            len(pat_group) > 0 and
-                            len(pat_group.difference(dead_patterns)) == 0
-                            for pat_group in multi_pat
+                            all_patterns.difference(dead_patterns)
                         ):
                             if neighbor == initial_state:
                                 initial_state = node
