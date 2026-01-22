@@ -17,8 +17,17 @@ demask_latex() {
 }
 
 indices=("avg_objects_learning" "num_edges_learning" "orig_args" "rec_args" "extra_args" \
-          "max_all_features" "avg_admissible_features" "avg_time_learning" "avg_objects_verifi" \
-          "num_edges_verifi" "avg_time_verifi" "success_rate")
+    "max_all_features" "avg_admissible_features" "avg_time_learning" "avg_objects_verifi" \
+    "num_edges_verifi" "avg_time_verifi" "success_rate")
+#num_dec_digits=(0 0 0 0 0 0 0 0 0 0 0 0)
+
+max_aggregation=("orig_args" "rec_args" "extra_args" "max_all_features")
+avg_aggregation=()
+for index in "${indices[@]}"; do
+    if [[ ! "${max_aggregation[*]}" =~ "$index" ]]; then
+        avg_aggregation+=("$index")
+    fi
+done
 
 units=("" "" "" "" "" "" "" '\\seconds' "" "" '\\seconds' '\\%' )
 num_units=${#units[@]}
@@ -42,7 +51,7 @@ for table_line in "${split_lines[@]}"; do
                 value=$(echo "$value" | tr -d "${units[$i]}")
                 #echo $value
                 #echo ${units[$i]}
-                if [[ $key == orig_args || $key == rec_args || $key == extra_args || $key == max_all_features ]]; then
+                if [[ "${max_aggregation[*]}" =~ "$key"* ]]; then
                     if (( $(echo "${value} > ${max_values[$key]:-0}" ) )); then
                         max_values[$key]=$value
                     fi
@@ -58,9 +67,13 @@ for table_line in "${split_lines[@]}"; do
     #total_runs=25
 
     for key in "${!max_values[@]}"; do
-        if [[ ! "orig_args rec_args extra_args max_all_features success_rate" =~ $key ]]; then
+        if [[ "${avg_aggregation[*]}" =~ "$key"* ]]; then
         max_values[$key]=$(bc <<< "scale=2; ${max_values[$key]} / $total_runs")
         fi
+    done
+
+    for key in "${!max_values[@]}"; do
+        max_values[$key]=$(echo "scale=0; "${max_values[$key]}" / 1" | bc)
     done
 
     stats_table_out=""
