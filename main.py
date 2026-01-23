@@ -14,6 +14,7 @@ import argparse
 import typing
 import copy
 import clingo
+import itertools
 from pathlib import Path
 import networkx as nx
 from py_separator_utils.pddl_generator import PDDLGenerator
@@ -493,6 +494,14 @@ def read_dict_from_file(filename):
 
     return result
 
+def get_clingo_action_string(action : pt.ActionT) -> str:
+    if isinstance(action, int):
+        return str(action)
+    elif isinstance(action, str):
+        return f"\"{action}\""
+    else:
+        raise ValueError("action not of type int or str.")
+
 def generate_clingo_for_minimization(
     minimization_constraints_sets #: Set[FrozenSet[Tuple[Feature, Optional[pt.PatternT]]]]
 ):
@@ -587,6 +596,87 @@ def map_back_feature_numbers(clingo_solution, feature_numbers, pattern_numbers):
         feature, pattern = inversed_pattern_numbers[pattern_number]
         features_needed[feature].add(pattern)
     return features_needed
+
+def create_clingo_mapping_matrix(max_arity : int)->str:
+    matrix=f"max_arity({max_arity}).\n"
+    for arity2 in range(1,max_arity+1):
+        target_vec=tuple(f"Arg{index}" for index in range(1,arity2+1))
+        tail = list(f"argument({arg})" for arg in target_vec)
+        tail = ", ".join(tail)
+        target_vec = ", ".join(target_vec)
+        target_vec = f"({target_vec})"
+        matrix+=f"argument_tuple({arity2},{target_vec}):-{tail}.\n"
+        for arity1 in range(1,arity2+1):
+            for permutation in itertools.permutations(
+                list(range(1,arity2+1)), arity1
+            ):
+                source_vec=tuple(f"Arg{index}" for index in permutation)
+                source_vec = ", ".join(source_vec)
+                source_vec = f"({source_vec})"
+                matrix+=f"mapping_matrix({arity1},{arity2},{permutation},{source_vec},{target_vec}):-{tail}.\n"
+                matrix+=f"mapping_permutations({arity1},{arity2},{permutation}).\n"
+    return matrix
+
+def create_clingo_object_list(obj_types : dict)->str:
+    object_encoding=""
+    types = set()
+    instances = set()
+    for (inst,obj),type_obj in obj_types.items():
+        types.add(type_obj)
+        instances.add(inst)
+        object_encoding += f"objects(({inst},{obj})).\n"
+        object_encoding += f"obj_type({type_obj},({inst},{obj})).\n"
+
+    for type_obj in types:
+        object_encoding += f"types({type_obj}).\n"
+
+    for inst in instances:
+        object_encoding += f"instance({inst}).\n"
+
+    return object_encoding
+
+def create_clingo_action_list(action_arities : dict, arg_types : dict)->str:
+    action_encoding=""
+
+    for action, arity in action_arities.items():
+        action_encoding += f"action_arity({get_clingo_action_string(action)},{arity}).\n"
+        head=list()
+        tail=list()
+        for arg in range(arity):
+            head.append(f"Type{arg}")
+            tail.append(f"action_arg_type(Type{arg},({get_clingo_action_string(action)},{arg}))")
+        head = ", ".join(head)
+        tail = ", ".join(tail)
+        action_encoding += f"action_type_list({get_clingo_action_string(action)},({head})) :- {tail}.\n"
+
+        head=list()
+        tail=list()
+        tail_sub=list()
+        for arg in range(arity):
+            head.append(f"Obj{arg}")
+            tail.append(f"obj_type(Type{arg},(Obj{arg})),Obj{arg}=(Inst,_)")
+            tail_sub.append(f"Type{arg}")
+        head = ", ".join(head)
+        tail = ", ".join(tail)
+        tail_sub = ", ".join(tail_sub)
+        action_encoding += f"action_candidate({get_clingo_action_string(action)},Inst,({head})):- instance(Inst),action_type_list({get_clingo_action_string(action)},({tail_sub})),{tail}.\n"
+
+    for (action,arg), arg_type in arg_types.items():
+        action_encoding += f"action_arg_type({arg_type},({get_clingo_action_string(action)},{arg})).\n"
+
+    return action_encoding
+
+def create_clingo_groundings_list(all_ground_edges : dict)->str:
+    groundings_encoding=""
+
+    for instance, action_groundings in all_ground_edges.items():
+        for action, grounding in action_groundings:
+            head=list()
+            for arg in grounding:
+                head.append(f"({instance},{arg})")
+            head = ", ".join(head)
+            groundings_encoding += f"action_possible({get_clingo_action_string(action)},{instance},({head})).\n"
+    return groundings_encoding
 
 def process_instance(args: argparse.Namespace):
     # create domain paths
@@ -944,6 +1034,7 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(dir_path, "output", "tables"), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "pddl"), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "statics"), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "statics", "clingo"), exist_ok=True)
         stats_table_out = ""
         for line_num, (runs, args) in enumerate(parsed_args):
             print(f"{ut.format_cur_time()}: Batchmode line {line_num}")
@@ -1038,6 +1129,7 @@ if __name__ == '__main__':
                         out_file.write(feature.get_color_split_combination_string(0, preconditions) + "\n\n")
 
                 #print statics analysis input
+                all_ground_edges = meta_info.get('all_ground_edges',dict())
                 output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
                 output_path = 'output/statics/{}.txt'.format(output_file)
                 with open(output_path, "w") as out_file:
@@ -1046,7 +1138,22 @@ if __name__ == '__main__':
                     out_file.write("obj types: " + str(LOCM_types.obj_types)+"\n")
                     out_file.write("mutex features: " + str(oi_features)+"\n")
                     out_file.write("arg assignments: " + str(meta_info.get('all_action_argument_assignments',dict()))+"\n")
-                    out_file.write("arg assignments: " + str(meta_info.get('all_ground_edges',dict()))+"\n")
+                    out_file.write("action groundings: " + str(all_ground_edges)+"\n")
+
+                statics_clingo = ""
+                max_arity = max(arity for arity in LOCM_types.action_arities.values())
+                statics_clingo += create_clingo_mapping_matrix(max_arity)
+                statics_clingo += create_clingo_object_list(LOCM_types.obj_types)
+                statics_clingo += create_clingo_action_list(
+                    LOCM_types.action_arities,
+                    LOCM_types.arg_types
+                )
+                statics_clingo += create_clingo_groundings_list(all_ground_edges)
+
+                output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
+                output_path = 'output/statics/clingo/{}.lp'.format(output_file)
+                with open(output_path, "w") as out_file:
+                    out_file.write(statics_clingo)
 
                 #print pddl files
                 pddl_features = list()
@@ -1113,7 +1220,7 @@ if __name__ == '__main__':
             avg_time_verifi = sum_time_verifi/runs
             num_edges_learning = avg_graph_size
             num_edges_verifi = avg_graph_size_verifi
-            stats_table_out += '&${:3.0f}$&${:5.0f}$&${:2.0f}$&${:2.0f}$&${:2.0f}$&${:5.0f}$&${:3.0f}$&${:5.0f}\seconds$&${:3.0f}$&${:5.0f}$&${:5.0f}\seconds$&${:3.0f}\%$\n'.format(
+            stats_table_out += '&${:3.0f}$&${:5.0f}$&${:2.0f}$&${:2.0f}$&${:2.0f}$&${:7.0f}$&${:3.0f}$&${:5.0f}\seconds$&${:3.0f}$&${:5.0f}$&${:5.0f}\seconds$&${:3.0f}\%$\n'.format(
                 avg_objects_learning,
                 num_edges_learning,
                 orig_args,
@@ -1164,6 +1271,7 @@ if __name__ == '__main__':
         ) = process_instance(args)
 
         os.makedirs(os.path.join(dir_path, "output", "statics"), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "statics", "clingo"), exist_ok=True)
 
         #print secondary information
         if verification_val == 0:
@@ -1319,6 +1427,7 @@ if __name__ == '__main__':
             print(pddl_gen.get_instance_pddl(name, instance, goals))
 
         #print statics analysis input
+        all_ground_edges = meta_info.get('all_ground_edges',dict())
         output_file = 'statistics_test'
         output_path = 'output/statics/{}.txt'.format(output_file)
         with open(output_path, "w") as out_file:
@@ -1327,4 +1436,19 @@ if __name__ == '__main__':
             out_file.write("obj types: " + str(LOCM_types.obj_types)+"\n")
             out_file.write("mutex features: " + str(oi_features)+"\n")
             out_file.write("arg assignments: " + str(meta_info.get('all_action_argument_assignments',dict()))+"\n")
-            out_file.write("action groundings: " + str(meta_info.get('all_ground_edges',dict()))+"\n")
+            out_file.write("action groundings: " + str(all_ground_edges)+"\n")
+
+        statics_clingo = ""
+        max_arity = max(arity for arity in LOCM_types.action_arities.values())
+        statics_clingo += create_clingo_mapping_matrix(max_arity)
+        statics_clingo += create_clingo_object_list(LOCM_types.obj_types)
+        statics_clingo += create_clingo_action_list(
+            LOCM_types.action_arities,
+            LOCM_types.arg_types
+        )
+        statics_clingo += create_clingo_groundings_list(all_ground_edges)
+
+        output_file = 'statistics_test'
+        output_path = 'output/statics/clingo/{}.lp'.format(output_file)
+        with open(output_path, "w") as out_file:
+            out_file.write(statics_clingo)
