@@ -601,11 +601,11 @@ def create_clingo_mapping_matrix(max_arity : int)->str:
     matrix=f"max_arity({max_arity}).\n"
     for arity2 in range(1,max_arity+1):
         target_vec=tuple(f"Arg{index}" for index in range(1,arity2+1))
-        tail = list(f"argument({arg})" for arg in target_vec)
+        tail = list(f"argument({arg},Type)" for arg in target_vec)
         tail = ", ".join(tail)
         target_vec = ", ".join(target_vec)
         target_vec = f"({target_vec})"
-        matrix+=f"argument_tuple({arity2},{target_vec}):-{tail}.\n"
+        matrix+=f"argument_tuple(Type,{arity2},{target_vec}):-{tail}.\n"
         for arity1 in range(1,arity2+1):
             for permutation in itertools.permutations(
                 list(range(1,arity2+1)), arity1
