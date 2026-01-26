@@ -21,7 +21,8 @@ from py_separator_utils.pddl_generator import PDDLGenerator
 from py_separator_utils.mimir_holder import mimir_holder
 from py_separator_utils.conflict_manager import ConflictManager
 from graph_generator import get_trace_rl, get_trace_simple
-from graph_generator import bfs_state_space, get_nx_graph_from_state_space
+from graph_generator import bfs_state_space, dfs_state_space, rand_state_space
+from graph_generator import get_nx_graph_from_state_space
 from concurrent.futures import ProcessPoolExecutor
 from itertools import permutations
 
@@ -44,7 +45,7 @@ def get_single_instance_argparser():
     parser.add_argument("-p", "--processes", type=int, required=True, help="number of max. parallel processes, 1 means sequential algorihtm")
     parser.add_argument("-o", "--output", type=str, required=False, help='name of output file')
     parser.add_argument("-lm", "--learning_mode", type=str, required=False, default='fg', 
-                        help='Defines the input to the learinig alg. \n fg = full graphs (default)\n pg = partial graphs\n st= simple traces\n rl= rl style traces')
+                        help='Defines the input to the learinig alg. \n fg = full graphs (default)\n (b,d,r)pg = partial graphs in (bfs, dfs, rand) expansion\n st= simple traces\n rl= rl style traces')
     # parser.add_argument("-vm", "--verification_mode", type=str, required=False, default='fg', 
     #                     help='Defines the input to the learinig alg. \n fg = full graphs (default)\n pg = partial graphs\n st= simple traces\n rl= rl style traces')
     parser.add_argument("-ls", "--learning_size", type=int, required=False, help="size of the input if mode is not fg")
@@ -138,8 +139,26 @@ def create_graphs_from_input(
                 static_relaxed_pddl_holder,
                 arg_mask
             )
-        elif mode == 'pg':
+        elif mode == 'bpg' or mode == 'pg':
             G, init, state_atom_dict, object_names_dict = bfs_state_space(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
+        elif mode == 'dpg':
+            G, init, state_atom_dict, object_names_dict = dfs_state_space(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
+        elif mode == 'rpg':
+            G, init, state_atom_dict, object_names_dict = rand_state_space(
                 pddl_holder,
                 number_edges,
                 num_input,
@@ -193,8 +212,8 @@ def get_verification_instances(
     if static_relaxed_domain_path is None:
         static_relaxed_domain_path = domain_path
     instances = list()
-    pos_modes = ['fg', 'st', 'rl', 'pg']
-    neg_modes = ['nfg', 'nst', 'nrl', 'npg']
+    pos_modes = ['fg', 'st', 'rl', 'pg', 'bpg', 'dpg', 'rpg']
+    neg_modes = ['nfg', 'nst', 'nrl', 'npg', 'nbpg', 'ndpg', 'nrpg']
     modes = pos_modes + neg_modes
     partial_modes = [elm for elm in modes if elm not in ['fg', 'nfg']]
 
@@ -751,7 +770,9 @@ def process_instance(args: argparse.Namespace):
         number_samples = 1
     graph_size = 0
     graph_number = len(instance_dict)
+    print(f"{ut.format_cur_time()}: Generated {len(instance_dict)} Graphs:")
     for instance in instance_dict.values():
+        print(f"Graph with {instance[0].number_of_nodes()} nodes and {instance[0].number_of_edges()} edges.")
         graph_size += instance[0].number_of_edges()
     meta_info['graph_size'] = graph_size
     meta_info['graph_number'] = graph_number
