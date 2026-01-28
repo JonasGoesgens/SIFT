@@ -729,7 +729,7 @@ def process_instance(args: argparse.Namespace):
     id_gen = ut.UniqueIDAllocator()
     meta_info = dict()
 
-    print(f"{ut.format_cur_time()}: Input generation")
+    print(f"{ut.format_cur_time()}: Input generation", flush=True)
     for instance_path in args.instance:
 
         # create problem path
@@ -770,7 +770,7 @@ def process_instance(args: argparse.Namespace):
         number_samples = 1
     graph_size = 0
     graph_number = len(instance_dict)
-    print(f"{ut.format_cur_time()}: Generated {len(instance_dict)} Graphs:")
+    print(f"{ut.format_cur_time()}: Generated {len(instance_dict)} Graphs:", flush=True)
     for instance in instance_dict.values():
         print(f"Graph with {instance[0].number_of_nodes()} nodes and {instance[0].number_of_edges()} edges.")
         graph_size += instance[0].number_of_edges()
@@ -778,7 +778,7 @@ def process_instance(args: argparse.Namespace):
     meta_info['graph_number'] = graph_number
     meta_info['number_samples'] = number_samples
     run_time = time.time()
-    print(f"{ut.format_cur_time()}: Learning Domain")
+    print(f"{ut.format_cur_time()}: Learning Domain", flush=True)
     #recovered_graphs = dict()
     if recover_args_mode:
         ar_sift = ARSift(instance_dict)
@@ -875,14 +875,14 @@ def process_instance(args: argparse.Namespace):
         minimal_domain = map_back_feature_numbers(solutions[-1], feature_numbers, pattern_numbers)
 
         verifi_time = time.time()
-        print(f"{ut.format_cur_time()}: Verification input generation")
+        print(f"{ut.format_cur_time()}: Verification input generation", flush=True)
         verification_val = 0
         graph_size = 0
         graph_number = 0
         num_objects = 0
         if recovered_args < orig_args:
             verification_val += 1
-            print(f"{ut.format_cur_time()}: Verification failed to recover original arguments")
+            print(f"{ut.format_cur_time()}: Verification failed to recover original arguments", flush=True)
             print(recovered_args, orig_args)
             print(conflicts)
         if args.verification_instance is not None:
@@ -913,7 +913,7 @@ def process_instance(args: argparse.Namespace):
                             new_labels.add(new_label)
                         data['action'] = new_labels
 
-            print(f"{ut.format_cur_time()}: Verifing learned Domain")
+            print(f"{ut.format_cur_time()}: Verifing learned Domain", flush=True)
             for (early_termination, neg_mode, graphs) in verification_cases:
                 for graph in graphs:
                     graph = [graph]
@@ -930,16 +930,16 @@ def process_instance(args: argparse.Namespace):
                         num_objects += len(local_verifier.sift_iterations[0].LOCM_types.obj_types)
                         if neg_mode:
                             #Something was expected to fail so this is correct.
-                            print(f"{ut.format_cur_time()}: Expected stratification Exception on negative sample")
+                            print(f"{ut.format_cur_time()}: Expected stratification Exception on negative sample", flush=True)
                             continue
                         else:
                             verification_val += 1
-                            print(f"{ut.format_cur_time()}: Unexpected stratification Exception on positive sample")
+                            print(f"{ut.format_cur_time()}: Unexpected stratification Exception on positive sample", flush=True)
                             continue
                     except Exception as e:
                         num_objects += len(local_verifier.sift_iterations[0].LOCM_types.obj_types)
                         verification_val += 1
-                        print(f"{ut.format_cur_time()}: Unexpected Exception happened during Verification {e}")
+                        print(f"{ut.format_cur_time()}: Unexpected Exception happened during Verification {e}", flush=True)
                         continue
                     verifier_iteration = max(local_verifier.sift_iterations.keys())
                     num_objects += len(local_verifier.sift_iterations[verifier_iteration].LOCM_types.obj_types)
@@ -948,10 +948,10 @@ def process_instance(args: argparse.Namespace):
                         features, local_features
                     )
                     if neg_mode and failure_servity < 2:
-                        print(f"{ut.format_cur_time()}: Verification negative Sample compatible with learned domain")
+                        print(f"{ut.format_cur_time()}: Verification negative Sample compatible with learned domain", flush=True)
                         verification_val += 1
                     elif not neg_mode and failure_servity > 0:
-                        print(f"{ut.format_cur_time()}: Verification positive Sample incompatible with learned domain")
+                        print(f"{ut.format_cur_time()}: Verification positive Sample incompatible with learned domain", flush=True)
                         verification_val += 1
 
         meta_info['graph_size_verifi'] = graph_size
@@ -1002,7 +1002,7 @@ def process_instance(args: argparse.Namespace):
         minimal_domain = map_back_feature_numbers(solutions[-1], feature_numbers, pattern_numbers)
 
         verifi_time = time.time()
-        print(f"{ut.format_cur_time()}: Verification input generation")
+        print(f"{ut.format_cur_time()}: Verification input generation", flush=True)
         verification_val = 0
         if args.verification_instance is not None:
             verifier = copy.deepcopy(sift)
@@ -1015,7 +1015,7 @@ def process_instance(args: argparse.Namespace):
                 static_relaxed_domain_path,
                 dict()
             )
-            print(f"{ut.format_cur_time()}: Verifing learned Domain")
+            print(f"{ut.format_cur_time()}: Verifing learned Domain", flush=True)
             for (early_termination, neg_mode, graphs) in verification_cases:
                 for graph in graphs:
                     graph = [graph]
@@ -1058,7 +1058,7 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(dir_path, "output", "statics", "clingo"), exist_ok=True)
         stats_table_out = ""
         for line_num, (runs, args) in enumerate(parsed_args):
-            print(f"{ut.format_cur_time()}: Batchmode line {line_num}")
+            print(f"{ut.format_cur_time()}: Batchmode line {line_num}", flush=True)
             successful_runs = 0
             sum_admissible_features = 0
             sum_graph_size = 0
@@ -1076,7 +1076,7 @@ if __name__ == '__main__':
             rec_args = 0
             extra_args = 0
             for run in range(runs):
-                print(f"{ut.format_cur_time()}: Batchmode line {line_num} run {run}")
+                print(f"{ut.format_cur_time()}: Batchmode line {line_num} run {run}", flush=True)
                 start_time = time.time()
                 (
                     LOCM_types,

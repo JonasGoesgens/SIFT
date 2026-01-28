@@ -72,7 +72,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
                 is_isomorphic,
                 msg=f"{ut.format_cur_time()}: The generated graphs from {method_name} at index {i} are not isomorphic."
             )
-            print(f"{ut.format_cur_time()}: Passed {method_name} test for instance {i}")
+            print(f"{ut.format_cur_time()}: Passed {method_name} test for instance {i}", flush=True)
 
     def test_bfs_graph_generation(self):
         """Test BFS-based graph generation."""

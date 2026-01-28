@@ -191,10 +191,10 @@ class Argument_Recovery_Sift:
         self, iteration : int, process_pool_args : dict,
         verification_mode : bool = False
     ) -> set[OIFeature]:
-        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Running Normal Sift")
+        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Running Normal Sift", flush=True)
         features = self.sift_iterations[iteration].run(process_pool_args)
-        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(features)}/{len(self.sift_iterations[iteration].all_features)} Normal Features")
-        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Creating mutex features")
+        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(features)}/{len(self.sift_iterations[iteration].all_features)} Normal Features", flush=True)
+        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Creating mutex features", flush=True)
         action_arities = self.sift_iterations[iteration].LOCM_types.get_action_arities()
         equivalent_switching_patterns = self.sift_iterations[iteration].equivalent_switching_patterns
 
@@ -232,7 +232,7 @@ class Argument_Recovery_Sift:
                         )
                     )
         #run ar sift
-        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Testing {len(self.order_id_features[iteration])} mutex features")
+        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Testing {len(self.order_id_features[iteration])} mutex features", flush=True)
         with ProcessPoolExecutor(**process_pool_args) as process_pool:
             runs = dict()
             for oi_feature in self.order_id_features[iteration]:
@@ -302,7 +302,7 @@ class Argument_Recovery_Sift:
                 for oi_feature in self.argument_identifier_features[iteration]:
                     previous_disabled_patterns[oi_feature] = oi_feature.disabled_pre_patterns.copy()
             self.run_iteration(iteration, process_pool_args, verification_mode)
-            print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(self.admissible_order_id_features[iteration])}/{len(self.order_id_features[iteration])} Mutex Features")
+            print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(self.admissible_order_id_features[iteration])}/{len(self.order_id_features[iteration])} Mutex Features", flush=True)
             if verification_mode:
                 if any(
                     oi_feature.is_invalid() or
@@ -329,7 +329,7 @@ class Argument_Recovery_Sift:
                 )
 
             #Interpretation of current run complete prepare next run.
-            print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Updating action labels")
+            print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Updating action labels", flush=True)
             iteration += 1
 
             #update input graphs for next iteration.
@@ -415,13 +415,13 @@ class Argument_Recovery_Sift:
         if input_changed:
             if find_oi_features_in_last_iteration:
                 #Search for both types of features in last run
-                print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Finalizing Running Normal Sift and searching for new mutex features")
+                print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Finalizing Running Normal Sift and searching for new mutex features", flush=True)
                 self.run_iteration(iteration, process_pool_args)
             else:
                 #Only search for base Sift features in last run
-                print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Finalizing Running Normal Sift")
+                print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Finalizing Running Normal Sift", flush=True)
                 features = self.sift_iterations[iteration].run(process_pool_args)
-                print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(features)}/{len(self.sift_iterations[iteration].all_features)} Normal Features")
+                print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(features)}/{len(self.sift_iterations[iteration].all_features)} Normal Features", flush=True)
         else:
             #Remove prepared iteration as it wont change anything anymore
             _ = self.sift_iterations.pop(iteration, None)
