@@ -21,19 +21,22 @@ max_static_predicates(M) :- max_arity(M), {max_static_predicates(N):N!=M} = 0.
 %arguments to map with the matrix:
 argument(Arg, "object"):-objects(Arg).
 
+-action_possible(Action, Instance, Arg) :- action_candidate(Action, Instance, Arg), not action_possible(Action, Instance, Arg).
+
 {static_prec(P,Action,Perm):mapping_permutations(ArrP,ArrA,Perm),action_arity(Action,ArrA)}:- static_pred_arity(P,ArrP).
-static_atom(P,ArgP):-static_prec(P,Action,Perm),static_pred_arity(P,ArrP),action_arity(Action,ArrA),mapping_matrix(ArrP,ArrA,Perm,ArgP,ArgA),action_possible(Action,_,ArgA).
+static_atom(P,ArgP) :- static_prec(P,Action,Perm),static_pred_arity(P,ArrP),action_arity(Action,ArrA),mapping_matrix(ArrP,ArrA,Perm,ArgP,ArgA),action_possible(Action,_,ArgA).
 {-static_atom(P,Arg) : argument_tuple("object",Arr,Arg)}:-static_pred_arity(P,Arr).
+:- static_atom(P,Arg), -static_atom(P,Arg).
 covered(Action, Inst, ArgA) :- -action_possible(Action, Inst, ArgA), -static_atom(P,ArgP), static_prec(P,Action,Perm), static_pred_arity(P,ArrP), action_arity(Action,ArrA), mapping_matrix(ArrP,ArrA,Perm,ArgP,ArgA).
 
 #minimize{1@2,Action, Inst, ArgA : -action_possible(Action, Inst, ArgA),not covered(Action, Inst, ArgA)}.
 #minimize{1@2,P,Arg : -static_atom(P,Arg)}.
+#minimize{1@2,P,Arg : static_atom(P,Arg)}.
 #minimize{1@1,P : static_pred(P)}.
 #minimize{1@0,P,Action,Perm : static_prec(P,Action,Perm)}.
--action_possible(Action, Instance, Arg):-action_candidate(Action, Instance, Arg), not action_possible(Action, Instance, Arg).
-:- static_atom(P,Arg), -static_atom(P,Arg).
 %#show -action_possible/3.
 #show max_static_predicates/1.
 #show static_prec/3.
 #show -static_atom/2.
+#show static_atom/2.
 #show -action_possible(Action, Instance, Arg) : -action_possible(Action, Instance, Arg), not covered(Action, Instance, Arg).
