@@ -2,7 +2,9 @@ import pymimir
 import networkx as nx
 import random
 import math
+import sys
 from py_separator_utils.mimir_holder import mimir_holder
+import py_separator_utils.utils as ut
 
 def create_random_initial_state(
     mimir_stuff: mimir_holder,
@@ -276,9 +278,175 @@ def expand_state_space(
             node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), False))
 
     if introduce_false_edge:
+        #BFS Backwards search from init_id to create open edges list while staying in sc component.
+        edge_list = set()
+        nodes_list = {init_id}
+        nodes_visited_list = set()
+        while nodes_list.difference(nodes_visited_list):
+            node = next(iter(nodes_list.difference(nodes_visited_list)))
+            nodes_visited_list.add(node)
+            for other, _, labels in G.in_edges([node],data='action'):
+                nodes_list.add(other)
+                for label in labels:
+                    edge_list.add((other,node,label))
+
+        #Walk all edges in a single path to update the state of init_id
+        node = init_id
+        static_state_id = id_to_static_id_dict[node]
+        edges_visited_list = set()
+        while edge_list.difference(edges_visited_list):
+            edge_open_list = edge_list.difference(edges_visited_list)
+
+            #Fill static state information for current options
+            state_static = id_static_to_state_static_dict[static_state_id]
+            successor_static_dict[static_state_id] = dict()
+            state_action_static_successor_dict[static_state_id] = dict()
+
+            applicable_actions = static_relaxation.get_applicable_actions(state_static)
+            for app_act in applicable_actions:
+                action_name = app_act.get_name()
+                action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
+                current_action = (action_name, action_objects)
+
+                mapped_action_static_to_mimir_action[current_action] = app_act
+                succ_state = static_relaxation.get_successor_state(state_static, app_act)
+                succ_state_id = succ_state.get_id()
+
+                successor_static_dict[static_state_id][succ_state_id] = app_act
+                state_action_static_successor_dict[static_state_id][current_action] = succ_state_id
+
+                id_static_to_state_static_dict[succ_state_id] = succ_state
+
+            #Try to greedy pick an outgoing open edge
+            action_pick = None
+            for _, other, labels in G.out_edges([node],data='action'):
+                if action_pick is not None:
+                    break
+                for label in labels:
+                    candidate = (node, other, label)
+                    if candidate in edge_open_list:
+                        action_pick = candidate
+                        break
+
+            if action_pick is not None:
+                (_, other, label) = action_pick
+                node = other
+                static_state_id = state_action_static_successor_dict[static_state_id][label]
+                edges_visited_list.add(action_pick)
+                continue
+
+            #Otherwise find closest connection to one
+            #build target set and aquire target
+            #target set will always be filled as the loop would have been terminated otherwise
+            target_set = {n for (n, _, _) in edge_open_list}
+            lengths = nx.single_source_shortest_path_length(G, node)
+            #target = argmin(lenghts(target) where target in targetset)
+            #target = min((t for t in target_set if t in lengths), key=lengths.get)
+            #every target should be reachable as we are in a strongly connected component
+            target = min((t for t in target_set), key=lengths.get)
+            #target should not be None as otherwise the loop should have terminated
+            path = nx.shortest_path(G, node, target)
+            for next_node in path[1:]:
+                #pick some action and get its name
+                app_act = successor_dict[node][next_node]
+                action_name = app_act.get_name()
+                action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
+                label = (action_name, action_objects)
+
+                #Fill static state information for current options
+                state_static = id_static_to_state_static_dict[static_state_id]
+
+                successor_static_dict[static_state_id] = dict()
+                state_action_static_successor_dict[static_state_id] = dict()
+                applicable_actions = static_relaxation.get_applicable_actions(state_static)
+                for app_act in applicable_actions:
+                    action_name = app_act.get_name()
+                    action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
+                    current_action = (action_name, action_objects)
+
+                    mapped_action_static_to_mimir_action[current_action] = app_act
+                    succ_state = static_relaxation.get_successor_state(state_static, app_act)
+                    succ_state_id = succ_state.get_id()
+
+                    successor_static_dict[static_state_id][succ_state_id] = app_act
+                    state_action_static_successor_dict[static_state_id][current_action] = succ_state_id
+
+                    id_static_to_state_static_dict[succ_state_id] = succ_state
+
+                static_state_id = state_action_static_successor_dict[static_state_id][label]
+                node = next_node
+            #Now we are again in a node were greedy works.
+
+        #Complete the Path back to init_id
+        if node != init_id:
+            path = nx.shortest_path(G, node, init_id)
+            for next_node in path[1:]:
+                #pick some action and get its name
+                app_act = successor_dict[node][next_node]
+                action_name = app_act.get_name()
+                action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
+                label = (action_name, action_objects)
+
+                #Fill static state information for current options
+                state_static = id_static_to_state_static_dict[static_state_id]
+
+                successor_static_dict[static_state_id] = dict()
+                state_action_static_successor_dict[static_state_id] = dict()
+                applicable_actions = static_relaxation.get_applicable_actions(state_static)
+                for app_act in applicable_actions:
+                    action_name = app_act.get_name()
+                    action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
+                    current_action = (action_name, action_objects)
+
+                    mapped_action_static_to_mimir_action[current_action] = app_act
+                    succ_state = static_relaxation.get_successor_state(state_static, app_act)
+                    succ_state_id = succ_state.get_id()
+
+                    successor_static_dict[static_state_id][succ_state_id] = app_act
+                    state_action_static_successor_dict[static_state_id][current_action] = succ_state_id
+
+                    id_static_to_state_static_dict[succ_state_id] = succ_state
+
+                static_state_id = state_action_static_successor_dict[static_state_id][label]
+                node = next_node
+
+        #Broadcast state information to all reachable states
+        id_to_static_id_dict[node] = static_state_id
+        nodes_list = {node}
+        nodes_visited_list = set()
+        while nodes_list.difference(nodes_visited_list):
+            node = next(iter(nodes_list.difference(nodes_visited_list)))
+            static_state_id = id_to_static_id_dict[node]
+            state_static = id_static_to_state_static_dict[static_state_id]
+            nodes_visited_list.add(node)
+
+            successor_static_dict[static_state_id] = dict()
+            state_action_static_successor_dict[static_state_id] = dict()
+            applicable_actions = static_relaxation.get_applicable_actions(state_static)
+            for app_act in applicable_actions:
+                action_name = app_act.get_name()
+                action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
+                current_action = (action_name, action_objects)
+
+                mapped_action_static_to_mimir_action[current_action] = app_act
+                succ_state = static_relaxation.get_successor_state(state_static, app_act)
+                succ_state_id = succ_state.get_id()
+
+                successor_static_dict[static_state_id][succ_state_id] = app_act
+                state_action_static_successor_dict[static_state_id][current_action] = succ_state_id
+                id_static_to_state_static_dict[succ_state_id] = succ_state
+
+            for _, other, labels in G.out_edges([node],data='action'):
+                nodes_list.add(other)
+                #any action for a to b suffices now
+                label = next(iter(labels))
+                succ_state_id = state_action_static_successor_dict[static_state_id][label]
+                id_to_static_id_dict[other] = succ_state_id
+
         selected_node = None
-        while selected_node is None:
-            negative_action_mapping = random.choice(list(all_actions))
+        candidate_actions = random.shuffle(list(all_actions))
+        while selected_node is None and candidate_actions is not None and len(candidate_actions):
+            negative_action_mapping = candidate_actions.pop(0)
             negative_action = mapped_action_to_mimir_action[negative_action_mapping]
 
             exclusion_set = {negative_action_mapping}
@@ -321,8 +489,12 @@ def expand_state_space(
                     selected_node = node
                     break
 
-        #print(selected_node, negative_action_mapping, mimir_stuff.print_state(node_and_corrensponding_state[selected_node]))
-        G.add_edge(selected_node, new_id, action={negative_action_mapping})
+        if selected_node is None:
+            sys.stderr.write(f"{ut.format_cur_time()}: Verification input generation failed to generate negative action.\n")
+            return None
+        else:
+            #print(selected_node, negative_action_mapping, mimir_stuff.print_state(node_and_corrensponding_state[selected_node]))
+            G.add_edge(selected_node, new_id, action={negative_action_mapping})
 
     return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
 

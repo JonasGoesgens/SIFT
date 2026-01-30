@@ -132,15 +132,16 @@ def create_graphs_from_input(
     instance_list = list()
 
     for num_input in range(number_inputs):
+        print(f"{ut.format_cur_time()}: Generating input {num_input + 1}/{number_inputs}", flush=True)
         if mode == 'fg':
-            G, init, state_atom_dict, object_names_dict = get_nx_graph_from_state_space(
+            ret = get_nx_graph_from_state_space(
                 pddl_holder,
                 introduce_false_edge,
                 static_relaxed_pddl_holder,
                 arg_mask
             )
         elif mode == 'bpg' or mode == 'pg':
-            G, init, state_atom_dict, object_names_dict = bfs_state_space(
+            ret = bfs_state_space(
                 pddl_holder,
                 number_edges,
                 num_input,
@@ -149,7 +150,7 @@ def create_graphs_from_input(
                 arg_mask
             )
         elif mode == 'dpg':
-            G, init, state_atom_dict, object_names_dict = dfs_state_space(
+            ret = dfs_state_space(
                 pddl_holder,
                 number_edges,
                 num_input,
@@ -158,7 +159,7 @@ def create_graphs_from_input(
                 arg_mask
             )
         elif mode == 'rpg':
-            G, init, state_atom_dict, object_names_dict = rand_state_space(
+            ret = rand_state_space(
                 pddl_holder,
                 number_edges,
                 num_input,
@@ -167,7 +168,7 @@ def create_graphs_from_input(
                 arg_mask
             )
         elif mode == 'rl':
-            G, init, state_atom_dict, object_names_dict = get_trace_rl(
+            ret = get_trace_rl(
                 pddl_holder,
                 number_edges,
                 num_input,
@@ -176,7 +177,7 @@ def create_graphs_from_input(
                 arg_mask
             )
         elif mode == 'st':
-            G, init, state_atom_dict, object_names_dict = get_trace_simple(
+            ret = get_trace_simple(
                 pddl_holder,
                 number_edges,
                 num_input,
@@ -187,6 +188,15 @@ def create_graphs_from_input(
         else:
             #return None
             continue
+
+        if ret is None:
+            warnings.warn(
+                f"generation of {'negative' if introduce_false_edge else 'positive'} instance failed.",
+                UserWarning
+            )
+            continue
+        else:
+            (G, init, state_atom_dict, object_names_dict) = ret
 
         if not nx.is_weakly_connected(G):
             warnings.warn(
