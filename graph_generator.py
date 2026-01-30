@@ -119,20 +119,15 @@ def expand_state_space(
     G = nx.DiGraph()
 
     node_atoms_dict = dict()
-    id_to_static_id_dict = dict()
-
     # nodes that have be seen
     seen_nodes = set()
 
-    # applicable action generator and successive state generatpr
-
+    # applicable action generator and successive state generator
     successor_dict = dict()
-    successor_static_dict = dict()
 
     # queue of state to visit, create initial state
     initial_node = mimir_stuff.get_SSG().get_or_create_initial_state()
     initial_node_static = static_relaxation.get_SSG().get_or_create_initial_state()
-    id_to_static_id_dict[initial_node.get_id()] = initial_node_static.get_id()
     if number_of_input != 0:
         initial_node, initial_node_static = create_random_initial_state(
             mimir_stuff,
@@ -142,29 +137,10 @@ def expand_state_space(
             initial_node_static
         )
     #print("initial state: ", mimir_stuff.print_state(initial_node))
-    id_to_static_id_dict[initial_node.get_id()] = initial_node_static.get_id()
+
+    queue = list()
     successor_dict[initial_node.get_id()] = dict()
-    successor_static_dict[initial_node_static.get_id()] = dict()
-
     mapped_action_to_mimir_action = dict()
-    state_action_static_successor_dict = dict()
-    state_action_static_successor_dict[initial_node_static.get_id()] = dict()
-    mapped_action_static_to_mimir_action = dict()
-    id_static_to_state_static_dict = dict()
-    id_static_to_state_static_dict[initial_node_static.get_id()] = initial_node_static
-
-    applicable_actions = static_relaxation.get_applicable_actions(initial_node_static)
-    for app_act in applicable_actions:
-        action_name = app_act.get_name()
-        action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
-        current_action = (action_name, action_objects)
-        mapped_action_static_to_mimir_action[current_action] = app_act
-        succ_state = static_relaxation.get_successor_state(initial_node_static, app_act)
-        successor_static_dict[initial_node_static.get_id()][succ_state.get_id()] = app_act
-        state_action_static_successor_dict[initial_node_static.get_id()][current_action] = succ_state.get_id()
-        id_static_to_state_static_dict[succ_state.get_id()] = succ_state
-
-    queue = []
     applicable_actions = mimir_stuff.get_applicable_actions(initial_node)
     for app_act in applicable_actions:
         action_name = app_act.get_name()
@@ -172,7 +148,6 @@ def expand_state_space(
         current_action = (action_name, action_objects)
         mapped_action_to_mimir_action[current_action] = app_act
         succ_state = mimir_stuff.get_successor_state(initial_node, app_act)
-        id_to_static_id_dict[succ_state.get_id()] = state_action_static_successor_dict[initial_node_static.get_id()][current_action]
         queue.append(succ_state)
         successor_dict[initial_node.get_id()][succ_state.get_id()] = app_act
 
@@ -193,25 +168,10 @@ def expand_state_space(
         cur_state = queue_expand_func(queue)
 
         cur_id = cur_state.get_id()
-        cur_id_static = id_to_static_id_dict[cur_id]
-        cur_state_static = id_static_to_state_static_dict[cur_id_static]
 
         successor_dict[cur_id] = dict()
-        successor_static_dict[cur_id_static] = dict()
-        state_action_static_successor_dict[cur_id_static] = dict()
 
         node_and_corrensponding_state[cur_id] = cur_state
-
-        applicable_actions = static_relaxation.get_applicable_actions(cur_state_static)
-        for app_act in applicable_actions:
-            action_name = app_act.get_name()
-            action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
-            current_action = (action_name, action_objects)
-            mapped_action_static_to_mimir_action[current_action] = app_act
-            succ_state = static_relaxation.get_successor_state(cur_state_static, app_act)
-            successor_static_dict[cur_state_static.get_id()][succ_state.get_id()] = app_act
-            state_action_static_successor_dict[cur_state_static.get_id()][current_action] = succ_state.get_id()
-            id_static_to_state_static_dict[succ_state.get_id()] = succ_state
 
         applicable_actions = mimir_stuff.get_applicable_actions(cur_state)
         for app_act in applicable_actions:
@@ -223,7 +183,6 @@ def expand_state_space(
             action_name = app_act.get_name()
             action_objects = tuple([object_mapping[_obj.get_name()] for _obj in app_act.get_objects()])
             current_action = (action_name, action_objects)
-            id_to_static_id_dict[succ_state.get_id()] = state_action_static_successor_dict[cur_id_static][current_action]
 
         for node in list(G.nodes()):
             #incomming edges
@@ -278,6 +237,18 @@ def expand_state_space(
             node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), False))
 
     if introduce_false_edge:
+        id_to_static_id_dict = dict()
+        id_to_static_id_dict[init_id] = initial_node_static.get_id()
+        id_static_to_state_static_dict = dict()
+        id_static_to_state_static_dict[initial_node_static.get_id()] = initial_node_static
+
+        successor_static_dict = dict()
+        successor_static_dict[initial_node_static.get_id()] = dict()
+
+        state_action_static_successor_dict = dict()
+        state_action_static_successor_dict[initial_node_static.get_id()] = dict()
+        mapped_action_static_to_mimir_action = dict()
+
         #BFS Backwards search from init_id to create open edges list while staying in sc component.
         edge_list = set()
         nodes_list = {init_id}
@@ -443,8 +414,10 @@ def expand_state_space(
                 succ_state_id = state_action_static_successor_dict[static_state_id][label]
                 id_to_static_id_dict[other] = succ_state_id
 
+        #Introduce the error
         selected_node = None
-        candidate_actions = random.shuffle(list(all_actions))
+        candidate_actions = list(all_actions)
+        random.shuffle(candidate_actions)
         while selected_node is None and candidate_actions is not None and len(candidate_actions):
             negative_action_mapping = candidate_actions.pop(0)
             negative_action = mapped_action_to_mimir_action[negative_action_mapping]
@@ -460,18 +433,12 @@ def expand_state_space(
                     continue
                 exclusion_set.add((action_name, action_objects))
 
-            # QUICK BUGFIX
-            # TODO SEE WHY THIS NOT WORK
-            #print('Graph', G.nodes())
-            #print('Dict', node_and_corrensponding_state)
             node = None
             nodes_to_try = all_nodes.copy()
             random.shuffle(nodes_to_try)
 
             new_id = max(nodes_to_try) + 1
 
-            #print(f"gen run{number_of_input+1}")
-            #print(object_mapping, exclusion_set)
             while len(nodes_to_try):
                 node = nodes_to_try.pop(0)
 
