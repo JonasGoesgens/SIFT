@@ -86,5 +86,121 @@ class TestGraphGenerationMethods(unittest.TestCase):
         """Test random-based graph generation."""
         self.generate_and_compare_graphs('rand')
 
+class TestGraphErrorGenerationMethodsSimple(unittest.TestCase):
+
+    def setUp(self):
+        # Define paths
+        self.domain_path = "pddl_files/blocks_3/blocks_world.pddl"
+        self.instance_path = "pddl_files/blocks_3/blocks_world_7.pddl"
+        self.domain_path_static = "pddl_files/blocks_3/blocks_world_static_relax.pddl"
+        self.instance_path_static = "pddl_files/blocks_3/blocks_world_7_static_relax.pddl"
+        self.num_edges = 2000
+        # Parameters
+        self.number_inputs = 1
+        self.introduce_false_edge = True
+        self.arg_mask = {
+            'load': {2},
+            'unload': {1, 2},
+            'drive': {1},
+            'fly': {1}
+        }
+        self.methods = {
+            'bfs': bfs_state_space,
+            'dfs': dfs_state_space,
+            'rand': rand_state_space,
+        }
+
+    def generate_and_compare_error_graphs(self, method_name):
+        self.assertTrue(
+            method_name in self.methods,
+            msg = f"{ut.format_cur_time()}: Tried to test unimplemented method {method_name}")
+        # Load PDDL holders
+        pddl_holder = mimir_holder(self.domain_path, self.instance_path)
+        static_pddl_holder = mimir_holder(self.domain_path_static, self.instance_path_static)
+
+        # Generate graph using bfs_state_space
+        ret = self.methods[method_name](
+            mimir_stuff=pddl_holder,
+            num_edges=self.num_edges,
+            number_of_input=self.number_inputs,
+            introduce_false_edge=self.introduce_false_edge,
+            static_relaxation=static_pddl_holder,
+            arg_mask=self.arg_mask
+        )
+        self.assertTrue(
+            ret is not None,
+            msg = f"{ut.format_cur_time()}: Failed to create negative graph with {method_name}"
+        )
+
+    def test_bfs_graph_error_generation(self):
+        """Test BFS-based error graph generation."""
+        self.generate_and_compare_error_graphs('bfs')
+
+    def test_dfs_graph_error_generation(self):
+        """Test DFS-based error graph generation."""
+        self.generate_and_compare_error_graphs('dfs')
+
+    def test_rand_graph_error_generation(self):
+        """Test random-based error graph generation."""
+        self.generate_and_compare_error_graphs('rand')
+
+class TestGraphErrorGenerationMethods(unittest.TestCase):
+
+    def setUp(self):
+        # Define paths
+        self.domain_path = "pddl_files/logistics/logistics.pddl"
+        self.instance_path = "pddl_files/logistics/logistics-3-3-2-2-3.pddl"
+        self.domain_path_static = "pddl_files/logistics/logistics_static_relax.pddl"
+        self.instance_path_static = "pddl_files/logistics/logistics-3-3-2-2-3_static_relax.pddl"
+        self.num_edges = 2000
+        # Parameters
+        self.number_inputs = 1
+        self.introduce_false_edge = True
+        self.arg_mask = {
+            'load': {2},
+            'unload': {1, 2},
+            'drive': {1},
+            'fly': {1}
+        }
+        self.methods = {
+            'bfs': bfs_state_space,
+            'dfs': dfs_state_space,
+            'rand': rand_state_space,
+        }
+
+    def generate_and_compare_error_graphs(self, method_name):
+        self.assertTrue(
+            method_name in self.methods,
+            msg = f"{ut.format_cur_time()}: Tried to test unimplemented method {method_name}")
+        # Load PDDL holders
+        pddl_holder = mimir_holder(self.domain_path, self.instance_path)
+        static_pddl_holder = mimir_holder(self.domain_path_static, self.instance_path_static)
+
+        # Generate graph using bfs_state_space
+        ret = self.methods[method_name](
+            mimir_stuff=pddl_holder,
+            num_edges=self.num_edges,
+            number_of_input=self.number_inputs,
+            introduce_false_edge=self.introduce_false_edge,
+            static_relaxation=static_pddl_holder,
+            arg_mask=self.arg_mask
+        )
+        self.assertTrue(
+            ret is not None,
+            msg = f"{ut.format_cur_time()}: Failed to create negative graph with {method_name}"
+        )
+
+    def test_bfs_graph_error_generation(self):
+        """Test BFS-based error graph generation."""
+        self.generate_and_compare_error_graphs('bfs')
+
+    def test_dfs_graph_error_generation(self):
+        """Test DFS-based error graph generation."""
+        self.generate_and_compare_error_graphs('dfs')
+
+    def test_rand_graph_error_generation(self):
+        """Test random-based error graph generation."""
+        self.generate_and_compare_error_graphs('rand')
+
 if __name__ == '__main__':
     unittest.main()
