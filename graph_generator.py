@@ -112,6 +112,7 @@ def bisimulate_and_add_error(
             id_static_to_state_static_dict[succ_state_id] = succ_state
 
     try:
+        print(f"{ut.format_cur_time()}: Starting Error gen.", flush=True)
         all_nodes = [i for i in G.nodes()]
         initial_node_static = static_relaxation.get_SSG().get_or_create_initial_state()
         id_to_static_id_dict = dict()
@@ -225,34 +226,36 @@ def bisimulate_and_add_error(
                 id_to_static_id_dict[other] = succ_state_id
 
         #Introduce the error
-        selected_node = None
-        target_node = None
-        candidate_actions = list(chooseable_actions)
-        random.shuffle(candidate_actions)
-        while selected_node is None and len(candidate_actions):
-            negative_action_mapping = candidate_actions.pop(0)
-
-            exclusion_set = {negative_action_mapping}
+        exclusion_sets = dict()
+        for action in chooseable_actions:
+            exclusion_set = {action}
             for (action_name, action_objects) in mapped_action_static_to_mimir_action.keys():
-                if negative_action_mapping[0] != action_name:
+                if action[0] != action_name:
                     continue
                 if any(
                     arg1 != arg2 and pos not in arg_mask.get(action_name, set())
-                    for pos,(arg1,arg2) in enumerate(zip(negative_action_mapping[1],action_objects))
+                    for pos,(arg1,arg2) in enumerate(zip(action[1],action_objects))
                 ):
                     continue
                 exclusion_set.add((action_name, action_objects))
+            exclusion_sets[action] = exclusion_set
 
-            node = None
-            nodes_to_try = all_nodes.copy()
-            random.shuffle(nodes_to_try)
+        selected_node = None
+        target_node = None
+        nodes_to_try = all_nodes.copy()
+        random.shuffle(nodes_to_try)
+        while selected_node is None and len(nodes_to_try):
+            node = nodes_to_try.pop(0)
 
-            while len(nodes_to_try):
-                node = nodes_to_try.pop(0)
+            candidate_actions = list(chooseable_actions)
+            random.shuffle(candidate_actions)
+            while len(candidate_actions):
+                negative_action_mapping = candidate_actions.pop(0)
 
                 applicable_actions = static_relaxation.get_applicable_actions(
                     id_static_to_state_static_dict[id_to_static_id_dict[node]]
                 )
+                exclusion_set = exclusion_sets[negative_action_mapping]
 
                 if any(mapped_action_static_to_mimir_action[
                         (action_name, action_objects)
