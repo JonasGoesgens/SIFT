@@ -112,7 +112,6 @@ def bisimulate_and_add_error(
             id_static_to_state_static_dict[succ_state_id] = succ_state
 
     try:
-        print(f"{ut.format_cur_time()}: Starting Error gen.", flush=True)
         all_nodes = [i for i in G.nodes()]
         initial_node_static = static_relaxation.get_SSG().get_or_create_initial_state()
         id_to_static_id_dict = dict()
@@ -129,6 +128,7 @@ def bisimulate_and_add_error(
 
         #BFS Backwards search from init_id to create open edges list while staying in sc component.
         edge_list = set()
+        label_list = set()
         nodes_list = {init_id}
         nodes_visited_list = set()
         while nodes_list.difference(nodes_visited_list):
@@ -138,13 +138,15 @@ def bisimulate_and_add_error(
                 nodes_list.add(other)
                 for label in labels:
                     edge_list.add((other,node,label))
+                    label_list.add(label)
 
         #Walk all edges in a single path to update the state of init_id
         node = init_id
         static_state_id = id_to_static_id_dict[node]
-        edges_visited_list = set()
-        while edge_list.difference(edges_visited_list):
-            edge_open_list = edge_list.difference(edges_visited_list)
+        #seeing an example for each ground action should set the state.
+        label_visited_list = set()
+        while label_list.difference(label_visited_list):
+            edge_open_list = set((other,node,label) for (other,node,label) in edge_list if label not in label_visited_list)
 
             #Fill static state information for current options
             state_static = id_static_to_state_static_dict[static_state_id]
@@ -165,7 +167,7 @@ def bisimulate_and_add_error(
                 (_, other, label) = action_pick
                 node = other
                 static_state_id = state_action_static_successor_dict[static_state_id][label]
-                edges_visited_list.add(action_pick)
+                label_visited_list.add(label)
                 continue
 
             #Otherwise find closest connection to one
