@@ -111,108 +111,6 @@ def get_arguments():
         benchmark_name = ''
     return batch_mode, benchmark_name, parsed_args
 
-def create_graphs_from_input(
-    domain_path : str,
-    problem_path : str,
-    mode : str,
-    number_edges : int,
-    number_inputs : int,
-    introduce_false_edge : bool = False,
-    static_relaxed_domain_path : str = None,
-    static_relaxed_problem_path : str = None,
-    arg_mask : dict = dict()
-) -> list[tuple[nx.DiGraph, int]]:
-    if static_relaxed_domain_path is None:
-        static_relaxed_domain_path = domain_path
-    if static_relaxed_problem_path is None:
-        static_relaxed_problem_path = problem_path
-    # create state space and parser
-    pddl_holder = mimir_holder(domain_path, problem_path)
-    static_relaxed_pddl_holder = mimir_holder(static_relaxed_domain_path, static_relaxed_problem_path)
-    instance_list = list()
-
-    for num_input in range(number_inputs):
-        print(f"{ut.format_cur_time()}: Generating input {num_input + 1}/{number_inputs}", flush=True)
-        if mode == 'fg':
-            ret = get_nx_graph_from_state_space(
-                pddl_holder,
-                introduce_false_edge,
-                static_relaxed_pddl_holder,
-                arg_mask
-            )
-        elif mode == 'bpg' or mode == 'pg':
-            ret = bfs_state_space(
-                pddl_holder,
-                number_edges,
-                num_input,
-                introduce_false_edge,
-                static_relaxed_pddl_holder,
-                arg_mask
-            )
-        elif mode == 'dpg':
-            ret = dfs_state_space(
-                pddl_holder,
-                number_edges,
-                num_input,
-                introduce_false_edge,
-                static_relaxed_pddl_holder,
-                arg_mask
-            )
-        elif mode == 'rpg':
-            ret = rand_state_space(
-                pddl_holder,
-                number_edges,
-                num_input,
-                introduce_false_edge,
-                static_relaxed_pddl_holder,
-                arg_mask
-            )
-        elif mode == 'rl':
-            ret = get_trace_rl(
-                pddl_holder,
-                number_edges,
-                num_input,
-                introduce_false_edge,
-                static_relaxed_pddl_holder,
-                arg_mask
-            )
-        elif mode == 'st':
-            ret = get_trace_simple(
-                pddl_holder,
-                number_edges,
-                num_input,
-                introduce_false_edge,
-                static_relaxed_pddl_holder,
-                arg_mask
-            )
-        else:
-            #return None
-            continue
-
-        if ret is None:
-            warnings.warn(
-                f"generation of {'negative' if introduce_false_edge else 'positive'} instance failed.",
-                UserWarning
-            )
-            continue
-        else:
-            (G, init, state_atom_dict, object_names_dict) = ret
-
-        if not nx.is_weakly_connected(G):
-            warnings.warn(
-                f"Created not connected state space as input, dropping it.",
-                UserWarning
-            )
-            continue
-
-        instance_list.append((G,init, state_atom_dict, object_names_dict))
-
-        if mode == 'fg':
-            break
-    #act_map, _ = pddl_holder.get_action_mapping_and_arity()
-    #print(act_map)
-    return instance_list
-
 def create_single_graph_from_input(
     domain_path : str,
     problem_path : str,
@@ -404,7 +302,6 @@ def get_verification_instances(
         instance_edges = 100
         instance_samples = 1
         instance_neg_sample = False
-        #instance_early_term = False
 
         if not os.path.exists(instance_path):
             sys.stderr.write('For input {} the path {} does not exist\n'.format(instance, split_input[0]))
@@ -454,17 +351,6 @@ def get_verification_instances(
         else:
             static_relaxed_domain_path_local = domain_path
             static_relaxed_instance_path = instance_path
-
-        #index += 1
-        #if len(split_input) > index:
-        #    split_input_val_5 = int(split_input[index])
-        #    if split_input_val_5 == 0:
-        #        instance_early_term = False
-        #    elif split_input_val_5 == 1:
-        #        instance_early_term = True
-        #    else:
-        #        sys.stderr.write('No valid truth value for early termination!\n')
-        #        continue
 
         task = dict()
         task["problem_path"] = instance_path
@@ -928,12 +814,6 @@ def process_instance(args: argparse.Namespace):
 
         generation_tasks.append(task)
 
-        #instance_graph_list = create_graphs_from_input(
-        #    domain_path, problem_path,
-        #    args.learning_mode, args.learning_size,
-        #    args.learning_number_inputs, False
-        #)
-
     instance_graph_list, _ = create_multiple_graphs_from_input(
         domain_path,
         generation_tasks,
@@ -1220,7 +1100,7 @@ def process_instance(args: argparse.Namespace):
                 dict()
             )
             print(f"{ut.format_cur_time()}: Verifing learned Domain", flush=True)
-            for (early_termination, neg_mode, graphs) in verification_cases:
+            for (neg_mode, graphs) in verification_cases:
                 for graph in graphs:
                     graph = [graph]
                     local_verifier = copy.deepcopy(verifier)
