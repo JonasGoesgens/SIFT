@@ -23,7 +23,7 @@ from py_separator_utils.conflict_manager import ConflictManager
 from graph_generator import get_trace_rl, get_trace_simple
 from graph_generator import bfs_state_space, dfs_state_space, rand_state_space
 from graph_generator import get_nx_graph_from_state_space
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 from itertools import permutations
 
 def get_batch_run_parser():
@@ -213,20 +213,184 @@ def create_graphs_from_input(
     #print(act_map)
     return instance_list
 
+def create_single_graph_from_input(
+    domain_path : str,
+    problem_path : str,
+    mode : str,
+    number_edges : int,
+    num_input : int,
+    number_inputs : int,
+    introduce_false_edge : bool = False,
+    static_relaxed_domain_path : str = None,
+    static_relaxed_problem_path : str = None,
+    arg_mask : dict = dict()
+) -> tuple[nx.DiGraph, int, dict, dict]:
+    try:
+        if num_input < 0 or num_input >= number_inputs:
+            return None
+        if introduce_false_edge:
+            #TODO merge auto relaxation.
+            if static_relaxed_domain_path is None:
+                static_relaxed_domain_path = domain_path
+            if static_relaxed_problem_path is None:
+                static_relaxed_problem_path = problem_path
+        else:
+            static_relaxed_domain_path = domain_path
+            static_relaxed_problem_path = problem_path
+
+        # create mimir parser
+        pddl_holder = mimir_holder(domain_path, problem_path)
+        static_relaxed_pddl_holder = mimir_holder(static_relaxed_domain_path, static_relaxed_problem_path)
+
+        print(f"{ut.format_cur_time()}: Generating input {num_input + 1}/{number_inputs}", flush=True)
+        if mode == 'fg':
+            ret = get_nx_graph_from_state_space(
+                pddl_holder,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
+        elif mode == 'bpg' or mode == 'pg':
+            ret = bfs_state_space(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
+        elif mode == 'dpg':
+            ret = dfs_state_space(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
+        elif mode == 'rpg':
+            ret = rand_state_space(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
+        elif mode == 'rl':
+            ret = get_trace_rl(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
+        elif mode == 'st':
+            ret = get_trace_simple(
+                pddl_holder,
+                number_edges,
+                num_input,
+                introduce_false_edge,
+                static_relaxed_pddl_holder,
+                arg_mask
+            )
+        else:
+            return None
+
+        if ret is None:
+            warnings.warn(
+                f"generation of {'negative' if introduce_false_edge else 'positive'} instance failed.",
+                UserWarning
+            )
+            return None
+        else:
+            (G, init, state_atom_dict, object_names_dict) = ret
+
+        if not nx.is_weakly_connected(G):
+            warnings.warn(
+                f"Created not connected state space as input, dropping it.",
+                UserWarning
+            )
+            return None
+
+        return ret
+
+    except Exception as e:
+        sys.stderr.write(f"{ut.format_cur_time()}: Exception {e} happened during input creation.\n")
+        sys.stderr.write(traceback.format_exc())
+        return None
+
+def create_multiple_graphs_from_input(
+    domain_path : str,
+    input_list : list[dict],
+    process_pool_args : dict,
+    arg_mask : dict = dict()
+) -> tuple[list[tuple[nx.DiGraph, int, dict, dict]],list[tuple[nx.DiGraph, int, dict, dict]]]:
+    futures = list()
+    instance_list_pos = list()
+    instance_list_neg = list()
+    with ProcessPoolExecutor(**process_pool_args) as process_pool:
+        for entry in input_list:
+            try:
+                problem_path = entry["problem_path"]
+                mode = entry["mode"]
+                number_edges = entry["number_edges"]
+                number_inputs = entry["number_inputs"]
+                introduce_false_edge = entry.get("introduce_false_edge", False)
+                static_relaxed_domain_path = entry.get("static_relaxed_domain_path", None)
+                static_relaxed_problem_path = entry.get("static_relaxed_problem_path", None)
+
+                if mode == 'fg':
+                    number_inputs = 1
+
+                for num_input in range(number_inputs):
+                    futures.append((
+                        introduce_false_edge,
+                        process_pool.submit(
+                            create_single_graph_from_input,
+                            domain_path,
+                            problem_path,
+                            mode,
+                            number_edges,
+                            num_input,
+                            number_inputs,
+                            introduce_false_edge,
+                            static_relaxed_domain_path,
+                            static_relaxed_problem_path,
+                            arg_mask
+                        )
+                    ))
+            except Exception as e:
+                sys.stderr.write(f"{ut.format_cur_time()}: Exception {e} happened when submitting entry {entry}.\n")
+                sys.stderr.write(traceback.format_exc())
+                continue
+
+        wait([future for _, future in futures], return_when=ALL_COMPLETED)
+        for introduce_false_edge, future in futures:
+            if introduce_false_edge:
+                instance_list_neg.append(future.result())
+            else:
+                instance_list_pos.append(future.result())
+
+    return (instance_list_pos, instance_list_neg)
+
 def get_verification_instances(
     domain_path : str,
     verification_input : list[str],
+    process_pool_args : dict,
     static_relaxed_domain_path : str = None,
     arg_mask : dict = dict()
 ):
-    if static_relaxed_domain_path is None:
-        static_relaxed_domain_path = domain_path
+    #if static_relaxed_domain_path is None:
+    #    static_relaxed_domain_path = domain_path
     instances = list()
     pos_modes = ['fg', 'st', 'rl', 'pg', 'bpg', 'dpg', 'rpg']
     neg_modes = ['nfg', 'nst', 'nrl', 'npg', 'nbpg', 'ndpg', 'nrpg']
     modes = pos_modes + neg_modes
     partial_modes = [elm for elm in modes if elm not in ['fg', 'nfg']]
 
+    generation_tasks = list()
     for instance in verification_input:
 
         split_input = instance.split(',')
@@ -240,7 +404,7 @@ def get_verification_instances(
         instance_edges = 100
         instance_samples = 1
         instance_neg_sample = False
-        instance_early_term = False
+        #instance_early_term = False
 
         if not os.path.exists(instance_path):
             sys.stderr.write('For input {} the path {} does not exist\n'.format(instance, split_input[0]))
@@ -280,42 +444,49 @@ def get_verification_instances(
             index += 1
             if len(split_input) > index:
                 static_relaxed_instance_path = split_input[index]
-                if not os.path.exists(static_relaxed_instance_path):
+                if static_relaxed_instance_path == '':
+                    static_relaxed_instance_path = None
+                elif not os.path.exists(static_relaxed_instance_path):
                     sys.stderr.write('For input {} the path {} does not exist\n'.format(instance, static_relaxed_instance_path))
                     continue
             else:
-                static_relaxed_instance_path = instance_path
+                static_relaxed_instance_path = None
         else:
             static_relaxed_domain_path_local = domain_path
             static_relaxed_instance_path = instance_path
 
-        index += 1
-        if len(split_input) > index:
-            split_input_val_5 = int(split_input[index])
-            if split_input_val_5 == 0:
-                instance_early_term = False
-            elif split_input_val_5 == 1:
-                instance_early_term = True
-            else:
-                sys.stderr.write('No valid truth value for early termination!\n')
-                continue
+        #index += 1
+        #if len(split_input) > index:
+        #    split_input_val_5 = int(split_input[index])
+        #    if split_input_val_5 == 0:
+        #        instance_early_term = False
+        #    elif split_input_val_5 == 1:
+        #        instance_early_term = True
+        #    else:
+        #        sys.stderr.write('No valid truth value for early termination!\n')
+        #        continue
 
-        instance_list = list((graph,init) for (graph,init,_,_) in create_graphs_from_input(
-            domain_path,
-            instance_path,
-            instance_mode,
-            instance_edges,
-            instance_samples,
-            instance_neg_sample,
-            static_relaxed_domain_path_local,
-            static_relaxed_instance_path,
-            arg_mask
-        ))
+        task = dict()
+        task["problem_path"] = instance_path
+        task["mode"] = instance_mode
+        task["number_edges"] = instance_edges
+        task["number_inputs"] = instance_samples
+        task["introduce_false_edge"] = instance_neg_sample
+        task["static_relaxed_domain_path"] = static_relaxed_domain_path_local
+        task["static_relaxed_problem_path"] = static_relaxed_instance_path
 
-        instances.append((instance_early_term,
-            instance_neg_sample,
-            instance_list
-        ))
+        generation_tasks.append(task)
+
+    (instance_list_pos, instance_list_neg) = create_multiple_graphs_from_input(
+        domain_path,
+        generation_tasks,
+        process_pool_args,
+        arg_mask
+    )
+    instances = [
+        (False, [(graph, init) for (graph, init, _, _) in instance_list_pos]),
+        (True, [(graph, init) for (graph, init, _, _) in instance_list_neg])
+    ]
 
     return instances
 
@@ -721,6 +892,8 @@ def process_instance(args: argparse.Namespace):
         ), args.static_relaxed_domain
     )
 
+    process_pool_args = {'max_workers' : args.processes}
+
     recover_args_mode = False
     argument_mask_file = args.argument_mask
     if argument_mask_file:
@@ -740,41 +913,60 @@ def process_instance(args: argparse.Namespace):
     meta_info = dict()
 
     print(f"{ut.format_cur_time()}: Input generation", flush=True)
+    generation_tasks = list()
     for instance_path in args.instance:
 
         # create problem path
         problem_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), instance_path)
-        instance_graph_list = create_graphs_from_input(
-            domain_path, problem_path,
-            args.learning_mode, args.learning_size,
-            args.learning_number_inputs, False
-        )
-        backup_graphs = list()
-        if recover_args_mode:
-            for graph, _, _, _ in instance_graph_list:
-                backup_graphs.append(copy.deepcopy(graph))
-                for u, v, data in graph.edges(data=True):
-                    labels = data['action']
-                    new_labels = set()
-                    for label in labels:
-                        if label[0] in mask_dict:
-                            mask = mask_dict[label[0]]
-                            new_label = (label[0],tuple(x for i, x in enumerate(label[1]) if i not in mask))
-                        else:
-                            new_label = label
-                        new_labels.add(new_label)
-                    data['action'] = new_labels
-        
-        for index, (graph, init, state_atom_dict, object_names_dict) in enumerate(instance_graph_list):
-            instance = id_gen.take_free_id()
-            instance_dict[instance] = (graph,init)
-            if recover_args_mode:
-                instance_backup_dict[instance] = backup_graphs[index]
-            #split atom data here to make transparent sift does not need or use it.
-            instance_atoms_dict[instance] = state_atom_dict
-            instance_object_names_dict[instance] = object_names_dict
 
-    process_pool_args = {'max_workers' : args.processes}
+        task = dict()
+        task["problem_path"] = problem_path
+        task["mode"] = args.learning_mode
+        task["number_edges"] = args.learning_size
+        task["number_inputs"] = args.learning_number_inputs
+        task["introduce_false_edge"] = False
+
+        generation_tasks.append(task)
+
+        #instance_graph_list = create_graphs_from_input(
+        #    domain_path, problem_path,
+        #    args.learning_mode, args.learning_size,
+        #    args.learning_number_inputs, False
+        #)
+
+    instance_graph_list, _ = create_multiple_graphs_from_input(
+        domain_path,
+        generation_tasks,
+        process_pool_args,
+        mask_dict
+    )
+
+
+    backup_graphs = list()
+    if recover_args_mode:
+        for graph, _, _, _ in instance_graph_list:
+            backup_graphs.append(copy.deepcopy(graph))
+            for u, v, data in graph.edges(data=True):
+                labels = data['action']
+                new_labels = set()
+                for label in labels:
+                    if label[0] in mask_dict:
+                        mask = mask_dict[label[0]]
+                        new_label = (label[0],tuple(x for i, x in enumerate(label[1]) if i not in mask))
+                    else:
+                        new_label = label
+                    new_labels.add(new_label)
+                data['action'] = new_labels
+        
+    for index, (graph, init, state_atom_dict, object_names_dict) in enumerate(instance_graph_list):
+        instance = id_gen.take_free_id()
+        instance_dict[instance] = (graph,init)
+        if recover_args_mode:
+            instance_backup_dict[instance] = backup_graphs[index]
+        #split atom data here to make transparent sift does not need or use it.
+        instance_atoms_dict[instance] = state_atom_dict
+        instance_object_names_dict[instance] = object_names_dict
+
     number_samples = args.learning_number_inputs
     if args.learning_mode == 'fg':
         number_samples = 1
@@ -904,10 +1096,11 @@ def process_instance(args: argparse.Namespace):
             verification_cases = get_verification_instances(
                 domain_path,
                 args.verification_instance,
+                process_pool_args,
                 static_relaxed_domain_path,
                 mask_dict
             )
-            for early_termination, neg_mode, graph_list in verification_cases:
+            for neg_mode, graph_list in verification_cases:
                 for graph, _ in graph_list:
                     graph_number += 1
                     graph_size += graph.number_of_edges()
@@ -924,7 +1117,7 @@ def process_instance(args: argparse.Namespace):
                         data['action'] = new_labels
 
             print(f"{ut.format_cur_time()}: Verifing learned Domain", flush=True)
-            for (early_termination, neg_mode, graphs) in verification_cases:
+            for (neg_mode, graphs) in verification_cases:
                 for graph in graphs:
                     graph = [graph]
                     local_verifier = copy.deepcopy(verifier)
@@ -1022,6 +1215,7 @@ def process_instance(args: argparse.Namespace):
             verification_cases = get_verification_instances(
                 domain_path,
                 args.verification_instance,
+                process_pool_args,
                 static_relaxed_domain_path,
                 dict()
             )
