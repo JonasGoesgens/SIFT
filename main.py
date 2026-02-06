@@ -370,8 +370,8 @@ def get_verification_instances(
         arg_mask
     )
     instances = [
-        (False, [(graph, init) for (graph, init, _, _) in instance_list_pos]),
-        (True, [(graph, init) for (graph, init, _, _) in instance_list_neg])
+        (False, [(elem[0], elem[1]) for elem in instance_list_pos if elem is not None]),
+        (True,  [(elem[0], elem[1]) for elem in instance_list_neg if elem is not None])
     ]
 
     return instances
