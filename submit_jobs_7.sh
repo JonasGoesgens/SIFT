@@ -26,8 +26,16 @@ apptainer exec \
 
 exit_status=$?
 
-if [ $exit_status -ne 0 ]; then
+#0 (Success/Unknown): Generally means successful execution, including finding a solution (SAT) or determining no solution exists (UNSAT).
+#10 (SAT): A model was found.
+#20 (UNSAT): Proven that no model exists.
+#30 (OPTIMAL)
+successful_exit_statuses=(0 10 20 30)
+
+if [[ ! " ${successful_exit_statuses[@]} " =~ " ${exit_status} " ]]; then
     echo "Error: The command failed with exit status $exit_status." >&2
+else
+    exit_status=0
 fi
 
 exit $exit_status
