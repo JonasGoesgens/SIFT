@@ -9,12 +9,13 @@
 #SBATCH --time=7-00:00:00
 
 # Benchmarks
+output_dir=${1:-"./output"}
 line_index=$((SLURM_ARRAY_TASK_ID))
 input_base="./clingo/Static_optimization_Naive.lp"
-input_instance="./output/statics/clingo/arg_rec_paper_table1_line$(printf "%02d" $line_index)_0_00.lp"
+input_instance="$output_dir/statics/clingo/arg_rec_paper_table1_line$(printf "%02d" $line_index)_0_00.lp"
 
-if [$line_index -e 3]; then
-    input_instance="./output/statics/clingo/arg_rec_paper_table1_line$(printf "%02d" $line_index)_run00_0_00.lp"
+if [ $line_index -eq 3 ]; then
+    input_instance="$output_dir/statics/clingo/arg_rec_paper_table1_line$(printf "%02d" $line_index)_run00_0_00.lp"
 fi
 
 apptainer exec \
