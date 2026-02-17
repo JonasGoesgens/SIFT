@@ -3,7 +3,7 @@
 (:objects a0 a1 a2
           c0 c1
           t0 t1
-          l0-0 l0-1 l0-2 l1-0 l1-1 l2-0 l2-1
+          l0-0 l0-1 l1-0 l1-1
           p0 p1 p2
 )
 (:init
