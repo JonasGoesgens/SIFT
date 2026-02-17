@@ -16,7 +16,7 @@ file_index=0
 line_index=13
 batch_size=5
 total_runs=25
-effective_batch_size=$(( batch_size < (total_runs - SLURM_ARRAY_TASK_ID * batch_size) ? batch_size : (total_runs - SLURM_ARRAY_TASK_ID * batch_size) ))
+effective_batch_size=$(( batch_size < (total_runs - (SLURM_ARRAY_TASK_ID * batch_size)) ? batch_size : (total_runs - (SLURM_ARRAY_TASK_ID * batch_size)) ))
 
 input_file="${input_files[$file_index]}"
 
@@ -26,6 +26,8 @@ trap 'rm -f "$temp_file"' EXIT
 sed -n "$((line_index + 1))p" "$input_dir/$input_file" \
   | awk '{$1=$effective_batch_size; print}' \
   > "$temp_file"
+
+cat $temp_file
 
 apptainer run \
   --bind .:/sift \

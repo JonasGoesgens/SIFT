@@ -14,7 +14,7 @@ input_files=("arg_rec_paper_table1.txt")
 
 file_index=0
 line_index=9
-batch_size=2
+batch_size=1
 total_runs=25
 effective_batch_size=$(( batch_size < (total_runs - SLURM_ARRAY_TASK_ID * batch_size) ? batch_size : (total_runs - SLURM_ARRAY_TASK_ID * batch_size) ))
 
