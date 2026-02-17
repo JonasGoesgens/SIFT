@@ -26,7 +26,7 @@ temp_file=$(mktemp "/tmp/${input_file%.txt}_line$(printf "%02d" $line_index)_run
 trap 'rm -f "$temp_file"' EXIT
 
 sed -n "$((line_index + 1))p" "$input_dir/$input_file" \
-  | awk '{$1=$effective_batch_size; print}' \
+  | awk -v bs="$effective_batch_size" '{$1=bs; print}' \
   > "$temp_file"
 
 cat $temp_file
