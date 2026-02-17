@@ -18,8 +18,6 @@ batch_size=5
 total_runs=25
 effective_batch_size=$(( batch_size < (total_runs - (SLURM_ARRAY_TASK_ID * batch_size)) ? batch_size : (total_runs - (SLURM_ARRAY_TASK_ID * batch_size)) ))
 
-echo $effective_batch_size
-
 input_file="${input_files[$file_index]}"
 
 temp_file=$(mktemp "/tmp/${input_file%.txt}_line$(printf "%02d" $line_index)_run$(printf "%02d" ${SLURM_ARRAY_TASK_ID}).XXXXXX")
