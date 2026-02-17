@@ -32,7 +32,7 @@ done
 units=("" "" "" "" "" "" "" '\\seconds' "" "" '\\seconds' '\\%' )
 num_units=${#units[@]}
 
-split_lines=("03")
+split_lines=("03" "09" "13")
 
 for table_line in "${split_lines[@]}"; do
     result_file_line="$work_dir"/arg_rec_paper_table1_line"$table_line"_table.txt
