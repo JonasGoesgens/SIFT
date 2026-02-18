@@ -139,6 +139,7 @@ def bisimulate_and_add_error(
                 for label in labels:
                     edge_list.add((other,node,label))
                     label_list.add(label)
+        strongly_connected_component = nodes_list.copy()
 
         #Walk all edges in a single path to update the state of init_id
         node = init_id
@@ -244,8 +245,15 @@ def bisimulate_and_add_error(
 
         selected_node = None
         target_node = None
-        nodes_to_try = all_nodes.copy()
+        nodes_to_try = set(all_nodes)
+        scc = strongly_connected_component.copy()
+        scc = scc.intersection(nodes_to_try)
+        nodes_to_try = nodes_to_try.difference(scc)
+        scc = list(scc)
+        nodes_to_try = list(nodes_to_try)
+        random.shuffle(scc)
         random.shuffle(nodes_to_try)
+        nodes_to_try = scc + nodes_to_try
         while selected_node is None and len(nodes_to_try):
             node = nodes_to_try.pop(0)
 

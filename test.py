@@ -152,7 +152,7 @@ class TestGraphErrorGenerationMethods(unittest.TestCase):
         self.instance_path = "pddl_files/logistics/logistics-3-3-2-2-3.pddl"
         self.domain_path_static = "pddl_files/logistics/logistics_static_relax.pddl"
         self.instance_path_static = "pddl_files/logistics/logistics-3-3-2-2-3_static_relax.pddl"
-        self.num_edges = 2000
+        self.num_edges = 20000
         # Parameters
         self.number_inputs = 1
         self.introduce_false_edge = True
