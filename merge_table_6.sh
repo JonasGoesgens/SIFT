@@ -35,6 +35,14 @@ num_units=${#units[@]}
 split_lines=("03" "09" "13")
 
 for table_line in "${split_lines[@]}"; do
+
+    for key in "${!max_values[@]}"; do
+        echo $key
+        echo $max_values[$key]
+        max_values[$key]=0
+        echo $max_values[$key]
+    done
+
     result_file_line="$work_dir"/arg_rec_paper_table1_line"$table_line"_table.txt
     total_runs=0
     for input_file in "$work_dir"/arg_rec_paper_table1_line"$table_line"_run*_table.txt; do
