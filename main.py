@@ -1145,6 +1145,7 @@ if __name__ == '__main__':
             print(f"{ut.format_cur_time()}: Batchmode line {line_num}", flush=True)
             successful_runs = 0
             sum_admissible_features = 0
+            sum_admissible_oi_features = 0
             sum_graph_size = 0
             sum_graph_size_verifi = 0
             #sum_graph_number_verifi = 0
@@ -1154,6 +1155,8 @@ if __name__ == '__main__':
             sum_time_verifi = 0
             max_number_samples = 1
             max_all_features = 0
+            sum_all_oi_features = 0
+            sum_all_features = 0
             avg_objects_learning = 0
             avg_objects_verifi = 0
             orig_args = 0
@@ -1178,9 +1181,12 @@ if __name__ == '__main__':
                 sum_time += end_time - start_time
                 if verification_val == 0:
                     successful_runs += 1
-                sum_admissible_features += meta_info.get('admissible_oi_features',0)
+                sum_admissible_features += meta_info.get('admissible_features',0)
+                sum_admissible_oi_features += meta_info.get('admissible_oi_features',0)
                 sum_graph_size += meta_info['graph_size']
                 max_number_samples = meta_info['number_samples']
+                sum_all_oi_features += meta_info.get('all_oi_features',0)
+                sum_all_features += meta_info.get('all_features',0)
                 max_all_features = max(max_all_features, meta_info.get('all_oi_features',0))
                 output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
                 output_path = 'output/{}.txt'.format(output_file)
@@ -1315,6 +1321,9 @@ if __name__ == '__main__':
 
             success_rate = 100*successful_runs/runs
             avg_admissible_features = sum_admissible_features/runs
+            avg_admissible_oi_features = sum_admissible_oi_features/runs
+            avg_all_oi_features = sum_all_oi_features/runs
+            avg_all_features = sum_all_features/runs
             avg_graph_size = sum_graph_size/runs
             avg_graph_size_verifi = sum_graph_size_verifi/runs
             avg_objects_learning = avg_objects_learning/runs
@@ -1325,13 +1334,15 @@ if __name__ == '__main__':
             avg_time_verifi = sum_time_verifi/runs
             num_edges_learning = avg_graph_size
             num_edges_verifi = avg_graph_size_verifi
-            stats_table_out += '&${:3.0f}$&${:5.0f}$&${:2.0f}$&${:2.0f}$&${:2.0f}$&${:7.0f}$&${:3.0f}$&${:5.0f}\seconds$&${:3.0f}$&${:5.0f}$&${:5.0f}\seconds$&${:3.0f}\%$\n'.format(
+            stats_table_out += '&${:3.0f}$&${:5.0f}$&${:2.0f}$&${:2.0f}$&${:2.0f}$&${:7.0f}$&${:3.0f}$&${:5.0f}$&${:3.0f}$&${:5.0f}\seconds$&${:3.0f}$&${:5.0f}$&${:5.0f}\seconds$&${:3.0f}\%$\n'.format(
                 avg_objects_learning,
                 num_edges_learning,
                 orig_args,
                 rec_args,
                 extra_args,
-                max_all_features,
+                avg_all_oi_features,
+                avg_admissible_oi_features,
+                avg_all_features,
                 avg_admissible_features,
                 avg_time_learning,
                 avg_objects_verifi,

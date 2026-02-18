@@ -17,11 +17,12 @@ demask_latex() {
 }
 
 indices=("avg_objects_learning" "num_edges_learning" "orig_args" "rec_args" "extra_args" \
-    "max_all_features" "avg_admissible_features" "avg_time_learning" "avg_objects_verifi" \
-    "num_edges_verifi" "avg_time_verifi" "success_rate")
+    "avg_all_oi_features" "avg_admissible_oi_features" \
+    "avg_all_features" "avg_admissible_features" "avg_time_learning" \
+    "avg_objects_verifi" "num_edges_verifi" "avg_time_verifi" "success_rate")
 #num_dec_digits=(0 0 0 0 0 0 0 0 0 0 0 0)
 
-max_aggregation=("orig_args" "rec_args" "extra_args" "max_all_features")
+max_aggregation=("orig_args" "rec_args" "extra_args")
 avg_aggregation=()
 for index in "${indices[@]}"; do
     if [[ ! "${max_aggregation[*]}" =~ "$index" ]]; then
@@ -29,18 +30,18 @@ for index in "${indices[@]}"; do
     fi
 done
 
-units=("" "" "" "" "" "" "" '\\seconds' "" "" '\\seconds' '\\%' )
+units=("" "" "" "" "" "" "" "" "" '\\seconds' "" "" '\\seconds' '\\%' )
 num_units=${#units[@]}
 
-split_lines=("03" "09" "13")
+split_lines=("03" "09" "11" "13")
 
 for table_line in "${split_lines[@]}"; do
 
     for key in "${!max_values[@]}"; do
-        echo $key
-        echo $max_values[$key]
+        #echo $key
+        #echo ${max_values[$key]}
         max_values[$key]=0
-        echo $max_values[$key]
+        #echo ${max_values[$key]}
     done
 
     result_file_line="$work_dir"/arg_rec_paper_table1_line"$table_line"_table.txt

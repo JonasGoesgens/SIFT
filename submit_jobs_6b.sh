@@ -2,7 +2,7 @@
 #SBATCH --job-name=arg_rec_sift
 #SBATCH --output=output/stdout/job_%A_%a.out
 #SBATCH --error=output/stderr/job_%A_%a.err
-#SBATCH --array=2,5,6,10-12
+#SBATCH --array=2,5,6,10,12
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=160G
 #SBATCH --gpus=0
