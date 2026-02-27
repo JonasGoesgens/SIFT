@@ -1,0 +1,36 @@
+(define (problem gripper-2)
+  (:domain gripper)
+  (:objects
+    Type0_I2_Obj5 Type0_I2_Obj8 Type0_I2_Obj4 Type0_I2_Obj7 Type0_I2_Obj3 Type0_I2_Obj9 Type0_I2_Obj6 - Type0
+    Type1_I2_Obj10 Type1_I2_Obj11 - Type1
+    Type2_I2_Obj1 Type2_I2_Obj0 Type2_I2_Obj2 - Type2
+  )
+  (:init
+    (Static_move Type2_I2_Obj1 Type2_I2_Obj0) (Feature_3_v0_s0 Type0_I2_Obj8 Type2_I2_Obj1) (Static_move Type2_I2_Obj2 Type2_I2_Obj1) (Feature_3_v0_s1 Type0_I2_Obj5 Type2_I2_Obj2)
+    (Feature_3_v0_s1 Type0_I2_Obj3 Type2_I2_Obj0) (Static_drop Type1_I2_Obj11 Type0_I2_Obj9 Type2_I2_Obj1) (Static_pick Type0_I2_Obj9 Type1_I2_Obj10 Type2_I2_Obj2) (Feature_3_v0_s0 Type0_I2_Obj4 Type2_I2_Obj1)
+    (Feature_2_v0_s1 Type0_I2_Obj9 Type1_I2_Obj10) (Feature_2_v0_s1 Type0_I2_Obj4 Type1_I2_Obj11) (Feature_3_v0_s1 Type0_I2_Obj6 Type2_I2_Obj0) (Feature_2_v0_s1 Type0_I2_Obj7 Type1_I2_Obj11)
+    (Static_pick Type0_I2_Obj7 Type1_I2_Obj11 Type2_I2_Obj0) (Static_move Type2_I2_Obj0 Type2_I2_Obj1) (Feature_3_v0_s1 Type0_I2_Obj9 Type2_I2_Obj2) (Static_drop Type1_I2_Obj11 Type0_I2_Obj5 Type2_I2_Obj1)
+    (Feature_2_v0_s1 Type0_I2_Obj6 Type1_I2_Obj11) (Static_pick Type0_I2_Obj9 Type1_I2_Obj11 Type2_I2_Obj0) (Static_pick Type0_I2_Obj4 Type1_I2_Obj11 Type2_I2_Obj2) (Static_drop Type1_I2_Obj11 Type0_I2_Obj9 Type2_I2_Obj2)
+    (Feature_3_v0_s0 Type0_I2_Obj3 Type2_I2_Obj1) (Static_drop Type1_I2_Obj10 Type0_I2_Obj7 Type2_I2_Obj1) (Feature_2_v0_s1 Type0_I2_Obj8 Type1_I2_Obj10) (Static_drop Type1_I2_Obj11 Type0_I2_Obj8 Type2_I2_Obj2)
+    (Static_drop Type1_I2_Obj10 Type0_I2_Obj4 Type2_I2_Obj2) (Feature_3_v0_s0 Type0_I2_Obj6 Type2_I2_Obj1) (Static_drop Type1_I2_Obj11 Type0_I2_Obj7 Type2_I2_Obj0) (Static_pick Type0_I2_Obj7 Type1_I2_Obj10 Type2_I2_Obj0)
+    (Feature_2_v0_s0 Type0_I2_Obj7 Type1_I2_Obj10) (Static_drop Type1_I2_Obj10 Type0_I2_Obj7 Type2_I2_Obj2) (Static_pick Type0_I2_Obj7 Type1_I2_Obj10 Type2_I2_Obj1) (Static_pick Type0_I2_Obj4 Type1_I2_Obj10 Type2_I2_Obj2)
+    (Feature_3_v0_s1 Type0_I2_Obj7 Type2_I2_Obj0) (Static_drop Type1_I2_Obj10 Type0_I2_Obj3 Type2_I2_Obj1) (Feature_0_v0_s0 Type1_I2_Obj11) (Static_pick Type0_I2_Obj9 Type1_I2_Obj11 Type2_I2_Obj2)
+    (Feature_2_v0_s1 Type0_I2_Obj5 Type1_I2_Obj11) (Static_drop Type1_I2_Obj11 Type0_I2_Obj9 Type2_I2_Obj0) (Feature_3_v0_s0 Type0_I2_Obj4 Type2_I2_Obj0) (Static_pick Type0_I2_Obj3 Type1_I2_Obj11 Type2_I2_Obj1)
+    (Static_pick Type0_I2_Obj9 Type1_I2_Obj10 Type2_I2_Obj1) (Feature_2_v0_s1 Type0_I2_Obj4 Type1_I2_Obj10) (Feature_3_v0_s1 Type0_I2_Obj7 Type2_I2_Obj2) (Static_drop Type1_I2_Obj11 Type0_I2_Obj3 Type2_I2_Obj1)
+    (Static_drop Type1_I2_Obj11 Type0_I2_Obj4 Type2_I2_Obj2) (Static_pick Type0_I2_Obj3 Type1_I2_Obj10 Type2_I2_Obj1) (Feature_1_v0_s1 Type2_I2_Obj1) (Feature_3_v0_s0 Type0_I2_Obj8 Type2_I2_Obj2)
+    (Static_drop Type1_I2_Obj10 Type0_I2_Obj9 Type2_I2_Obj2) (Static_drop Type1_I2_Obj11 Type0_I2_Obj6 Type2_I2_Obj1) (Feature_2_v0_s1 Type0_I2_Obj3 Type1_I2_Obj10) (Feature_3_v0_s1 Type0_I2_Obj9 Type2_I2_Obj0)
+    (Static_drop Type1_I2_Obj10 Type0_I2_Obj7 Type2_I2_Obj0) (Static_drop Type1_I2_Obj11 Type0_I2_Obj7 Type2_I2_Obj2) (Static_move Type2_I2_Obj1 Type2_I2_Obj2) (Static_pick Type0_I2_Obj6 Type1_I2_Obj11 Type2_I2_Obj1)
+    (Feature_3_v0_s1 Type0_I2_Obj9 Type2_I2_Obj1) (Static_drop Type1_I2_Obj10 Type0_I2_Obj5 Type2_I2_Obj1) (Feature_2_v0_s1 Type0_I2_Obj6 Type1_I2_Obj10) (Feature_3_v0_s1 Type0_I2_Obj3 Type2_I2_Obj2)
+    (Feature_3_v0_s0 Type0_I2_Obj5 Type2_I2_Obj2) (Feature_3_v0_s0 Type0_I2_Obj3 Type2_I2_Obj0) (Feature_2_v0_s0 Type0_I2_Obj9 Type1_I2_Obj11) (Feature_3_v0_s1 Type0_I2_Obj6 Type2_I2_Obj2)
+    (Static_pick Type0_I2_Obj5 Type1_I2_Obj11 Type2_I2_Obj1) (Static_drop Type1_I2_Obj10 Type0_I2_Obj8 Type2_I2_Obj2) (Feature_3_v0_s1 Type0_I2_Obj5 Type2_I2_Obj0) (Feature_1_v0_s0 Type2_I2_Obj2)
+    (Static_pick Type0_I2_Obj5 Type1_I2_Obj10 Type2_I2_Obj1) (Feature_3_v0_s0 Type0_I2_Obj6 Type2_I2_Obj0) (Feature_3_v0_s1 Type0_I2_Obj8 Type2_I2_Obj0) (Feature_2_v0_s1 Type0_I2_Obj5 Type1_I2_Obj10)
+    (Feature_3_v0_s0 Type0_I2_Obj4 Type2_I2_Obj2) (Static_pick Type0_I2_Obj9 Type1_I2_Obj10 Type2_I2_Obj0) (Static_pick Type0_I2_Obj6 Type1_I2_Obj10 Type2_I2_Obj1) (Static_move Type2_I2_Obj2 Type2_I2_Obj0)
+    (Feature_2_v0_s1 Type0_I2_Obj3 Type1_I2_Obj11) (Static_pick Type0_I2_Obj8 Type1_I2_Obj11 Type2_I2_Obj2) (Feature_1_v0_s1 Type2_I2_Obj0) (Feature_3_v0_s1 Type0_I2_Obj8 Type2_I2_Obj1)
+    (Feature_3_v0_s0 Type0_I2_Obj3 Type2_I2_Obj2) (Static_pick Type0_I2_Obj8 Type1_I2_Obj10 Type2_I2_Obj2) (Feature_2_v0_s1 Type0_I2_Obj8 Type1_I2_Obj11) (Feature_3_v0_s1 Type0_I2_Obj4 Type2_I2_Obj0)
+    (Static_move Type2_I2_Obj0 Type2_I2_Obj2) (Feature_3_v0_s0 Type0_I2_Obj6 Type2_I2_Obj2) (Static_pick Type0_I2_Obj9 Type1_I2_Obj11 Type2_I2_Obj1) (Static_pick Type0_I2_Obj7 Type1_I2_Obj11 Type2_I2_Obj2)
+    (Feature_3_v0_s0 Type0_I2_Obj5 Type2_I2_Obj0) (Feature_0_v0_s0 Type1_I2_Obj10) (Feature_3_v0_s1 Type0_I2_Obj4 Type2_I2_Obj1) (Static_drop Type1_I2_Obj10 Type0_I2_Obj6 Type2_I2_Obj1)
+    (Static_drop Type1_I2_Obj10 Type0_I2_Obj9 Type2_I2_Obj0) (Static_pick Type0_I2_Obj7 Type1_I2_Obj10 Type2_I2_Obj2) (Feature_3_v0_s0 Type0_I2_Obj8 Type2_I2_Obj0) (Static_drop Type1_I2_Obj10 Type0_I2_Obj9 Type2_I2_Obj1)
+    (Feature_3_v0_s0 Type0_I2_Obj5 Type2_I2_Obj1) (Feature_3_v0_s1 Type0_I2_Obj7 Type2_I2_Obj1)
+  )
+)
+

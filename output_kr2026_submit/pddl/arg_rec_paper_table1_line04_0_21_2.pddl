@@ -1,0 +1,33 @@
+(define (problem ferry-2)
+  (:domain ferry)
+  (:objects
+    Type0_I2_Obj4 Type0_I2_Obj1 Type0_I2_Obj2 Type0_I2_Obj0 Type0_I2_Obj3 - Type0
+    Type1_I2_Obj5 Type1_I2_Obj8 Type1_I2_Obj7 Type1_I2_Obj9 Type1_I2_Obj6 - Type1
+  )
+  (:init
+    (Static_board Type1_I2_Obj5 Type0_I2_Obj2) (Static_sail Type0_I2_Obj2 Type0_I2_Obj4) (Feature_3_v0_s0 Type0_I2_Obj2 Type1_I2_Obj8) (Feature_3_v0_s1 Type0_I2_Obj4 Type1_I2_Obj7)
+    (Static_board Type1_I2_Obj5 Type0_I2_Obj3) (Static_sail Type0_I2_Obj4 Type0_I2_Obj2) (Feature_3_v0_s0 Type0_I2_Obj4 Type1_I2_Obj6) (Feature_2_v0_s0 Type1_I2_Obj5)
+    (Feature_1_v0_s1 Type0_I2_Obj1) (Feature_3_v0_s1 Type0_I2_Obj2 Type1_I2_Obj5) (Static_sail Type0_I2_Obj3 Type0_I2_Obj2) (Static_sail Type0_I2_Obj4 Type0_I2_Obj3)
+    (Feature_3_v0_s0 Type0_I2_Obj3 Type1_I2_Obj6) (Static_sail Type0_I2_Obj2 Type0_I2_Obj0) (Feature_3_v0_s1 Type0_I2_Obj0 Type1_I2_Obj6) (Feature_3_v0_s1 Type0_I2_Obj1 Type1_I2_Obj8)
+    (Static_sail Type0_I2_Obj0 Type0_I2_Obj2) (Feature_3_v0_s0 Type0_I2_Obj0 Type1_I2_Obj6) (Static_sail Type0_I2_Obj1 Type0_I2_Obj4) (Static_debark Type1_I2_Obj9 Type0_I2_Obj4)
+    (Feature_3_v0_s0 Type0_I2_Obj1 Type1_I2_Obj8) (Feature_3_v0_s0 Type0_I2_Obj4 Type1_I2_Obj9) (Static_board Type1_I2_Obj7 Type0_I2_Obj3) (Feature_1_v0_s1 Type0_I2_Obj4)
+    (Static_debark Type1_I2_Obj5 Type0_I2_Obj2) (Feature_3_v0_s1 Type0_I2_Obj4 Type1_I2_Obj5) (Static_board Type1_I2_Obj6 Type0_I2_Obj3) (Static_board Type1_I2_Obj5 Type0_I2_Obj1)
+    (Feature_3_v0_s1 Type0_I2_Obj0 Type1_I2_Obj9) (Static_sail Type0_I2_Obj1 Type0_I2_Obj0) (Static_debark Type1_I2_Obj5 Type0_I2_Obj3) (Static_sail Type0_I2_Obj2 Type0_I2_Obj1)
+    (Feature_2_v0_s1 Type1_I2_Obj6) (Feature_1_v0_s1 Type0_I2_Obj0) (Feature_3_v0_s1 Type0_I2_Obj3 Type1_I2_Obj9) (Feature_3_v0_s1 Type0_I2_Obj1 Type1_I2_Obj6)
+    (Feature_3_v0_s0 Type0_I2_Obj0 Type1_I2_Obj9) (Feature_3_v0_s1 Type0_I2_Obj2 Type1_I2_Obj7) (Feature_3_v0_s1 Type0_I2_Obj0 Type1_I2_Obj5) (Feature_1_v0_s0 Type0_I2_Obj2)
+    (Feature_3_v0_s0 Type0_I2_Obj3 Type1_I2_Obj9) (Feature_3_v0_s0 Type0_I2_Obj1 Type1_I2_Obj6) (Feature_3_v0_s0 Type0_I2_Obj2 Type1_I2_Obj7) (Static_sail Type0_I2_Obj2 Type0_I2_Obj3)
+    (Feature_3_v0_s1 Type0_I2_Obj3 Type1_I2_Obj5) (Feature_3_v0_s1 Type0_I2_Obj4 Type1_I2_Obj6) (Static_board Type1_I2_Obj9 Type0_I2_Obj4) (Static_sail Type0_I2_Obj0 Type0_I2_Obj1)
+    (Feature_2_v0_s1 Type1_I2_Obj9) (Static_debark Type1_I2_Obj7 Type0_I2_Obj3) (Static_debark Type1_I2_Obj6 Type0_I2_Obj3) (Static_sail Type0_I2_Obj3 Type0_I2_Obj1)
+    (Static_debark Type1_I2_Obj5 Type0_I2_Obj1) (Feature_3_v0_s1 Type0_I2_Obj1 Type1_I2_Obj7) (Feature_3_v0_s0 Type0_I2_Obj2 Type1_I2_Obj9) (Static_board Type1_I2_Obj5 Type0_I2_Obj4)
+    (Feature_3_v0_s0 Type0_I2_Obj4 Type1_I2_Obj7) (Feature_3_v0_s0 Type0_I2_Obj1 Type1_I2_Obj7) (Static_board Type1_I2_Obj8 Type0_I2_Obj4) (Static_sail Type0_I2_Obj1 Type0_I2_Obj3)
+    (Feature_3_v0_s0 Type0_I2_Obj4 Type1_I2_Obj8) (Feature_0_v0_s0) (Feature_3_v0_s1 Type0_I2_Obj0 Type1_I2_Obj7) (Feature_1_v0_s1 Type0_I2_Obj3)
+    (Feature_3_v0_s1 Type0_I2_Obj1 Type1_I2_Obj9) (Static_board Type1_I2_Obj5 Type0_I2_Obj0) (Feature_3_v0_s1 Type0_I2_Obj0 Type1_I2_Obj8) (Feature_3_v0_s0 Type0_I2_Obj0 Type1_I2_Obj7)
+    (Feature_3_v0_s0 Type0_I2_Obj1 Type1_I2_Obj9) (Static_sail Type0_I2_Obj0 Type0_I2_Obj3) (Static_sail Type0_I2_Obj4 Type0_I2_Obj0) (Feature_3_v0_s1 Type0_I2_Obj3 Type1_I2_Obj8)
+    (Feature_3_v0_s1 Type0_I2_Obj1 Type1_I2_Obj5) (Feature_3_v0_s0 Type0_I2_Obj0 Type1_I2_Obj8) (Feature_3_v0_s1 Type0_I2_Obj2 Type1_I2_Obj6) (Feature_3_v0_s0 Type0_I2_Obj3 Type1_I2_Obj7)
+    (Static_sail Type0_I2_Obj4 Type0_I2_Obj1) (Static_sail Type0_I2_Obj0 Type0_I2_Obj4) (Static_sail Type0_I2_Obj3 Type0_I2_Obj4) (Static_debark Type1_I2_Obj5 Type0_I2_Obj4)
+    (Feature_3_v0_s0 Type0_I2_Obj3 Type1_I2_Obj8) (Feature_2_v0_s1 Type1_I2_Obj7) (Feature_3_v0_s0 Type0_I2_Obj2 Type1_I2_Obj6) (Static_debark Type1_I2_Obj8 Type0_I2_Obj4)
+    (Static_sail Type0_I2_Obj1 Type0_I2_Obj2) (Feature_2_v0_s1 Type1_I2_Obj8) (Feature_3_v0_s1 Type0_I2_Obj2 Type1_I2_Obj8) (Static_sail Type0_I2_Obj3 Type0_I2_Obj0)
+    (Static_debark Type1_I2_Obj5 Type0_I2_Obj0) (Feature_3_v0_s1 Type0_I2_Obj2 Type1_I2_Obj9)
+  )
+)
+

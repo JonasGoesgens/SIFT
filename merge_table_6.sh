@@ -20,7 +20,7 @@ indices=("avg_objects_learning" "num_edges_learning" "orig_args" "rec_args" "ext
     "avg_all_oi_features" "avg_admissible_oi_features" \
     "avg_all_features" "avg_admissible_features" "avg_time_learning" \
     "avg_objects_verifi" "num_edges_verifi" "avg_time_verifi" "success_rate")
-#num_dec_digits=(0 0 0 0 0 0 0 0 0 0 0 0)
+
 
 max_aggregation=("orig_args" "rec_args" "extra_args")
 avg_aggregation=()

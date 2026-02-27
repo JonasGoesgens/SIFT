@@ -1,0 +1,38 @@
+(define (problem npuzzle-5)
+  (:domain npuzzle)
+  (:objects
+    Type0_I5_Obj4 Type0_I5_Obj1 Type0_I5_Obj0 Type0_I5_Obj3 Type0_I5_Obj2 - Type0
+    Type1_I5_Obj8 Type1_I5_Obj7 Type1_I5_Obj9 - Type1
+    Type2_I5_Obj5 Type2_I5_Obj6 - Type2
+  )
+  (:init
+    (Feature_1_v0_s0 Type0_I5_Obj0 Type1_I5_Obj7 Type2_I5_Obj6) (Feature_1_v0_s1 Type0_I5_Obj3 Type1_I5_Obj8 Type2_I5_Obj6) (Feature_1_v0_s1 Type0_I5_Obj1 Type1_I5_Obj8 Type2_I5_Obj6) (Static_move-down Type0_I5_Obj4 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj8)
+    (Static_move-right Type0_I5_Obj1 Type1_I5_Obj8 Type2_I5_Obj5 Type1_I5_Obj9) (Static_move-up Type0_I5_Obj4 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj7) (Static_move-right Type0_I5_Obj0 Type1_I5_Obj8 Type2_I5_Obj5 Type1_I5_Obj9) (Feature_1_v0_s0 Type0_I5_Obj2 Type1_I5_Obj8 Type2_I5_Obj6)
+    (Static_move-up Type0_I5_Obj3 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj9) (Feature_0_v0_s0 Type1_I5_Obj9 Type2_I5_Obj6) (Static_move-down Type0_I5_Obj3 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj8) (Static_move-left Type0_I5_Obj1 Type1_I5_Obj8 Type2_I5_Obj5 Type1_I5_Obj7)
+    (Static_move-left Type0_I5_Obj2 Type1_I5_Obj8 Type2_I5_Obj5 Type1_I5_Obj7) (Static_move-left Type0_I5_Obj0 Type1_I5_Obj8 Type2_I5_Obj6 Type1_I5_Obj7) (Feature_0_v0_s1 Type1_I5_Obj8 Type2_I5_Obj5) (Static_move-down Type0_I5_Obj3 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj9)
+    (Feature_1_v0_s1 Type0_I5_Obj2 Type1_I5_Obj7 Type2_I5_Obj5) (Feature_1_v0_s1 Type0_I5_Obj1 Type1_I5_Obj7 Type2_I5_Obj6) (Static_move-right Type0_I5_Obj4 Type1_I5_Obj8 Type2_I5_Obj6 Type1_I5_Obj9) (Static_move-left Type0_I5_Obj3 Type1_I5_Obj8 Type2_I5_Obj6 Type1_I5_Obj7)
+    (Feature_0_v0_s1 Type1_I5_Obj8 Type2_I5_Obj6) (Static_move-right Type0_I5_Obj4 Type1_I5_Obj8 Type2_I5_Obj5 Type1_I5_Obj9) (Static_move-right Type0_I5_Obj1 Type1_I5_Obj7 Type2_I5_Obj6 Type1_I5_Obj8) (Static_move-down Type0_I5_Obj1 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj7)
+    (Feature_1_v0_s1 Type0_I5_Obj4 Type1_I5_Obj8 Type2_I5_Obj6) (Static_move-right Type0_I5_Obj3 Type1_I5_Obj8 Type2_I5_Obj5 Type1_I5_Obj9) (Static_move-left Type0_I5_Obj4 Type1_I5_Obj8 Type2_I5_Obj6 Type1_I5_Obj7) (Feature_1_v0_s1 Type0_I5_Obj1 Type1_I5_Obj9 Type2_I5_Obj5)
+    (Static_move-left Type0_I5_Obj0 Type1_I5_Obj9 Type2_I5_Obj6 Type1_I5_Obj8) (Static_move-right Type0_I5_Obj2 Type1_I5_Obj8 Type2_I5_Obj6 Type1_I5_Obj9) (Static_move-down Type0_I5_Obj1 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj8) (Static_move-left Type0_I5_Obj0 Type1_I5_Obj8 Type2_I5_Obj5 Type1_I5_Obj7)
+    (Static_move-left Type0_I5_Obj2 Type1_I5_Obj9 Type2_I5_Obj6 Type1_I5_Obj8) (Feature_1_v0_s1 Type0_I5_Obj3 Type1_I5_Obj7 Type2_I5_Obj6) (Static_move-down Type0_I5_Obj0 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj7) (Static_move-up Type0_I5_Obj1 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj7)
+    (Static_move-up Type0_I5_Obj4 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj9) (Feature_1_v0_s1 Type0_I5_Obj2 Type1_I5_Obj9 Type2_I5_Obj5) (Static_move-down Type0_I5_Obj2 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj7) (Feature_0_v0_s1 Type1_I5_Obj7 Type2_I5_Obj6)
+    (Static_move-up Type0_I5_Obj3 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj8) (Static_move-left Type0_I5_Obj1 Type1_I5_Obj9 Type2_I5_Obj5 Type1_I5_Obj8) (Static_move-left Type0_I5_Obj1 Type1_I5_Obj8 Type2_I5_Obj6 Type1_I5_Obj7) (Static_move-left Type0_I5_Obj2 Type1_I5_Obj9 Type2_I5_Obj5 Type1_I5_Obj8)
+    (Static_move-right Type0_I5_Obj1 Type1_I5_Obj7 Type2_I5_Obj5 Type1_I5_Obj8) (Static_move-right Type0_I5_Obj2 Type1_I5_Obj7 Type2_I5_Obj5 Type1_I5_Obj8) (Feature_1_v0_s1 Type0_I5_Obj3 Type1_I5_Obj8 Type2_I5_Obj5) (Static_move-right Type0_I5_Obj0 Type1_I5_Obj8 Type2_I5_Obj6 Type1_I5_Obj9)
+    (Static_move-left Type0_I5_Obj4 Type1_I5_Obj8 Type2_I5_Obj5 Type1_I5_Obj7) (Feature_1_v0_s1 Type0_I5_Obj0 Type1_I5_Obj7 Type2_I5_Obj5) (Static_move-up Type0_I5_Obj2 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj8) (Static_move-down Type0_I5_Obj2 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj9)
+    (Feature_1_v0_s1 Type0_I5_Obj4 Type1_I5_Obj9 Type2_I5_Obj5) (Static_move-left Type0_I5_Obj3 Type1_I5_Obj9 Type2_I5_Obj6 Type1_I5_Obj8) (Static_move-right Type0_I5_Obj3 Type1_I5_Obj7 Type2_I5_Obj6 Type1_I5_Obj8) (Static_move-up Type0_I5_Obj2 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj9)
+    (Feature_1_v0_s1 Type0_I5_Obj2 Type1_I5_Obj8 Type2_I5_Obj5) (Static_move-right Type0_I5_Obj4 Type1_I5_Obj7 Type2_I5_Obj6 Type1_I5_Obj8) (Feature_1_v0_s1 Type0_I5_Obj2 Type1_I5_Obj9 Type2_I5_Obj6) (Feature_1_v0_s1 Type0_I5_Obj4 Type1_I5_Obj9 Type2_I5_Obj6)
+    (Static_move-down Type0_I5_Obj3 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj7) (Static_move-left Type0_I5_Obj3 Type1_I5_Obj9 Type2_I5_Obj5 Type1_I5_Obj8) (Static_move-left Type0_I5_Obj4 Type1_I5_Obj9 Type2_I5_Obj5 Type1_I5_Obj8) (Static_move-right Type0_I5_Obj2 Type1_I5_Obj8 Type2_I5_Obj5 Type1_I5_Obj9)
+    (Static_move-right Type0_I5_Obj0 Type1_I5_Obj7 Type2_I5_Obj5 Type1_I5_Obj8) (Static_move-down Type0_I5_Obj4 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj9) (Static_move-left Type0_I5_Obj0 Type1_I5_Obj9 Type2_I5_Obj5 Type1_I5_Obj8) (Feature_1_v0_s1 Type0_I5_Obj1 Type1_I5_Obj7 Type2_I5_Obj5)
+    (Static_move-down Type0_I5_Obj0 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj9) (Static_move-up Type0_I5_Obj4 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj8) (Static_move-up Type0_I5_Obj1 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj9) (Static_move-up Type0_I5_Obj0 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj8)
+    (Static_move-right Type0_I5_Obj3 Type1_I5_Obj7 Type2_I5_Obj5 Type1_I5_Obj8) (Feature_1_v0_s1 Type0_I5_Obj0 Type1_I5_Obj9 Type2_I5_Obj5) (Feature_1_v0_s1 Type0_I5_Obj4 Type1_I5_Obj8 Type2_I5_Obj5) (Static_move-up Type0_I5_Obj0 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj9)
+    (Static_move-left Type0_I5_Obj1 Type1_I5_Obj9 Type2_I5_Obj6 Type1_I5_Obj8) (Feature_1_v0_s1 Type0_I5_Obj0 Type1_I5_Obj9 Type2_I5_Obj6) (Feature_1_v0_s1 Type0_I5_Obj3 Type1_I5_Obj7 Type2_I5_Obj5) (Static_move-right Type0_I5_Obj4 Type1_I5_Obj7 Type2_I5_Obj5 Type1_I5_Obj8)
+    (Feature_0_v0_s1 Type1_I5_Obj7 Type2_I5_Obj5) (Feature_1_v0_s0 Type0_I5_Obj4 Type1_I5_Obj7 Type2_I5_Obj5) (Static_move-up Type0_I5_Obj3 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj7) (Static_move-left Type0_I5_Obj3 Type1_I5_Obj8 Type2_I5_Obj5 Type1_I5_Obj7)
+    (Feature_1_v0_s1 Type0_I5_Obj1 Type1_I5_Obj9 Type2_I5_Obj6) (Static_move-right Type0_I5_Obj2 Type1_I5_Obj7 Type2_I5_Obj6 Type1_I5_Obj8) (Static_move-right Type0_I5_Obj1 Type1_I5_Obj8 Type2_I5_Obj6 Type1_I5_Obj9) (Feature_1_v0_s1 Type0_I5_Obj0 Type1_I5_Obj8 Type2_I5_Obj5)
+    (Feature_1_v0_s1 Type0_I5_Obj4 Type1_I5_Obj7 Type2_I5_Obj6) (Static_move-down Type0_I5_Obj1 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj9) (Feature_1_v0_s0 Type0_I5_Obj3 Type1_I5_Obj9 Type2_I5_Obj5) (Feature_1_v0_s1 Type0_I5_Obj2 Type1_I5_Obj7 Type2_I5_Obj6)
+    (Static_move-up Type0_I5_Obj1 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj8) (Static_move-up Type0_I5_Obj2 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj7) (Static_move-up Type0_I5_Obj0 Type2_I5_Obj6 Type2_I5_Obj5 Type1_I5_Obj7) (Static_move-down Type0_I5_Obj0 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj8)
+    (Feature_1_v0_s1 Type0_I5_Obj0 Type1_I5_Obj8 Type2_I5_Obj6) (Static_move-down Type0_I5_Obj2 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj8) (Feature_1_v0_s0 Type0_I5_Obj1 Type1_I5_Obj8 Type2_I5_Obj5) (Static_move-left Type0_I5_Obj4 Type1_I5_Obj9 Type2_I5_Obj6 Type1_I5_Obj8)
+    (Feature_0_v0_s1 Type1_I5_Obj9 Type2_I5_Obj5) (Static_move-right Type0_I5_Obj3 Type1_I5_Obj8 Type2_I5_Obj6 Type1_I5_Obj9) (Static_move-right Type0_I5_Obj0 Type1_I5_Obj7 Type2_I5_Obj6 Type1_I5_Obj8) (Feature_1_v0_s1 Type0_I5_Obj3 Type1_I5_Obj9 Type2_I5_Obj6)
+    (Static_move-down Type0_I5_Obj4 Type2_I5_Obj5 Type2_I5_Obj6 Type1_I5_Obj7) (Static_move-left Type0_I5_Obj2 Type1_I5_Obj8 Type2_I5_Obj6 Type1_I5_Obj7)
+  )
+)
+
