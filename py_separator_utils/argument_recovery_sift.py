@@ -304,15 +304,16 @@ class Argument_Recovery_Sift:
             self.run_iteration(iteration, process_pool_args, verification_mode)
             print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(self.admissible_order_id_features[iteration])}/{len(self.order_id_features[iteration])} Mutex Features", flush=True)
             if verification_mode:
-                if any(
-                    oi_feature.is_invalid() or
-                    oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])
-                    for oi_feature in self.argument_identifier_features[iteration]
-                ):
-                    raise StratificationError(
-                        iteration,
-                        f"An OI Feature or Pattern used to setup the next graph became invalid in iteration {iteration}"
-                    )
+                if (iteration + 1) in self.sift_iterations:
+                    if any(
+                        oi_feature.is_invalid() or
+                        oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])
+                        for oi_feature in self.argument_identifier_features[iteration]
+                    ):
+                        raise StratificationError(
+                            iteration,
+                            f"An OI Feature or Pattern used to setup the next graph became invalid in iteration {iteration}"
+                        )
             else:
                 new_oi_features = tuple(
                     self.admissible_order_id_features[iteration].difference(self.argument_identifier_features[iteration])
