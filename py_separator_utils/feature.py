@@ -72,6 +72,36 @@ class Feature:
                 split[5].clear()
             self.precondition_splits = None
 
+    def apply_edge_label(
+        self,
+        edge_label : pt.Edge_LabelT,
+        split_index : int = 0
+    ) -> Tuple[Set[pt.GroundingT],Set[pt.GroundingT],Set[pt.GroundingT]]:
+        pos_ground_eff = set()
+        neg_ground_eff = set()
+        unk_ground_eff = set()
+        (
+            add_list, del_list, *_
+        ) = self.get_color_split_combination(split_index)
+        for label in edge_label:
+            for sel_pat in self.selected_patterns:
+                if label[0] != sel_pat[0]:
+                    continue
+                grounding_list = [pt.ObjectNotKnown]*len(sel_pat[1])
+                for index, entry in enumerate(sel_pat[1]):
+                    object_label = ut.tuple_get(label[1], entry, pt.ObjectNotKnown)
+                    grounding_list[index] = object_label
+                if any(
+                    object_label == pt.ObjectNotKnown
+                    for object_label in grounding_list
+                ):
+                    unk_ground_eff.add(tuple(grounding_list))
+                elif sel_pat in add_list:
+                    pos_ground_eff.add(tuple(grounding_list))
+                elif sel_pat in del_list:
+                    neg_ground_eff.add(tuple(grounding_list))
+        return pos_ground_eff, neg_ground_eff, unk_ground_eff
+
     def parse_edge_label(self, edge_label : pt.Edge_LabelT,
         grounding : pt.GroundingT
     ) -> Tuple[bool, bool, Set[pt.PatternT], Set[pt.PatternT]]:
@@ -457,9 +487,12 @@ class Feature:
         if self.extended_identifier is not None:
             return self.extended_identifier
         self.extended_identifier = self.__class__.extend_identifier(
-            self.get_identifier(), self.get_type_combination().size()
+            self.get_identifier(), self.get_arity()
         )
         return self.extended_identifier
+
+    def get_arity(self) -> int:
+        return self.get_type_combination().size()
 
     def __hash__(self) -> int:
         #implemented hash to allow direct use in dicts

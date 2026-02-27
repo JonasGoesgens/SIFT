@@ -380,6 +380,14 @@ class Argument_Recovery_Sift:
                 verification_mode
             )
             #TODO annotate new_graphs
+            feature_index_list = list()
+            for feature in self.sift_iterations[iteration - 1].admissible_features:
+                if feature.has_unique_colouring():
+                    feature_index_list.append((feature,0))
+            new_graphs = self.label_graph_with_atoms(
+                new_graphs,
+                feature_index_list
+            )
             #TODO submit new_graphs to synth
             new_graphs = synth_update_graphs(new_graphs)
             self.sift_iterations[iteration].replace_graphs(new_graphs)
@@ -454,6 +462,42 @@ class Argument_Recovery_Sift:
             overall_admissible_order_id_features,
             overall_admissible_features
         )
+
+    def label_graph_with_atoms(self,
+        graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
+        feature_index_list : List[Tuple[Feature, int]]
+    ) -> Dict[int, Tuple[pt.GraphT, pt.NodeT]]:
+        for instance, (graph, init) in graphs.items():
+            for in_node, out_node, edge_labels in graph.edges(data=pt.Edge_Label_key):
+                for feature, split_index in feature_index_list:
+                    arity = feature.get_arity()
+                    (
+                        pos_ground_eff,
+                        neg_ground_eff,
+                        unk_ground_eff
+                    ) = feature.apply_edge_label(
+                        edge_labels,
+                        split_index
+                    )
+                    in_node_atoms_dict = graph.nodes[in_node].get(pt.Atom_List_key, dict())
+                    out_node_atoms_dict = graph.nodes[out_node].get(pt.Atom_List_key, dict())
+                    predicate = feature.get_identifier()
+                    if arity not in in_node_atoms_dict:
+                        in_node_atoms_dict[arity] = dict()
+                    if predicate not in in_node_atoms_dict[arity]:
+                        in_node_atoms_dict[arity][predicate] = (set(),set())
+                    if arity not in out_node_atoms_dict:
+                        out_node_atoms_dict[arity] = dict()
+                    if predicate not in out_node_atoms_dict[arity]:
+                        out_node_atoms_dict[arity][predicate] = (set(),set())
+                    in_node_atoms_dict[arity][predicate][0].update(neg_ground_eff)
+                    in_node_atoms_dict[arity][predicate][1].update(pos_ground_eff)
+                    out_node_atoms_dict[arity][predicate][0].update(pos_ground_eff)
+                    out_node_atoms_dict[arity][predicate][1].update(neg_ground_eff)
+            graph.nodes[in_node][pt.Atom_List_key] = in_node_atoms_dict
+            graph.nodes[out_node][pt.Atom_List_key] = out_node_atoms_dict
+        #TODO propagate atoms though inactive edges.
+        return graphs
 
     def update_graphs(self,
         new_oi_features : tuple[OIFeature],

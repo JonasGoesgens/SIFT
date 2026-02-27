@@ -443,7 +443,7 @@ def expand_state_space(
                         atoms_dict[arity] = dict()
                     if predicate not in atoms_dict[arity]:
                         atoms_dict[arity][predicate] = (set(),set())
-                    atoms_dict[arity][predicate][1].add((predicate,grounding))
+                    atoms_dict[arity][predicate][pos].add(grounding)
             G.nodes[state_id]['atoms'] = atoms_dict
 
         sample = random.sample(all_nodes, k=min(10, len(all_nodes)))
