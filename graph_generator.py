@@ -41,16 +41,21 @@ def dfs_state_space(
     number_of_input,
     introduce_false_edge: bool,
     static_relaxation: mimir_holder,
-    arg_mask : dict = dict()
+    arg_mask : dict = dict(),
+    pred_mask : dict = dict(),
+    use_strings_as_id : bool = True
 ):
 
     return expand_state_space(
-    mimir_stuff,
-    num_edges, number_of_input,
-    introduce_false_edge,
-    static_relaxation,
-    arg_mask,
-    select_expansion_dfs)
+        mimir_stuff,
+        num_edges, number_of_input,
+        introduce_false_edge,
+        static_relaxation,
+        arg_mask = arg_mask,
+        pred_mask = pred_mask,
+        queue_expand_func = select_expansion_dfs,
+        use_strings_as_id = use_strings_as_id
+    )
 
 # create a partial graph in random balanced style
 def rand_state_space(
@@ -59,16 +64,21 @@ def rand_state_space(
     number_of_input,
     introduce_false_edge: bool,
     static_relaxation: mimir_holder,
-    arg_mask : dict = dict()
+    arg_mask : dict = dict(),
+    pred_mask : dict = dict(),
+    use_strings_as_id : bool = True
 ):
 
     return expand_state_space(
-    mimir_stuff,
-    num_edges, number_of_input,
-    introduce_false_edge,
-    static_relaxation,
-    arg_mask,
-    select_expansion_rand)
+        mimir_stuff,
+        num_edges, number_of_input,
+        introduce_false_edge,
+        static_relaxation,
+        arg_mask = arg_mask,
+        pred_mask = pred_mask,
+        queue_expand_func = select_expansion_rand,
+        use_strings_as_id = use_strings_as_id
+    )
 
 # create a partial graph in bfs style
 def bfs_state_space(
@@ -76,15 +86,21 @@ def bfs_state_space(
     num_edges, number_of_input,
     introduce_false_edge: bool,
     static_relaxation: mimir_holder,
-    arg_mask : dict = dict()):
+    arg_mask : dict = dict(),
+    pred_mask : dict = dict(),
+    use_strings_as_id : bool = True
+):
 
     return expand_state_space(
-    mimir_stuff,
-    num_edges, number_of_input,
-    introduce_false_edge,
-    static_relaxation,
-    arg_mask,
-    select_expansion_bfs)
+        mimir_stuff,
+        num_edges, number_of_input,
+        introduce_false_edge,
+        static_relaxation,
+        arg_mask = arg_mask,
+        pred_mask = pred_mask,
+        queue_expand_func = select_expansion_bfs,
+        use_strings_as_id = use_strings_as_id
+    )
 
 # bisimulate a state space with the static relaxed domain&instance to introduce an error
 def bisimulate_and_add_error(
@@ -303,7 +319,9 @@ def expand_state_space(
     introduce_false_edge: bool,
     static_relaxation: mimir_holder,
     arg_mask : dict = dict(),
-    queue_expand_func = None):
+    pred_mask : dict = dict(),
+    queue_expand_func = None,
+    use_strings_as_id : bool = True):
 
     try:
         if queue_expand_func is None:
@@ -311,7 +329,7 @@ def expand_state_space(
 
         # get object mapping
         # object mapping also valid for static relaxation as Instance is identical
-        object_mapping = mimir_stuff.get_object_mapping()
+        object_mapping = mimir_stuff.get_object_mapping(use_strings_as_id)
         action_mapping, _ = mimir_stuff.get_action_mapping_and_arity()
 
         # create graph
@@ -408,6 +426,26 @@ def expand_state_space(
             atoms = state.get_fluent_atoms()
             all_atoms.update(atoms)
 
+        for state_id in all_nodes:
+            state = node_and_corrensponding_state[node]
+            atoms_dict = G.nodes[state_id].get('atoms', dict())
+            pos_atoms = state.get_fluent_atoms()
+            neg_atoms = all_atoms.difference(pos_atoms)
+            for atoms, pos in [(list(pos_atoms),0),(list(neg_atoms),1)]:
+                for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
+                    predicate = atom.get_predicate().get_name()
+                    grounding = tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())
+                    arity = len(grounding)
+                    if predicate not in pred_mask:
+                        continue
+                    #TODO locally observe predicate
+                    if arity not in atoms_dict:
+                        atoms_dict[arity] = dict()
+                    if predicate not in atoms_dict[arity]:
+                        atoms_dict[arity][predicate] = (set(),set())
+                    atoms_dict[arity][predicate][1].add((predicate,grounding))
+            G.nodes[state_id]['atoms'] = atoms_dict
+
         sample = random.sample(all_nodes, k=min(10, len(all_nodes)))
         for node in sample:
             node_atoms_dict[node] = set()
@@ -431,7 +469,7 @@ def expand_state_space(
         if G is None:
             return None
 
-        return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
+        return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping(use_strings_as_id)
 
     except Exception as e:
         sys.stderr.write(f"{ut.format_cur_time()}: Exception {e} happened during graph creation.\n")
@@ -445,11 +483,12 @@ def dfs_lookahead_state_space(
     number_of_input,
     introduce_false_edge: bool,
     static_relaxation: mimir_holder,
-    arg_mask : dict = dict()
+    arg_mask : dict = dict(),
+    pred_mask : dict = dict(),
+    use_strings_as_id : bool = True
 ):
-
     # get object mapping
-    object_mapping = mimir_stuff.get_object_mapping()
+    object_mapping = mimir_stuff.get_object_mapping(use_strings_as_id)
     action_mapping, _ = mimir_stuff.get_action_mapping_and_arity()
 
     # create graph
@@ -607,7 +646,7 @@ def dfs_lookahead_state_space(
 
         G.add_edge(node, new_id, action={negative_action_mapping})
 
-    return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
+    return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping(use_strings_as_id)
 
 # create a rl style trace
 def get_trace_rl(
@@ -616,14 +655,16 @@ def get_trace_rl(
     number_of_input,
     introduce_false_edge: bool,
     static_relaxation: mimir_holder,
-    arg_mask : dict = dict()
+    arg_mask : dict = dict(),
+    pred_mask : dict = dict(),
+    use_strings_as_id : bool = True
 ):
 
     if (introduce_false_edge and (number_edges < 2)):
         return None
 
     # get object mapping
-    object_mapping = mimir_stuff.get_object_mapping()
+    object_mapping = mimir_stuff.get_object_mapping(use_strings_as_id)
     action_mapping, _ = mimir_stuff.get_action_mapping_and_arity()
 
     # create graph
@@ -732,7 +773,7 @@ def get_trace_rl(
 
         G.add_edge(node, cur_number_nodes, action={negative_action_mapped})
 
-    return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
+    return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping(use_strings_as_id)
 
 # create a simple trace in random style
 def get_trace_simple(
@@ -741,14 +782,16 @@ def get_trace_simple(
     number_of_input,
     introduce_false_edge: bool,
     static_relaxation: mimir_holder,
-    arg_mask : dict = dict()
+    arg_mask : dict = dict(),
+    pred_mask : dict = dict(),
+    use_strings_as_id : bool = True
 ):
 
     if (introduce_false_edge and (length < 2)):
         return None
 
     # get object mapping
-    object_mapping = mimir_stuff.get_object_mapping()
+    object_mapping = mimir_stuff.get_object_mapping(use_strings_as_id)
     action_mapping, _ = mimir_stuff.get_action_mapping_and_arity()
 
     # create graph
@@ -853,7 +896,7 @@ def get_trace_simple(
 
         G.add_edge(node, next_state_index, action={negative_action_mapped})
 
-    return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
+    return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping(use_strings_as_id)
 
 # for a state space create the corresponding graph as directed nx graph 
 # label: 'action': *grounded action*
@@ -861,11 +904,13 @@ def get_nx_graph_from_state_space(
     mimir_stuff: mimir_holder,
     introduce_false_edge: bool,
     static_relaxation: mimir_holder,
-    arg_mask : dict = dict()
+    arg_mask : dict = dict(),
+    pred_mask : dict = dict(),
+    use_strings_as_id : bool = True
 ) -> (nx.DiGraph, int, dict, dict):
 
     # get object mapping
-    object_mapping = mimir_stuff.get_object_mapping()
+    object_mapping = mimir_stuff.get_object_mapping(use_strings_as_id)
     action_mapping, _ = mimir_stuff.get_action_mapping_and_arity()
     # get state space, expensive!
     state_space = mimir_stuff.get_complete_statespace()
@@ -958,5 +1003,5 @@ def get_nx_graph_from_state_space(
             G.add_edge(manipulated_node, reached_node, action={negative_action})
 
     # return created graph
-    return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping()
+    return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping(use_strings_as_id)
 

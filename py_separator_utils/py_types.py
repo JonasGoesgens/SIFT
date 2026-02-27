@@ -11,7 +11,7 @@ TypeCombi = hm.Multiset[TypeT]
 #An ArgPos consist of the action id and the index of the argument
 ArgPosT = typing.Tuple[ActionT,int]
 #An Object is represented by an int as id
-ObjectT = int
+ObjectT = typing.Union[int, str]
 #ObjectNotExisting is the valeu used to indicate that there exists no object
 #that could be identified.
 ObjectNotExisting = -1
@@ -36,6 +36,7 @@ PatternT = typing.Tuple[ActionT,typing.Tuple[int]]
 #It has different usecases as PatterT
 Ground_Edge_Info = typing.Tuple[ActionT,typing.Tuple[int]]
 #Edge_Label is a set of Ground_Edge_Info holding all actions that caused this edge
+Edge_Label_key = 'action'
 Edge_LabelT = typing.Set[Ground_Edge_Info]
 #Graph is a nx.digraph
 GraphT = nx.DiGraph
@@ -76,4 +77,22 @@ SetLike = typing.Union[typing.Set[T], typing.FrozenSet[T]]
 FrozenPowerSet = typing.FrozenSet[typing.FrozenSet[T]]
 #IntSetLike = typing.Union[typing.Set[int], typing.FrozenSet[int]]
 #PatternTSetLike = typing.Union[typing.Set[PatternT], typing.FrozenSet[PatternT]]
+Feature_identifierT = typing.FrozenSet[PatternT]
+OI_Feature_identifierT = typing.Tuple[
+    typing.FrozenSet[typing.FrozenSet[T]],
+    typing.FrozenSet[typing.FrozenSet[T]]
+]
 PatternTSetLike = SetLike[PatternT]
+Input_Predicate_IdentifierT = str
+Predicate_IdentifierT = typing.Union[
+    Input_Predicate_IdentifierT,
+    Feature_identifierT,
+    OI_Feature_identifierT
+]
+Atom_List_key = 'atoms'
+Atom_ListT = typing.Dict[int,typing.Dict[
+    Predicate_IdentifierT,typing.Tuple[
+        typing.Set[GroundingT],
+        typing.Set[GroundingT]
+    ]
+]]

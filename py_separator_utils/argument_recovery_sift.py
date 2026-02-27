@@ -4,6 +4,7 @@ from py_separator_utils.sift import SIFT
 from py_separator_utils.feature import Feature
 from py_separator_utils.ordered_identifier_feature import Ordered_Identifier_Feature as OIFeature
 from py_separator_utils.conflict_manager import ConflictManager
+from py_separator_utils.synth import synth_update_graphs
 import copy
 import sys
 import time
@@ -367,6 +368,7 @@ class Argument_Recovery_Sift:
             #TODO clean up oifeatures additional_arguments.
             old_arities = self.sift_iterations[iteration - 1].LOCM_types.action_arities.copy()
             (
+                new_graphs,
                 input_changed,
                 arg_feature_assignment,
                 multi_arg_feature_assignment,
@@ -377,6 +379,10 @@ class Argument_Recovery_Sift:
                 old_arities,
                 verification_mode
             )
+            #TODO annotate new_graphs
+            #TODO submit new_graphs to synth
+            new_graphs = synth_update_graphs(new_graphs)
+            self.sift_iterations[iteration].replace_graphs(new_graphs)
             if not verification_mode:
                 self.updated_oi_features[iteration] = set()
 
@@ -454,7 +460,7 @@ class Argument_Recovery_Sift:
         iteration : int,
         old_arities : Dict[pt.ActionT,int],
         verification_mode : bool = False
-    ) -> Tuple[bool,
+    ) -> Tuple[dict, bool,
         pt.Arg_Feature_AssignmentT,
         pt.Arg_Feature_Multi_AssignmentT,
         pt.Arg_Feature_AssignmentT
@@ -633,8 +639,10 @@ class Argument_Recovery_Sift:
                     edge_label.add(new_label)
                 graph[state][next_state]['action'] = edge_label
 
-        self.sift_iterations[iteration].replace_graphs(new_graphs)
-        return (any(
+        #self.sift_iterations[iteration].replace_graphs(new_graphs)
+        return (
+        new_graphs,
+        any(
             key not in old_arities or
             arities[key] > old_arities[key]
             for key in arities

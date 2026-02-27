@@ -54,6 +54,7 @@ def get_single_instance_argparser():
     # parser.add_argument("-vn", "--verification_number_inputs", type=int, required=False, default=1, help="number of sampled inputs if mode is not fg")
     # parser.add_argument("-vt", "--verification_termination", action=argparse.BooleanOptionalAction, required=False, help="If set the verification stops at the first wrong predicate.")
     parser.add_argument("-am", "--argument_mask", type=Path, required=False, help="hide certain implicit arguments from sift to test argument recovery.")
+    parser.add_argument("-pm", "--predicate_mask", type=Path, required=False, help="show certain original predicates to synth for argument recovery.")
     parser.add_argument("-ai", "--argument_recovery_max_iterations", type=int, default=0, required=False, help="how may iterations to search for implicit arguments.")
     return parser
 
@@ -121,7 +122,8 @@ def create_single_graph_from_input(
     introduce_false_edge : bool = False,
     static_relaxed_domain_path : str = None,
     static_relaxed_problem_path : str = None,
-    arg_mask : dict = dict()
+    arg_mask : dict = dict(),
+    predicate_mask : dict = dict()
 ) -> tuple[nx.DiGraph, int, dict, dict]:
     try:
         if num_input < 0 or num_input >= number_inputs:
@@ -146,7 +148,8 @@ def create_single_graph_from_input(
                 pddl_holder,
                 introduce_false_edge,
                 static_relaxed_pddl_holder,
-                arg_mask
+                arg_mask,
+                predicate_mask
             )
         elif mode == 'bpg' or mode == 'pg':
             ret = bfs_state_space(
@@ -155,7 +158,8 @@ def create_single_graph_from_input(
                 num_input,
                 introduce_false_edge,
                 static_relaxed_pddl_holder,
-                arg_mask
+                arg_mask,
+                predicate_mask
             )
         elif mode == 'dpg':
             ret = dfs_state_space(
@@ -164,7 +168,8 @@ def create_single_graph_from_input(
                 num_input,
                 introduce_false_edge,
                 static_relaxed_pddl_holder,
-                arg_mask
+                arg_mask,
+                predicate_mask
             )
         elif mode == 'rpg':
             ret = rand_state_space(
@@ -173,7 +178,8 @@ def create_single_graph_from_input(
                 num_input,
                 introduce_false_edge,
                 static_relaxed_pddl_holder,
-                arg_mask
+                arg_mask,
+                predicate_mask
             )
         elif mode == 'rl':
             ret = get_trace_rl(
@@ -182,7 +188,8 @@ def create_single_graph_from_input(
                 num_input,
                 introduce_false_edge,
                 static_relaxed_pddl_holder,
-                arg_mask
+                arg_mask,
+                predicate_mask
             )
         elif mode == 'st':
             ret = get_trace_simple(
@@ -191,7 +198,8 @@ def create_single_graph_from_input(
                 num_input,
                 introduce_false_edge,
                 static_relaxed_pddl_holder,
-                arg_mask
+                arg_mask,
+                predicate_mask
             )
         else:
             return None
@@ -223,7 +231,8 @@ def create_multiple_graphs_from_input(
     domain_path : str,
     input_list : list[dict],
     process_pool_args : dict,
-    arg_mask : dict = dict()
+    arg_mask : dict = dict(),
+    predicate_mask : dict = dict()
 ) -> tuple[list[tuple[nx.DiGraph, int, dict, dict]],list[tuple[nx.DiGraph, int, dict, dict]]]:
     futures = list()
     instance_list_pos = list()
@@ -256,7 +265,8 @@ def create_multiple_graphs_from_input(
                             introduce_false_edge,
                             static_relaxed_domain_path,
                             static_relaxed_problem_path,
-                            arg_mask
+                            arg_mask,
+                            predicate_mask
                         )
                     ))
             except Exception as e:
@@ -278,7 +288,8 @@ def get_verification_instances(
     verification_input : list[str],
     process_pool_args : dict,
     static_relaxed_domain_path : str = None,
-    arg_mask : dict = dict()
+    arg_mask : dict = dict(),
+    predicate_mask : dict = dict()
 ):
     #if static_relaxed_domain_path is None:
     #    static_relaxed_domain_path = domain_path
@@ -367,7 +378,8 @@ def get_verification_instances(
         domain_path,
         generation_tasks,
         process_pool_args,
-        arg_mask
+        arg_mask,
+        predicate_mask
     )
     instances = [
         (False, [(elem[0], elem[1]) for elem in instance_list_pos if elem is not None]),
@@ -569,14 +581,36 @@ def compare_action_arguments(
     return conflicts, orig_indices
 
 def read_dict_from_file(filename):
-    result = {}
+    result = dict()
 
     with open(filename, 'r') as file:
         for line in file:
-            key, values = line.strip().split(':')
-            key = key.strip()
-            value_set = set(int(v.strip()) for v in values.split(','))
-            result[key] = value_set
+            if line.strip():
+                try:
+                    key, values = line.strip().split(':', 1)
+                    key = key.strip()
+                    value_set = set(int(v.strip()) for v in values.split(','))
+                    result[key] = value_set
+                except Exception as e:
+                    sys.stderr.write(f"Error {e} happened while parsing {line}")
+                    continue
+
+    return result
+
+def read_pred_dict_from_file(filename):
+    result = dict()
+
+    with open(filename, 'r') as file:
+        for line in file:
+            if line.strip():
+                try:
+                    key, value = line.strip().split(':', 1)
+                    key = key.strip()
+                    value = value.strip()
+                    result[key] = value
+                except Exception as e:
+                    sys.stderr.write(f"Error {e} happened while parsing {line}")
+                    continue
 
     return result
 
@@ -783,6 +817,7 @@ def process_instance(args: argparse.Namespace):
     recover_args_mode = False
     argument_mask_file = args.argument_mask
     if argument_mask_file:
+        predicate_mask_file = args.predicate_mask
         recover_args_mode = True
         mask_dict = read_dict_from_file(argument_mask_file)
         max_iterations = args.argument_recovery_max_iterations
@@ -790,6 +825,10 @@ def process_instance(args: argparse.Namespace):
         if max_iterations < 0:
             max_iterations = -max_iterations
             find_oi_features_in_last_iteration = True
+        if predicate_mask_file:
+            predicate_mask = read_pred_dict_from_file(predicate_mask_file)
+        else:
+            predicate_mask = dict()
 
     instance_dict = dict()
     instance_backup_dict = dict()
@@ -818,7 +857,8 @@ def process_instance(args: argparse.Namespace):
         domain_path,
         generation_tasks,
         process_pool_args,
-        mask_dict
+        mask_dict,
+        predicate_mask
     )
 
 
@@ -978,7 +1018,8 @@ def process_instance(args: argparse.Namespace):
                 args.verification_instance,
                 process_pool_args,
                 static_relaxed_domain_path,
-                mask_dict
+                mask_dict,
+                predicate_mask
             )
             for neg_mode, graph_list in verification_cases:
                 for graph, _ in graph_list:
@@ -1097,6 +1138,7 @@ def process_instance(args: argparse.Namespace):
                 args.verification_instance,
                 process_pool_args,
                 static_relaxed_domain_path,
+                dict(),
                 dict()
             )
             print(f"{ut.format_cur_time()}: Verifing learned Domain", flush=True)

@@ -7,6 +7,7 @@ class mimir_holder:
         self.domain_path = domain_path
         self.problem_path = problem_path
         self.complete_statespace = None
+        self.str_object_mapping = None
         self.object_mapping = None
         self.inverse_object_mapping = None
         self.action_mapping = None
@@ -28,15 +29,23 @@ class mimir_holder:
             )
         return self.complete_statespace
 
-    def get_object_mapping(self):
-        if self.object_mapping is None:
-            self.object_mapping = {_obj.get_name(): _obj_num for _obj_num, _obj in enumerate(self.pddl_parser.get_problem().get_objects())}
-        return self.object_mapping
+    def get_object_mapping(self, use_strings_as_id : bool = False):
+        if use_strings_as_id:
+            if self.str_object_mapping is None:
+                self.str_object_mapping = {_obj.get_name(): _obj.get_name() for _obj in self.pddl_parser.get_problem().get_objects()}
+            return self.str_object_mapping
+        else:
+            if self.object_mapping is None:
+                self.object_mapping = {_obj.get_name(): _obj_num for _obj_num, _obj in enumerate(self.pddl_parser.get_problem().get_objects())}
+            return self.object_mapping
 
-    def get_inverse_object_mapping(self):
-        if self.inverse_object_mapping is None:
-            self.inverse_object_mapping = {_obj_num: _obj_name for _obj_name, _obj_num in self.get_object_mapping().items()}
-        return self.inverse_object_mapping
+    def get_inverse_object_mapping(self, use_strings_as_id : bool = False):
+        if use_strings_as_id:
+            return self.get_object_mapping(use_strings_as_id)
+        else:
+            if self.inverse_object_mapping is None:
+                self.inverse_object_mapping = {_obj_num: _obj_name for _obj_name, _obj_num in self.get_object_mapping().items()}
+            return self.inverse_object_mapping
 
     def get_action_mapping_and_arity(self):
         if self.action_mapping is None:

@@ -67,11 +67,13 @@ class Graph_Holder:
         #Remember merged nodes
         merged_nodes_rem = graph.nodes[node_rem].get('merged')
         if merged_nodes_rem is not None:
+            merged_nodes_rem = merged_nodes_rem.copy()
             merged_nodes_rem.add(node_rem)
         else:
             merged_nodes_rem = {node_rem}
         merged_nodes_keep = graph.nodes[node_keep].get('merged')
         if merged_nodes_keep is not None:
+            merged_nodes_keep = merged_nodes_keep.copy()
             merged_nodes_keep.update(merged_nodes_rem)
         else:
             merged_nodes_keep = merged_nodes_rem
