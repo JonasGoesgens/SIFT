@@ -468,6 +468,7 @@ class Argument_Recovery_Sift:
         feature_index_list : List[Tuple[Feature, int]]
     ) -> Dict[int, Tuple[pt.GraphT, pt.NodeT]]:
         for instance, (graph, init) in graphs.items():
+            open_nodes = set()
             for in_node, out_node, edge_labels in graph.edges(data=pt.Edge_Label_key):
                 for feature, split_index in feature_index_list:
                     arity = feature.get_arity()
@@ -490,13 +491,77 @@ class Argument_Recovery_Sift:
                         out_node_atoms_dict[arity] = dict()
                     if predicate not in out_node_atoms_dict[arity]:
                         out_node_atoms_dict[arity][predicate] = (set(),set())
+                    old_in_atoms = tuple(s.copy() for s in in_node_atoms_dict[arity][predicate])
+                    old_out_atoms = tuple(s.copy() for s in out_node_atoms_dict[arity][predicate])
                     in_node_atoms_dict[arity][predicate][0].update(neg_ground_eff)
                     in_node_atoms_dict[arity][predicate][1].update(pos_ground_eff)
                     out_node_atoms_dict[arity][predicate][0].update(pos_ground_eff)
                     out_node_atoms_dict[arity][predicate][1].update(neg_ground_eff)
-            graph.nodes[in_node][pt.Atom_List_key] = in_node_atoms_dict
-            graph.nodes[out_node][pt.Atom_List_key] = out_node_atoms_dict
-        #TODO propagate atoms though inactive edges.
+                    if any(
+                        s.difference(o_s)
+                        for o_s, s in zip(old_in_atoms, in_node_atoms_dict[arity][predicate])
+                    ):
+                        open_nodes.add(in_node)
+                    if any(
+                        s.difference(o_s)
+                        for o_s, s in zip(old_out_atoms, out_node_atoms_dict[arity][predicate])
+                    ):
+                        open_nodes.add(out_node)
+                graph.nodes[in_node][pt.Atom_List_key] = in_node_atoms_dict
+                graph.nodes[out_node][pt.Atom_List_key] = out_node_atoms_dict
+            while open_nodes:
+                old_open_nodes = open_nodes
+                open_nodes = set()
+                for node in old_open_nodes:
+                    for edges, a, b in [
+                        [graph.out_edges([node],data='action'), 1, 0],
+                        [graph.in_edges([node],data='action'), 0, 1]
+                    ]:
+                        for edge in edges:
+                            other_node = edge[a]
+                            edge_labels = edge[2]
+                            for feature, split_index in feature_index_list:
+                                arity = feature.get_arity()
+                                (
+                                    pos_ground_eff,
+                                    neg_ground_eff,
+                                    unk_ground_eff
+                                ) = feature.apply_edge_label(
+                                    edge_labels,
+                                    split_index
+                                )
+                                node_atoms_dict = graph.nodes[node].get(pt.Atom_List_key, dict())
+                                other_node_atoms_dict = graph.nodes[other_node].get(pt.Atom_List_key, dict())
+                                predicate = feature.get_identifier()
+                                if arity not in node_atoms_dict:
+                                    node_atoms_dict[arity] = dict()
+                                if predicate not in node_atoms_dict[arity]:
+                                    node_atoms_dict[arity][predicate] = (set(),set())
+                                if arity not in other_node_atoms_dict:
+                                    other_node_atoms_dict[arity] = dict()
+                                if predicate not in other_node_atoms_dict[arity]:
+                                    other_node_atoms_dict[arity][predicate] = (set(),set())
+                                pos_inertia = node_atoms_dict[arity][predicate][0].difference(
+                                    pos_ground_eff.union(neg_ground_eff)
+                                )
+                                neg_inertia = node_atoms_dict[arity][predicate][1].difference(
+                                    pos_ground_eff.union(neg_ground_eff)
+                                )
+                                pos_unknown = unk_ground_eff.intersection(pos_inertia)
+                                neg_unknown = unk_ground_eff.intersection(neg_inertia)
+                                pos_inertia.difference_update(unk_ground_eff)
+                                neg_inertia.difference_update(unk_ground_eff)
+                                #TODO detailed update for unknown case.
+                                old_other_atoms = tuple(s.copy() for s in other_node_atoms_dict[arity][predicate])
+                                other_node_atoms_dict[arity][predicate][0].update(pos_inertia)
+                                other_node_atoms_dict[arity][predicate][1].update(neg_inertia)
+                                if any(
+                                    s.difference(o_s)
+                                    for o_s, s in zip(old_other_atoms, other_node_atoms_dict[arity][predicate])
+                                ):
+                                    open_nodes.add(other_node)
+                            graph.nodes[node][pt.Atom_List_key] = node_atoms_dict
+                            graph.nodes[other_node][pt.Atom_List_key] = other_node_atoms_dict
         return graphs
 
     def update_graphs(self,
