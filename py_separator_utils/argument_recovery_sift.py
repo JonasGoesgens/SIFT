@@ -9,7 +9,7 @@ import copy
 import sys
 import time
 import warnings
-from typing import Set, List, Tuple, Dict, Union
+from typing import Set, List, Tuple, Dict, Union, Iterable
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 
 class StratificationError(Exception):
@@ -384,9 +384,16 @@ class Argument_Recovery_Sift:
             for feature in self.sift_iterations[iteration - 1].admissible_features:
                 if feature.has_unique_colouring():
                     feature_index_list.append((feature,0))
+            all_objects = dict()
+            for instance, obj in self.sift_iterations[iteration - 1].LOCM_types.obj_types:
+                if instance not in all_objects:
+                    all_objects[instance] = set()
+                all_objects[instance].add(obj)
             new_graphs = self.label_graph_with_atoms(
                 new_graphs,
-                feature_index_list
+                feature_index_list,
+                self.revised_oi_features[iteration - 1],
+                all_objects
             )
             #TODO submit new_graphs to synth
             new_graphs = synth_update_graphs(new_graphs)
@@ -465,7 +472,9 @@ class Argument_Recovery_Sift:
 
     def label_graph_with_atoms(self,
         graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
-        feature_index_list : List[Tuple[Feature, int]]
+        feature_index_list : List[Tuple[Feature, int]],
+        oi_features : Iterable[OIFeature],
+        all_objects : Dict[int, Iterable[pt.ObjectT]]
     ) -> Dict[int, Tuple[pt.GraphT, pt.NodeT]]:
         for instance, (graph, init) in graphs.items():
             open_nodes = set()
@@ -562,6 +571,30 @@ class Argument_Recovery_Sift:
                                     open_nodes.add(other_node)
                             graph.nodes[node][pt.Atom_List_key] = node_atoms_dict
                             graph.nodes[other_node][pt.Atom_List_key] = other_node_atoms_dict
+            for node in graph.nodes():
+                node_atoms_dict = graph.nodes[node].get(pt.Atom_List_key, dict())
+                for oi_feature in oi_features:
+                    arity = oi_feature.get_arity()
+                    predicate = oi_feature.get_identifier()
+                    if arity not in node_atoms_dict:
+                        node_atoms_dict[arity] = dict()
+                    if predicate not in node_atoms_dict[arity]:
+                        node_atoms_dict[arity][predicate] = (set(),set())
+                    for grounding, id_object in oi_feature.object_memory.get((instance, node), dict()).items():
+                        if id_object == None:
+                            continue
+                        elif id_object == pt.ObjectNotKnown:
+                            continue
+                        all_relevant_objects = all_objects.get(instance, set())
+                        if id_object == pt.ObjectNotExisting:
+                            for obj in all_relevant_objects:
+                                node_atoms_dict[arity][predicate][1].add(grounding + (obj,))
+                        else:
+                            node_atoms_dict[arity][predicate][0].add(grounding + (id_object,))
+                            for obj in all_relevant_objects:
+                                if obj != id_object:
+                                    node_atoms_dict[arity][predicate][1].add(grounding + (obj,))
+
         return graphs
 
     def update_graphs(self,

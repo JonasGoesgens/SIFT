@@ -43,6 +43,7 @@ class Ordered_Identifier_Feature:
         #dict (instance, state, pt.Ground_Edge_Info, identifier_pattern) -> object
         #Ground_Edge_Info and identifier pattern fix the grounding
         self.additional_arguments = dict()
+        self.object_memory = dict()
 
     def overwrite_feature(self, other : 'Ordered_Identifier_Feature') -> None:
         if not isinstance(other, Ordered_Identifier_Feature):
@@ -54,6 +55,7 @@ class Ordered_Identifier_Feature:
             self.argument_identifier_patterns = other.argument_identifier_patterns
             self.additional_arguments = ut.safe_copy(other.additional_arguments)
             self.disabled_pre_patterns = other.disabled_pre_patterns.copy()
+            self.object_memory = other.object_memory.copy()
 
     def update_argument_identifier_patterns(self) -> Tuple[pt.PatternT, ...]:
         new_argument_identifier_patterns = tuple(sorted(
@@ -69,6 +71,9 @@ class Ordered_Identifier_Feature:
 
     def get_type_combination(self) -> pt.TypeCombi:
         return self.type_combination
+
+    def get_arity(self) -> int:
+        return self.get_type_combination().size() + 1
 
     def set_type_combination(self, type_combination : pt.TypeCombi) -> None:
         self.type_combination = type_combination
@@ -363,6 +368,17 @@ class Ordered_Identifier_Feature:
             #This rule requires to see all fluent atoms of an instance changed.
             #This rule is the equivalent of the synth rule that a query is not allowed to be empty when used.
             self.disabled_pre_patterns.update(active_precondition_patterns)
+        #store object memory for labeling the graph for synth.
+        for state_repr, id_object in object_memory.items():
+            state_label = graph.nodes[state_repr].get('merged')
+            if state_label is None:
+                state_label = {state_repr}
+            else:
+                state_label.add(state_repr)
+            for state in state_label:
+                if (instance, state) not in self.object_memory:
+                    self.object_memory[(instance, state)] = dict()
+                self.object_memory[(instance, state)][grounding] = id_object
         return object_memory
 
     def get_identifier(self) -> Tuple[FrozenSet[pt.PatternT],FrozenSet[pt.PatternT]]:
@@ -467,6 +483,7 @@ class Ordered_Identifier_Feature:
     def delete_identified_arguments(self) -> None:
         if not self.is_invalid():
             self.additional_arguments = dict()
+        self.object_memory = dict()
 
     def get_type_sorted_feature(self,
         locm_types : LOCM_Types,
@@ -510,10 +527,24 @@ class Ordered_Identifier_Feature:
             new_oi_feature.argument_identifier_patterns = tuple(pattern_mapping[pattern] for pattern in self.argument_identifier_patterns)
             if self.additional_arguments is None:
                 new_oi_feature.additional_arguments = None
+                new_oi_feature.object_memory = dict()
             else:
                 new_oi_feature.additional_arguments = dict()
                 for (instance, state, label, pattern), identified_object in self.additional_arguments.items():
                     new_oi_feature.additional_arguments[(instance, state, label, pattern_mapping[pattern])] = identified_object
+                new_oi_feature.object_memory = dict()
+                grounding_mapping = dict()
+                for (instance, state), mem_dict in self.object_memory.items():
+                    if (instance, state) not in new_oi_feature.object_memory:
+                        new_oi_feature.object_memory[(instance, state)] = dict()
+                    for grounding, id_object in mem_dict.items():
+                        if grounding not in grounding_mapping:
+                            new_grounding = tuple(sorted(
+                                grounding,
+                                key=lambda x: locm_types.get_obj_type((instance,x))
+                            ))
+                            grounding_mapping[grounding] = new_grounding
+                        new_oi_feature.object_memory[(instance, state)][grounding_mapping[grounding]] = id_object
 
             return new_oi_feature
         except KeyError as e:
