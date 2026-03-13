@@ -45,9 +45,9 @@ def get_single_instance_argparser():
     parser.add_argument("-p", "--processes", type=int, required=True, help="number of max. parallel processes, 1 means sequential algorihtm")
     parser.add_argument("-o", "--output", type=str, required=False, help='name of output file')
     parser.add_argument("-lm", "--learning_mode", type=str, required=False, default='fg', 
-                        help='Defines the input to the learinig alg. \n fg = full graphs (default)\n (b,d,r)pg = partial graphs in (bfs, dfs, rand) expansion\n st= simple traces\n rl= rl style traces')
+                        help='Defines the input to the learning alg. \n fg = full graphs (default)\n (b,d,r)pg = partial graphs in (bfs, dfs, rand) expansion\n st= simple traces\n rl= rl style traces')
     # parser.add_argument("-vm", "--verification_mode", type=str, required=False, default='fg', 
-    #                     help='Defines the input to the learinig alg. \n fg = full graphs (default)\n pg = partial graphs\n st= simple traces\n rl= rl style traces')
+    #                     help='Defines the input to the learning alg. \n fg = full graphs (default)\n pg = partial graphs\n st= simple traces\n rl= rl style traces')
     parser.add_argument("-ls", "--learning_size", type=int, required=False, help="size of the input if mode is not fg")
     # parser.add_argument("-vs", "--verification_size", type=int, required=False, help="size of the input if mode is not fg")
     parser.add_argument("-ln", "--learning_number_inputs", type=int, required=False, default=1, help="number of sampled inputs if mode is not fg")
