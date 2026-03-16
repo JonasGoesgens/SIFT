@@ -35,7 +35,7 @@ import copy
 import itertools
 from collections import defaultdict
 from functools import lru_cache
-from typing import override
+from typing_extensions import override
 
 import networkx as nx
 from py_separator_utils.synth_dependencies.mimir_things import mimir_thing

@@ -1,0 +1,49 @@
+Bootstrap: docker
+From: python:3.11
+
+%post
+    # Update und installiere benötigte Pakete
+    apt-get update && apt-get install -y \
+        build-essential \
+        cmake \
+        procps \
+        gringo \
+        time \
+        && rm -rf /var/lib/apt/lists/*
+
+    # Installiere die Python-Pakete aus den Anforderungen
+    pip install --root-user-action=ignore --upgrade pip
+    pip install --root-user-action=ignore -r /sift/requirements-synth-plus.txt
+
+%environment
+    export PYTHONPATH=/usr/local/lib/python3.11/site-packages:$PYTHONPATH
+
+%runscript
+    date
+    start_time=$(date +%s)
+    start_date=$(date)
+    processed_args=""
+    for arg in "$@"; do
+        if echo "$arg" | grep -q '/'; then
+            processed_arg=$(basename "$arg")
+        else
+            processed_arg="$arg"
+        fi
+        processed_arg=$(echo "$processed_arg" | sed 's/\./_/g; s/[^a-zA-Z0-9_-]/_/g')
+        processed_args="${processed_args}${processed_arg}_"
+    done
+    mkdir -p output/resource_usage
+    resource_file="resource_usage_${processed_args%_}.txt"
+    #resource_file="resource_usage_$(echo "$@" | sed 's/[^a-zA-Z0-9_-]/_/g').txt"
+    resource_file="output/resource_usage/$resource_file"
+    /usr/bin/time -v --output="$resource_file" python3.11 "$@"
+    end_time=$(date +%s)
+    end_date=$(date)
+    duration=$(( end_time - start_time ))
+    echo "Process started at: $start_date"
+    echo "Process ended at: $end_date"
+    echo "Runtime: $duration Seconds."
+    echo "Resource usage:"
+    cat "$resource_file"
+%files
+    ./requirements.txt /sift/requirements.txt
