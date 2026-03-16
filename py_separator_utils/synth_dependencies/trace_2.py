@@ -35,10 +35,10 @@ import copy
 import itertools
 from collections import defaultdict
 from functools import lru_cache
-from typing import override
+from typing_extensions import override
 
 import networkx as nx
-from py_separator_utils.mimir_things import mimir_thing
+from py_separator_utils.synth_dependencies.mimir_things import mimir_thing
 
 
 # Effect signs: NEG = delete effect, POS = add effect
@@ -902,8 +902,11 @@ def _compute_effects_from_states(pre_atoms, post_atoms, dropped_preds):
     for pred in all_preds:
         if pred in dropped_preds:
             continue
-        pre = pre_atoms.get(pred, set())
-        post = post_atoms.get(pred, set())
+        pre_raw = pre_atoms.get(pred, set())
+        post_raw = post_atoms.get(pred, set())
+        # Normalize: if values are dicts (e.g. {tuple: count}), use their keys as sets
+        pre = set(pre_raw) if isinstance(pre_raw, dict) else pre_raw
+        post = set(post_raw) if isinstance(post_raw, dict) else post_raw
         adds = post - pre
         dels = pre - post
 
@@ -1123,23 +1126,20 @@ class CopiedTrace(Trace):
                 self.parsed_state_dict[1 + action_index + half] = parsed_states[False]
         else:
             # Graph-backed: split atoms by action-argument membership directly
-            # Access the parent GraphTrace's node atoms and static atoms
+            # Use true_atoms from the parent GraphTrace
             parent = self._parent_trace
             for action_index, action_objects in enumerate(self.hidden_action_object_trace[:half]):
                 state = self.state_trace[action_index]
                 action_arg_set = set(action_objects)
 
-                # Get all atoms (fluent + static) for this state
-                fluent_atoms = parent._node_atoms.get(state, {})
-                static_atoms = parent._static_atoms
+                # Get true atoms for this state
+                true_atoms = parent._node_true_atoms.get(state, {})
 
                 # Split: atoms with action args vs. atoms without
                 atoms_with = {}      # contains at least one action arg
                 atoms_without = {}   # no action args
 
-                for p_name, groundings in itertools.chain(
-                    fluent_atoms.items(), static_atoms.items()
-                ):
+                for p_name, groundings in true_atoms.items():
                     if p_name in self.types_list:
                         continue
                     for objs in groundings:
@@ -1244,22 +1244,28 @@ class ExtendedTrace(Trace):
 
 
 class GraphTrace(Trace):
-    """A trace constructed from pre-built labelled graph(s) instead of PDDL simulation.
+    """A doubled trace from pre-built labelled graph(s), with open/closed world halves.
 
     Accepts either a single networkx DiGraph or a dict of graphs where:
-      - Nodes carry an 'atoms' attribute: {pred_name: set of object-index tuples}
-        (includes both fluent and static atoms — statics are merged into node labels)
+      - Nodes carry an 'atoms' attribute: {arity: {pred: (true_groundings, false_groundings)}}
+        where true/false_groundings are sets of object-index tuples.
+        Atoms not in either set are considered unknown.
       - Edges carry an 'action' attribute: set of (action_name, action_objects_tuple)
+
+    The trace is doubled like CopiedTrace (length = 2 * num_edges):
+      - First half  (0..L-1):   unknown atoms assumed FALSE → state = true_groundings only
+      - Second half (L+1..2L):  unknown atoms assumed TRUE  → state = universe - false_groundings
+      - None separator at position L, skipped during iteration
+
+    Effects are derived from true_groundings only (definite changes) and duplicated
+    in both halves. Preconditions use open-world atoms (true + unknown).
 
     Action arities and predicate arities are derived automatically by scanning
     the graph edges and node atoms. No separate metadata dict is needed.
 
     When multiple graphs are provided (as dict[int, nx.DiGraph]), all edges from all
-    graphs are combined into a single flat trace. State identifiers in state_trace are
+    graphs are combined into a single flat trace. State identifiers are
     (graph_id, node_id) tuples to disambiguate nodes across different graphs.
-
-    This allows the learning algorithm to work without pymimir/PDDL. Effects are
-    derived by diffing atom sets of adjacent states. self.problem is set to None.
 
     Args:
         graph: either a single networkx.DiGraph (auto-wrapped as {0: graph}),
@@ -1283,59 +1289,92 @@ class GraphTrace(Trace):
         else:
             graphs = graph
 
-        # Store graph node atom data for state parsing, keyed by (graph_id, node_id)
-        self._node_atoms = {}
-        for gid, g_tuple in graphs.items():
-            g = g_tuple[0]
+        # Parse node labels: {arity: {pred: (true_set, false_set)}}
+        # Flatten into two dicts keyed by (graph_id, node_id)
+        self._node_true_atoms = {}   # {(gid, nid): {pred: set of tuples}}
+        self._node_false_atoms = {}  # {(gid, nid): {pred: set of tuples}}
+        pred_arity_dict = {}
+
+        for gid, g in graphs.items():
             for node in g.nodes():
-                self._node_atoms[(gid, node)] = g.nodes[node].get('atoms', {})
+                raw = g.nodes[node].get('atoms', {})
+                true_atoms = {}
+                false_atoms = {}
+                for arity, preds in raw.items():
+                    for pred, (true_set, false_set) in preds.items():
+                        true_atoms[pred] = set(true_set)
+                        false_atoms[pred] = set(false_set)
+                        if pred not in pred_arity_dict:
+                            pred_arity_dict[pred] = arity
+                self._node_true_atoms[(gid, node)] = true_atoms
+                self._node_false_atoms[(gid, node)] = false_atoms
 
-        # Static atoms are merged into node labels; no separate storage needed
-        self._static_atoms = {}
-        self._objects_types = {}
+        self.predicate_arity = list(pred_arity_dict.items())
+        self.predicate_arity_dict = dict(pred_arity_dict)
 
-        # Extract all edges from all graphs as the trace
-        # State identifiers are (graph_id, node_id) tuples
-        self.state_trace = []
-        self._reached_states = []
-        self._edge_actions = []  # (action_name, action_objects_tuple) per step
+        # Extract all edges from all graphs (undoubled, raw)
+        raw_state_trace = []
+        raw_reached_states = []
+        self._edge_actions = []
 
-        for gid, g_tuple in graphs.items():
-            g = g_tuple[0]
+        for gid, g in graphs.items():
             for src, dst, data in g.edges(data=True):
                 action_set = data.get('action', set())
                 for action_name, action_objects in action_set:
-                    self.state_trace.append((gid, src))
-                    self._reached_states.append((gid, dst))
+                    raw_state_trace.append((gid, src))
+                    raw_reached_states.append((gid, dst))
                     self._edge_actions.append((action_name, action_objects))
 
-        self.length = len(self._edge_actions)
-        self.action_trace = self._edge_actions  # kept for interface compat
+        num_edges = len(self._edge_actions)
 
-        # Build action name/object lists directly
-        self.action_name_list = [a[0] for a in self._edge_actions]
-        self.action_object_list = [list(a[1]) for a in self._edge_actions]
+        # Keep undoubled references for parse_state and to_graphs
+        self._raw_state_trace = raw_state_trace
+        self._raw_reached_states = raw_reached_states
 
-        # Derive action_arity by scanning all edge labels
+        # Build raw (undoubled) action lists
+        raw_action_names = [a[0] for a in self._edge_actions]
+        raw_action_objects = [list(a[1]) for a in self._edge_actions]
+
+        # Derive action_arity from edge labels
         self.action_arity = {}
         for action_name, action_objects in self._edge_actions:
             if action_name not in self.action_arity:
                 self.action_arity[action_name] = len(action_objects)
 
-        # Derive predicate_arity by scanning all node atom dicts
-        pred_arity_dict = {}
-        for atoms in self._node_atoms.values():
-            for pred_name, groundings in atoms.items():
-                if pred_name not in pred_arity_dict:
-                    for grounding in groundings:
-                        pred_arity_dict[pred_name] = len(grounding)
-                        break
-        self.predicate_arity = list(pred_arity_dict.items())
-        self.predicate_arity_dict = dict(pred_arity_dict)
+        # Collect all object indices for universe computation
+        self._all_objects = set()
+        for atoms in self._node_true_atoms.values():
+            for groundings in atoms.values():
+                for tup in groundings:
+                    self._all_objects.update(tup)
+        for atoms in self._node_false_atoms.values():
+            for groundings in atoms.values():
+                for tup in groundings:
+                    self._all_objects.update(tup)
+        for _, action_objects in self._edge_actions:
+            self._all_objects.update(action_objects)
+        self._universe_cache = {}
+
+        # --- Doubling (like CopiedTrace) ---
+        # Length is 2 * num_edges, with None separator at position num_edges
+        self.length = 2 * num_edges
+
+        self.state_trace = raw_state_trace + raw_state_trace.copy()
+        self.action_trace = self._edge_actions + [None] + self._edge_actions
+        self.action_name_list = (
+            raw_action_names.copy() + [None] + raw_action_names.copy()
+        )
+        self.action_object_list = (
+            [lst.copy() for lst in raw_action_objects] + [None]
+            + [lst.copy() for lst in raw_action_objects]
+        )
 
         # Ground-truth arguments (same as visible since graph has full data)
         self.hidden_action_arity = self.action_arity.copy()
-        self.hidden_action_object_trace = [lst.copy() for lst in self.action_object_list]
+        self.hidden_action_object_trace = (
+            [lst.copy() for lst in raw_action_objects] + [None]
+            + [lst.copy() for lst in raw_action_objects]
+        )
 
         self.parsed_state_dict = {}
 
@@ -1343,7 +1382,10 @@ class GraphTrace(Trace):
         self._apply_dropped_args()
 
         # Snapshot post-drop / pre-extension state for CopiedTrace
-        self.initial_action_object_list = [lst.copy() for lst in self.action_object_list]
+        self.initial_action_object_list = [
+            lst.copy() if lst is not None else None
+            for lst in self.action_object_list
+        ]
         self.initial_arities = self.action_arity.copy()
 
         self._action_indices = self._build_action_indices()
@@ -1353,25 +1395,29 @@ class GraphTrace(Trace):
             for action, arity in self.action_arity.items()
         }
 
-        # Pre-compute effects by diffing adjacent state atom sets
-        self.affected_object_list = []
-        self.affected_tuple_list = []
-        for pos in range(self.length):
-            src = self.state_trace[pos]
-            dst = self._reached_states[pos]
-            pre_atoms = self._get_full_atoms(src)
-            post_atoms = self._get_full_atoms(dst)
+        # Pre-compute effects from true_groundings only (definite changes)
+        raw_affected_obj = []
+        raw_affected_tup = []
+        for pos in range(num_edges):
+            src = raw_state_trace[pos]
+            dst = raw_reached_states[pos]
+            pre_atoms = self._node_true_atoms.get(src, {})
+            post_atoms = self._node_true_atoms.get(dst, {})
             position_dict, tuple_dict = _compute_effects_from_states(
                 pre_atoms, post_atoms, self.dropped_preds)
-            self.affected_object_list.append(position_dict)
-            self.affected_tuple_list.append(tuple_dict)
+            raw_affected_obj.append(position_dict)
+            raw_affected_tup.append(tuple_dict)
+
+        # Double effects with None separator (same effects in both halves)
+        self.affected_object_list = raw_affected_obj + [None] + raw_affected_obj
+        self.affected_tuple_list = raw_affected_tup + [None] + raw_affected_tup
 
         self.effect_mapping = set()
 
         # Build mask-based pattern dictionaries
         self.candidate_dict = self.predicate_patterns()
 
-        # Compute precondition mappings
+        # Compute precondition mappings (uses open-world atoms)
         self.grounding_preconditions_pos, self.grounding_preconditions_neg, \
             self.mask_pre_pos, self.mask_pre_neg = self._compute_grounding_preconditions()
 
@@ -1384,32 +1430,66 @@ class GraphTrace(Trace):
         self.predicate_types = None
         self.set_predicate_types()
 
+    def _get_universe(self, pred, arity):
+        """Get or compute the set of all possible groundings for a predicate."""
+        key = (pred, arity)
+        if key not in self._universe_cache:
+            self._universe_cache[key] = set(
+                itertools.product(sorted(self._all_objects), repeat=arity))
+        return self._universe_cache[key]
+
+    def _get_open_world_atoms(self, node):
+        """Get atoms under open-world assumption: universe minus false_groundings."""
+        false_atoms = self._node_false_atoms.get(node, {})
+        open_atoms = {}
+        for pred, arity in self.predicate_arity_dict.items():
+            if pred in self.dropped_preds:
+                continue
+            universe = self._get_universe(pred, arity)
+            false_set = false_atoms.get(pred, set())
+            open_set = universe - false_set
+            if open_set:
+                open_atoms[pred] = open_set
+        return open_atoms
+
     def to_graphs(self) -> dict[int, nx.DiGraph]:
         """Reconstruct individual graphs from the trace, with current action arguments.
 
         Returns a dict mapping graph_id → nx.DiGraph. Each returned graph has:
-          - Nodes with 'atoms' attribute: {pred_name: set of object-index tuples}
+          - Nodes with 'atoms' attribute: {arity: {pred: (true_set, false_set)}}
           - Edges with 'action' attribute: set of (action_name, action_objects_tuple)
 
         Action objects reflect the current state of action_object_list, which may
         include arguments added during learning (via add_arguments).
+        Uses only the first half of the doubled trace (both halves have the same edges).
         """
+        half = self.length // 2
         graphs = {}
-        for pos in range(self.length):
-            gid_src, nid_src = self.state_trace[pos]
-            gid_dst, nid_dst = self._reached_states[pos]
+        for pos in range(half):
+            gid_src, nid_src = self._raw_state_trace[pos]
+            gid_dst, nid_dst = self._raw_reached_states[pos]
 
             if gid_src not in graphs:
                 graphs[gid_src] = nx.DiGraph()
             G = graphs[gid_src]
 
-            # Add source and destination nodes with atom data
-            if nid_src not in G:
-                G.add_node(nid_src, atoms=dict(
-                    self._node_atoms.get((gid_src, nid_src), {})))
-            if nid_dst not in G:
-                G.add_node(nid_dst, atoms=dict(
-                    self._node_atoms.get((gid_dst, nid_dst), {})))
+            # Add source and destination nodes with original atom format
+            for gid, nid in [(gid_src, nid_src), (gid_dst, nid_dst)]:
+                if nid not in G:
+                    # Reconstruct {arity: {pred: (true, false)}} from flat dicts
+                    true_a = self._node_true_atoms.get((gid, nid), {})
+                    false_a = self._node_false_atoms.get((gid, nid), {})
+                    all_preds = set(true_a.keys()) | set(false_a.keys())
+                    node_atoms = {}
+                    for pred in all_preds:
+                        arity = self.predicate_arity_dict.get(pred, 0)
+                        if arity not in node_atoms:
+                            node_atoms[arity] = {}
+                        node_atoms[arity][pred] = (
+                            true_a.get(pred, set()),
+                            false_a.get(pred, set()),
+                        )
+                    G.add_node(nid, atoms=node_atoms)
 
             # Build action label with CURRENT (possibly extended) arguments
             action_label = (
@@ -1423,79 +1503,46 @@ class GraphTrace(Trace):
 
         return graphs
 
-    def _get_full_atoms(self, node):
-        """Get full atom set for a node, merging fluent and static atoms."""
-        atoms = dict(self._node_atoms.get(node, {}))
-        for pred, groundings in self._static_atoms.items():
-            if pred in atoms:
-                atoms[pred] = atoms[pred] | groundings
-            else:
-                atoms[pred] = set(groundings)
-        return atoms
+    @override
+    def __iter__(self):
+        """Iterate over valid indices, skipping the None separator at length//2."""
+        return _CountUpSkip(self.length)
 
     @override
     def parse_state(self, trace_position):
-        """Parse state at trace_position using stored atom data instead of pymimir."""
-        state = self.state_trace[trace_position]
-        if state not in self.parsed_state_dict:
-            dicts = copy.deepcopy(self.candidate_dict)
-            atoms = self._node_atoms.get(state, {})
-            _populate_mask_dict(dicts, atoms)
-            self.parsed_state_dict[state] = dicts
-        return self.parsed_state_dict[state]
+        """Parse state with closed-world (first half) or open-world (second half)."""
+        if trace_position in self.parsed_state_dict:
+            return self.parsed_state_dict[trace_position]
+
+        half = self.length // 2
+        # Map doubled position to the raw (undoubled) position
+        raw_pos = trace_position if trace_position < half else trace_position - half - 1
+        state = self._raw_state_trace[raw_pos]
+
+        dicts = copy.deepcopy(self.candidate_dict)
+
+        if trace_position < half:
+            # First half: closed world — only true groundings
+            atoms = self._node_true_atoms.get(state, {})
+        else:
+            # Second half: open world — everything NOT in false = universe - false
+            atoms = self._get_open_world_atoms(state)
+
+        _populate_mask_dict(dicts, atoms)
+        self.parsed_state_dict[trace_position] = dicts
+        return dicts
 
     @override
     def set_predicate_types(self):
-        """Compute type constraints from atom data instead of pymimir.
-
-        For each predicate position, determines which unary static types
-        are consistent across all trace states.
-        """
-        if not self._objects_types:
-            self.predicate_types = {
-                pred: {pos: set() for pos in range(arity)}
-                for pred, arity in self.predicate_arity_dict.items()
-            }
-            return
-
-        unary_statics = set(self._objects_types.keys())
-        types = {}
-
-        # Build full state dicts (fluent + static) for all trace states
-        full_states = {}
-        for state in self.state_trace:
-            if state not in full_states:
-                full_atoms = self._get_full_atoms(state)
-                state_dict = {}
-                for p_name, groundings in full_atoms.items():
-                    if p_name in self.dropped_preds:
-                        continue
-                    state_dict[p_name] = set(groundings)
-                full_states[state] = state_dict
-
-        for predicate, arity in self.predicate_arity_dict.items():
-            if predicate in unary_statics:
-                types[predicate] = {0: {predicate}}
-                continue
-
-            possible_types = {
-                pos: set(unary_statics) for pos in range(arity)
-            }
-            for state in full_states.values():
-                if predicate not in state:
-                    continue
-                for grounding in state[predicate]:
-                    for pos in range(arity):
-                        for t in list(possible_types[pos]):
-                            if t not in state or (grounding[pos],) not in state[t]:
-                                possible_types[pos].discard(t)
-            types[predicate] = possible_types
-
-        self.predicate_types = types
+        """Set all predicate types to empty (no type information from graphs)."""
+        self.predicate_types = {
+            pred: {pos: set() for pos in range(arity)}
+            for pred, arity in self.predicate_arity_dict.items()
+        }
 
     @override
     def _compute_grounding_preconditions(self):
-        """Compute precondition mappings using atom data instead of pymimir."""
+        """Compute precondition mappings using open-world atoms (true + unknown)."""
         pos_pre = {}
         neg_pre = {}
         mask_pos = {}
@@ -1523,14 +1570,14 @@ class GraphTrace(Trace):
                     mask_neg[action][predicate] = set(masked)
 
         all_predicates = set(self.predicate_arity_dict.keys())
+        num_edges = len(self._edge_actions)
 
-        # In GraphTrace, state_trace and action lists are parallel (length entries each),
-        # unlike base Trace where state_trace has length+1 entries.
-        for state_num in range(self.length):
-            state = self.state_trace[state_num]
-            full_atoms = self._get_full_atoms(state)
+        # Use open-world atoms for precondition filtering (keeps all possibly-valid ones)
+        for state_num in range(num_edges):
+            state = self._raw_state_trace[state_num]
+            open_atoms = self._get_open_world_atoms(state)
             parsed_state, parsed_full_state = _build_state_precondition_from_atoms(
-                full_atoms, self.dropped_preds)
+                open_atoms, self.dropped_preds)
             cur_action = self.action_name_list[state_num]
             action_objs = self.action_object_list[state_num]
 
@@ -1574,12 +1621,13 @@ class GraphTrace(Trace):
     def get_action_effects(self):
         """Derive effect predicates from observed transitions instead of PDDL domain.
 
-        Scans all trace steps to find which predicates appear in effects of each
-        action, then initializes all action argument positions as candidates.
+        Scans the first half of the trace (both halves have the same effects)
+        to find which predicates appear in effects of each action.
         """
         action_effects = {NEG: {}, POS: {}}
+        half = self.length // 2
 
-        for pos in range(self.length):
+        for pos in range(half):
             a_name = self.action_name_list[pos]
             effects_pos = self.affected_object_list[pos]
             for sign in (NEG, POS):
