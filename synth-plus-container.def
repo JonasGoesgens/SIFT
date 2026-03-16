@@ -13,7 +13,7 @@ From: python:3.11
 
     # Installiere die Python-Pakete aus den Anforderungen
     pip install --root-user-action=ignore --upgrade pip
-    pip install --root-user-action=ignore -r /sift/requirements-synth-plus.txt
+    pip install --root-user-action=ignore -r /sift/requirements.txt
 
 %environment
     export PYTHONPATH=/usr/local/lib/python3.11/site-packages:$PYTHONPATH
@@ -46,4 +46,4 @@ From: python:3.11
     echo "Resource usage:"
     cat "$resource_file"
 %files
-    ./requirements.txt /sift/requirements.txt
+    ./requirements-synth-plus.txt /sift/requirements.txt

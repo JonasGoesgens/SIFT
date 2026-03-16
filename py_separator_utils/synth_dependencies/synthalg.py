@@ -4,7 +4,7 @@ from py_separator_utils.synth_dependencies.trace_2 import GraphTrace
 
 def synth(trace):
     time_start = time.time()
-    new_Trace = GraphTrace(trace)
+    new_Trace = GraphTrace(trace,dict(),dict(),list())
     num_initial_args = sum([ar for action, ar in new_Trace.action_arity.items()])
 
     # TODO check how to handle object types

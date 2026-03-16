@@ -1295,7 +1295,8 @@ class GraphTrace(Trace):
         self._node_false_atoms = {}  # {(gid, nid): {pred: set of tuples}}
         pred_arity_dict = {}
 
-        for gid, g in graphs.items():
+        for gid, g_tuples in graphs.items():
+            g = g_tuples[0]
             for node in g.nodes():
                 raw = g.nodes[node].get('atoms', {})
                 true_atoms = {}
@@ -1317,7 +1318,8 @@ class GraphTrace(Trace):
         raw_reached_states = []
         self._edge_actions = []
 
-        for gid, g in graphs.items():
+        for gid, g_tuples in graphs.items():
+            g = g_tuples[0]
             for src, dst, data in g.edges(data=True):
                 action_set = data.get('action', set())
                 for action_name, action_objects in action_set:
