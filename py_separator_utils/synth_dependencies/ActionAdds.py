@@ -6,9 +6,9 @@ from itertools import repeat
 import pymimir
 from networkx.algorithms.operators.binary import intersection
 
-from py_separator_utils.trace import Trace
-from py_separator_utils.ZFeature import z_feature
-from py_separator_utils.negated_z_features import NegatedZFeature
+from py_separator_utils.synth_dependencies.trace_2 import Trace
+from py_separator_utils.synth_dependencies.ZFeature import z_feature
+from py_separator_utils.synth_dependencies.negated_z_features import NegatedZFeature
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import as_completed, wait
 

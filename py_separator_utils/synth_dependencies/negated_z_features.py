@@ -1,6 +1,6 @@
 from logging import raiseExceptions
 
-from py_separator_utils.trace import Trace
+from py_separator_utils.synth_dependencies.trace_2 import Trace
 
 class NegatedZFeature:
 

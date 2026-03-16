@@ -1,5 +1,5 @@
 import copy
-from py_separator_utils.trace import Trace
+from py_separator_utils.synth_dependencies.trace_2 import Trace
 
 class z_feature:
     def __init__(self, action_pattern, predicate_name, name, predicate_arity):

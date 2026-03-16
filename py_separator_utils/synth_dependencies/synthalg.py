@@ -1,6 +1,6 @@
 import time
-from ActionAdds import AllActionCandidates
-from trace_2 import GraphTrace
+from py_separator_utils.synth_dependencies.ActionAdds import AllActionCandidates
+from py_separator_utils.synth_dependencies.trace_2 import GraphTrace
 
 def synth(trace):
     time_start = time.time()

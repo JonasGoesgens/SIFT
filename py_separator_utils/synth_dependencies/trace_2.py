@@ -38,7 +38,7 @@ from functools import lru_cache
 from typing import override
 
 import networkx as nx
-from py_separator_utils.mimir_things import mimir_thing
+from py_separator_utils.synth_dependencies.mimir_things import mimir_thing
 
 
 # Effect signs: NEG = delete effect, POS = add effect
