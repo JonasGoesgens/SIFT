@@ -35,10 +35,10 @@ import copy
 import itertools
 from collections import defaultdict
 from functools import lru_cache
-from typing_extensions import override
+from typing import override
 
 import networkx as nx
-from py_separator_utils.synth_dependencies.mimir_things import mimir_thing
+from py_separator_utils.mimir_things import mimir_thing
 
 
 # Effect signs: NEG = delete effect, POS = add effect
@@ -1248,7 +1248,11 @@ class GraphTrace(Trace):
 
     Accepts either a single networkx DiGraph or a dict of graphs where:
       - Nodes carry an 'atoms' attribute: {pred_name: set of object-index tuples}
+        (includes both fluent and static atoms — statics are merged into node labels)
       - Edges carry an 'action' attribute: set of (action_name, action_objects_tuple)
+
+    Action arities and predicate arities are derived automatically by scanning
+    the graph edges and node atoms. No separate metadata dict is needed.
 
     When multiple graphs are provided (as dict[int, nx.DiGraph]), all edges from all
     graphs are combined into a single flat trace. State identifiers in state_trace are
@@ -1260,17 +1264,12 @@ class GraphTrace(Trace):
     Args:
         graph: either a single networkx.DiGraph (auto-wrapped as {0: graph}),
             or a dict[int, nx.DiGraph] mapping graph identifiers to graphs.
-        metadata: dict with keys:
-            'action_arity': {action_name: int}
-            'predicate_arity': [(pred_name, arity), ...]
-            'objects_types': {type_pred: set of obj indices}  (optional, default {})
-            'static_atoms': {pred_name: set of tuples}  (optional, default {})
         dropped_args: dict mapping action_name -> set of hidden argument positions, or None.
         dropped_preds: set of predicate names to exclude.
         type_list: list of type predicate names, or path to file, or None.
     """
 
-    def __init__(self, graph: nx.DiGraph | dict[int, nx.DiGraph], metadata: dict,
+    def __init__(self, graph: nx.DiGraph | dict[int, nx.DiGraph],
                  dropped_args: dict, dropped_preds: set, type_list):
         # Bypass Trace.__init__ entirely — we build from graph data
         self.problem = None
@@ -1286,12 +1285,14 @@ class GraphTrace(Trace):
 
         # Store graph node atom data for state parsing, keyed by (graph_id, node_id)
         self._node_atoms = {}
-        for gid, g in graphs.items():
+        for gid, g_tuple in graphs.items():
+            g = g_tuple[0]
             for node in g.nodes():
                 self._node_atoms[(gid, node)] = g.nodes[node].get('atoms', {})
 
-        self._static_atoms = metadata.get('static_atoms', {})
-        self._objects_types = metadata.get('objects_types', {})
+        # Static atoms are merged into node labels; no separate storage needed
+        self._static_atoms = {}
+        self._objects_types = {}
 
         # Extract all edges from all graphs as the trace
         # State identifiers are (graph_id, node_id) tuples
@@ -1299,7 +1300,8 @@ class GraphTrace(Trace):
         self._reached_states = []
         self._edge_actions = []  # (action_name, action_objects_tuple) per step
 
-        for gid, g in graphs.items():
+        for gid, g_tuple in graphs.items():
+            g = g_tuple[0]
             for src, dst, data in g.edges(data=True):
                 action_set = data.get('action', set())
                 for action_name, action_objects in action_set:
@@ -1313,15 +1315,29 @@ class GraphTrace(Trace):
         # Build action name/object lists directly
         self.action_name_list = [a[0] for a in self._edge_actions]
         self.action_object_list = [list(a[1]) for a in self._edge_actions]
-        self.action_arity = dict(metadata['action_arity'])
+
+        # Derive action_arity by scanning all edge labels
+        self.action_arity = {}
+        for action_name, action_objects in self._edge_actions:
+            if action_name not in self.action_arity:
+                self.action_arity[action_name] = len(action_objects)
+
+        # Derive predicate_arity by scanning all node atom dicts
+        pred_arity_dict = {}
+        for atoms in self._node_atoms.values():
+            for pred_name, groundings in atoms.items():
+                if pred_name not in pred_arity_dict:
+                    for grounding in groundings:
+                        pred_arity_dict[pred_name] = len(grounding)
+                        break
+        self.predicate_arity = list(pred_arity_dict.items())
+        self.predicate_arity_dict = dict(pred_arity_dict)
 
         # Ground-truth arguments (same as visible since graph has full data)
         self.hidden_action_arity = self.action_arity.copy()
         self.hidden_action_object_trace = [lst.copy() for lst in self.action_object_list]
 
         self.parsed_state_dict = {}
-        self.predicate_arity = metadata['predicate_arity']
-        self.predicate_arity_dict = {name: arity for (name, arity) in self.predicate_arity}
 
         # Remove hidden argument positions from the visible action data
         self._apply_dropped_args()
@@ -1352,10 +1368,8 @@ class GraphTrace(Trace):
 
         self.effect_mapping = set()
 
-        # Build mask-based pattern dictionaries and fill with static atoms
+        # Build mask-based pattern dictionaries
         self.candidate_dict = self.predicate_patterns()
-        if self._static_atoms:
-            _populate_mask_dict(self.candidate_dict, self._static_atoms)
 
         # Compute precondition mappings
         self.grounding_preconditions_pos, self.grounding_preconditions_neg, \
