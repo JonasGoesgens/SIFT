@@ -479,8 +479,8 @@ class Argument_Recovery_Sift:
         for instance, (graph, init) in graphs.items():
             open_nodes = set()
             for in_node, out_node, edge_labels in graph.edges(data=pt.Edge_Label_key):
-                in_node_atoms_dict = dict()
-                out_node_atoms_dict = dict()
+                in_node_atoms_dict = graph.nodes[in_node].get(pt.Atom_List_key, dict())
+                out_node_atoms_dict = graph.nodes[out_node].get(pt.Atom_List_key, dict())
                 for feature, split_index in feature_index_list:
                     arity = feature.get_arity()
                     (
@@ -491,8 +491,6 @@ class Argument_Recovery_Sift:
                         edge_labels,
                         split_index
                     )
-                    in_node_atoms_dict = graph.nodes[in_node].get(pt.Atom_List_key, dict())
-                    out_node_atoms_dict = graph.nodes[out_node].get(pt.Atom_List_key, dict())
                     predicate = feature.get_identifier()
                     if arity not in in_node_atoms_dict:
                         in_node_atoms_dict[arity] = dict()
