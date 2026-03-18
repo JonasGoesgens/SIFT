@@ -10,31 +10,31 @@ def synth(trace):
     # TODO check how to handle object types
 
     i = 0
-    while True:
-        i += 1
-        print(f"This is the {i}. iteration")
-        print('Actions arity',new_Trace.action_arity,"predicate arity", new_Trace.predicate_arity,'predicate types', new_Trace.get_predicate_types())
-        new_all_things = AllActionCandidates(new_Trace.action_arity, new_Trace.predicate_arity, new_Trace.get_predicate_types(),
-                                             dict(), None)
 
-        for t in new_Trace:
-            new_parsed_state = new_Trace.parse_state(t)
-            new_all_things.parse_state(new_parsed_state, new_Trace.get_action_name(t), new_Trace.get_action_objects(t),
-                                       t)
+    i += 1
+    print(f"This is the {i}. iteration")
+    print('Actions arity',new_Trace.action_arity,"predicate arity", new_Trace.predicate_arity,'predicate types', new_Trace.get_predicate_types())
+    new_all_things = AllActionCandidates(new_Trace.action_arity, new_Trace.predicate_arity, new_Trace.get_predicate_types(),
+                                         dict(), None)
 
-        was_there_somehting_added = new_all_things.add_arguments(new_Trace)
+    for t in new_Trace:
+        new_parsed_state = new_Trace.parse_state(t)
+        new_all_things.parse_state(new_parsed_state, new_Trace.get_action_name(t), new_Trace.get_action_objects(t),
+                                   t)
 
-        '''
-            for combis all arguments should be unique, else there can not be a precondtion on the combination
-            this would lead to problems when defining the domain since we would need to derive predicates 
-            that are not in the domain and the corresponding precondition can not be stated
+    was_there_somehting_added = new_all_things.add_arguments(new_Trace)
 
-            why in npuzzle every argument is found? CRISP description...
-        '''
-        combi_added = new_all_things.check_combis(new_Trace)
+    '''
+        for combis all arguments should be unique, else there can not be a precondtion on the combination
+        this would lead to problems when defining the domain since we would need to derive predicates 
+        that are not in the domain and the corresponding precondition can not be stated
 
-        if not was_there_somehting_added and not combi_added:
-            break
+        why in npuzzle every argument is found? CRISP description...
+    '''
+    combi_added = new_all_things.check_combis(new_Trace)
+
+    #if not was_there_somehting_added and not combi_added:
+    #    break
 
     effects = new_Trace.get_effect_argument_positions()
 
