@@ -1,3 +1,5 @@
+import itertools
+
 import pymimir
 import networkx as nx
 import random
@@ -427,24 +429,48 @@ def expand_state_space(
             all_atoms.update(atoms)
 
         for state_id in all_nodes:
-            state = node_and_corrensponding_state[node]
+            state = node_and_corrensponding_state[state_id]
             atoms_dict = G.nodes[state_id].get('atoms', dict())
             pos_atoms = state.get_fluent_atoms()
             neg_atoms = all_atoms.difference(pos_atoms)
-            for atoms, pos in [(list(pos_atoms),0),(list(neg_atoms),1)]:
-                for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
-                    predicate = atom.get_predicate().get_name()
-                    grounding = tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())
-                    arity = len(grounding)
-                    if predicate not in pred_mask:
-                        continue
-                    #TODO locally observe predicate
-                    if arity not in atoms_dict:
-                        atoms_dict[arity] = dict()
-                    if predicate not in atoms_dict[arity]:
-                        atoms_dict[arity][predicate] = (set(),set())
-                    atoms_dict[arity][predicate][pos].add(grounding)
-            G.nodes[state_id]['atoms'] = atoms_dict
+
+            true_atoms = dict()
+            for atom in pos_atoms:
+                predicate = atom.get_predicate().get_name()
+                grounding = tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())
+                arity = len(grounding)
+                if predicate not in pred_mask:
+                    continue
+                # TODO locally observe predicate
+                if arity not in true_atoms:
+                    true_atoms[arity] = dict()
+                if predicate not in true_atoms[arity]:
+                    true_atoms[arity][predicate] = (set(), set())
+                true_atoms[arity][predicate][0].add(grounding)
+
+            _all_objects = {_o for _o in mimir_stuff.get_object_mapping()}
+            print(_all_objects)
+
+            for _ar in true_atoms:
+                _all_object_combinations = itertools.product(_all_objects, repeat=_ar)
+                for _pred in true_atoms[_ar]:
+                    print('True atoms',true_atoms[_ar][_pred][0])
+                    print('other groundings', _all_object_combinations)
+                    print('set minus', _all_object_combinations - true_atoms[_ar][_pred][0])
+            #for atoms, pos in [(list(pos_atoms),0),(list(neg_atoms),1)]:
+            #    for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
+            #        predicate = atom.get_predicate().get_name()
+            #        grounding = tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())
+            #        arity = len(grounding)
+            #        if predicate not in pred_mask:
+            #           continue
+            #        #TODO locally observe predicate
+            #        if arity not in atoms_dict:
+            #            atoms_dict[arity] = dict()
+            #        if predicate not in atoms_dict[arity]:
+            #            atoms_dict[arity][predicate] = (set(),set())
+            #        atoms_dict[arity][predicate][pos].add(grounding)
+            G.nodes[state_id]['atoms'] = true_atoms
 
         sample = random.sample(all_nodes, k=min(10, len(all_nodes)))
         for node in sample:
