@@ -435,7 +435,7 @@ def expand_state_space(
             neg_atoms = all_atoms.difference(pos_atoms)
 
             true_atoms = dict()
-            for atom in pos_atoms:
+            for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(list(pos_atoms)):
                 predicate = atom.get_predicate().get_name()
                 grounding = tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())
                 arity = len(grounding)
