@@ -449,14 +449,15 @@ def expand_state_space(
                 true_atoms[arity][predicate][0].add(grounding)
 
             _all_objects = {_o for _o in mimir_stuff.get_object_mapping()}
-            print(_all_objects)
+            #print(_all_objects)
 
             for _ar in true_atoms:
                 _all_object_combinations = set(x for x in itertools.product(_all_objects, repeat=_ar))
                 for _pred in true_atoms[_ar]:
-                    print('True atoms',true_atoms[_ar][_pred][0])
-                    print('other groundings', _all_object_combinations)
-                    print('set minus', _all_object_combinations - true_atoms[_ar][_pred][0])
+                    #print('True atoms',true_atoms[_ar][_pred][0])
+                    #print('other groundings', _all_object_combinations)
+                    #print('set minus', _all_object_combinations - true_atoms[_ar][_pred][0])
+                    true_atoms[_ar][_pred] =(true_atoms[_ar][_pred][0], _all_object_combinations - true_atoms[_ar][_pred][0])
             #for atoms, pos in [(list(pos_atoms),0),(list(neg_atoms),1)]:
             #    for atom in mimir_stuff.get_parser().get_factories().get_fluent_ground_atoms_from_ids(atoms):
             #        predicate = atom.get_predicate().get_name()
