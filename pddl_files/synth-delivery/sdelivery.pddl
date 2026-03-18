@@ -75,7 +75,7 @@
   ;;  Pick-up  – agent and package must share the same cell;
   ;;             agent must have an empty hand.
   ;; ----------------------------------------------------------
-  (:action pick-up
+  (:action pick
     :parameters  (?p - package ?l - location)
     :precondition (and (at-agent   ?l)
                        (at-package ?p ?l)
