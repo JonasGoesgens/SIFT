@@ -547,8 +547,6 @@ class Trace:
                             groundings_from_patterns.add(grounding)
                     if self.affected_tuple_list[position][sign][predicate] != groundings_from_patterns:
                         not_all_covered = True
-            if not_all_covered:
-                print(f"For an effect of the action {action} there are arguments of effects missing")
 
         self.effect_mapping = pattern_dict
         return pattern_dict
