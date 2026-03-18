@@ -448,6 +448,19 @@ def expand_state_space(
                     true_atoms[arity][predicate] = (set(), set())
                 true_atoms[arity][predicate][0].add(grounding)
 
+            for atom in mimir_stuff.get_parser().get_factories().get_static_ground_atoms():
+                predicate = atom.get_predicate().get_name()
+                grounding = tuple(object_mapping[obj.get_name()] for obj in atom.get_objects())
+                arity = len(grounding)
+                if predicate not in pred_mask:
+                    continue
+                # TODO locally observe predicate
+                if arity not in true_atoms:
+                    true_atoms[arity] = dict()
+                if predicate not in true_atoms[arity]:
+                    true_atoms[arity][predicate] = (set(), set())
+                true_atoms[arity][predicate][0].add(grounding)
+
             _all_objects = {_o for _o in mimir_stuff.get_object_mapping()}
             #print(_all_objects)
 
