@@ -62,7 +62,7 @@ def synth(trace):
 
     print('\n-----------------------------\n')
 
-    return new_Trace.to_graphs()
+    return new_Trace.to_graphs(), was_there_somehting_added or combi_added
 
 
 def print_effects(effects):
