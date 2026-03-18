@@ -13,6 +13,7 @@ def synth(trace):
     while True:
         i += 1
         print(f"This is the {i}. iteration")
+        print('Actions arity',new_Trace.action_arity,"predicate arity", new_Trace.predicate_arity,'predicate types', new_Trace.get_predicate_types())
         new_all_things = AllActionCandidates(new_Trace.action_arity, new_Trace.predicate_arity, new_Trace.get_predicate_types(),
                                              dict(), None)
 
