@@ -11,7 +11,7 @@ def synth_update_graphs(
         assert(initial_node_id in Graph.nodes())
         print(Graph.nodes[initial_node_id].get(pt.Atom_List_key, dict()))
     #run Synth
-    alg.synth(graphs)
+    graphs = alg.synth(graphs)
 
 
     print(f"{ut.format_cur_time()}: Updating Graph labels", flush=True)

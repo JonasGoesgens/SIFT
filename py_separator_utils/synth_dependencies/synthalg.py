@@ -61,7 +61,7 @@ def synth(trace):
 
     print('\n-----------------------------\n')
 
-    return trace
+    return new_Trace.to_graphs()
 
 
 def print_effects(effects):

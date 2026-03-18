@@ -1275,7 +1275,7 @@ class GraphTrace(Trace):
         type_list: list of type predicate names, or path to file, or None.
     """
 
-    def __init__(self, graph: nx.DiGraph | dict[int, nx.DiGraph],
+    def __init__(self, graph: nx.DiGraph | dict[int, (nx.DiGraph, int)],
                  dropped_args: dict, dropped_preds: set, type_list):
         # Bypass Trace.__init__ entirely — we build from graph data
         self.problem = None
@@ -1283,11 +1283,18 @@ class GraphTrace(Trace):
         self.dropped_preds = dropped_preds
         self.validation = False
 
+        self.sift_meta_info = dict()
+
         # Normalize input: single graph → dict with key 0
         if isinstance(graph, nx.DiGraph):
-            graphs = {0: graph}
+            graphs = {0: (graph, 0)}
         else:
-            graphs = graph
+            graphs = dict()
+            for _id, (_g,_sift_int) in graph.items():
+                graphs[_id] = _g
+                self.sift_meta_info[_id] = _sift_int
+
+
 
         # Parse node labels: {arity: {pred: (true_set, false_set)}}
         # Flatten into two dicts keyed by (graph_id, node_id)
@@ -1295,8 +1302,7 @@ class GraphTrace(Trace):
         self._node_false_atoms = {}  # {(gid, nid): {pred: set of tuples}}
         pred_arity_dict = {}
 
-        for gid, g_tuples in graphs.items():
-            g = g_tuples[0]
+        for gid, g in graphs.items():
             for node in g.nodes():
                 raw = g.nodes[node].get('atoms', {})
                 true_atoms = {}
@@ -1318,8 +1324,7 @@ class GraphTrace(Trace):
         raw_reached_states = []
         self._edge_actions = []
 
-        for gid, g_tuples in graphs.items():
-            g = g_tuples[0]
+        for gid, g in graphs.items():
             for src, dst, data in g.edges(data=True):
                 action_set = data.get('action', set())
                 for action_name, action_objects in action_set:
@@ -1503,7 +1508,11 @@ class GraphTrace(Trace):
             else:
                 G.add_edge(nid_src, nid_dst, action={action_label})
 
-        return graphs
+        output_graphs = dict()
+        for _id, graph in graphs.items():
+            output_graphs[_id] = (graph, self.sift_meta_info[_id])
+
+        return output_graphs
 
     @override
     def __iter__(self):
