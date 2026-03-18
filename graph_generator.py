@@ -452,7 +452,7 @@ def expand_state_space(
             print(_all_objects)
 
             for _ar in true_atoms:
-                _all_object_combinations = itertools.product(_all_objects, repeat=_ar)
+                _all_object_combinations = set(x for x in itertools.product(_all_objects, repeat=_ar))
                 for _pred in true_atoms[_ar]:
                     print('True atoms',true_atoms[_ar][_pred][0])
                     print('other groundings', _all_object_combinations)
