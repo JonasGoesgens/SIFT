@@ -7,10 +7,11 @@
 #SBATCH --mem=40G
 #SBATCH --gpus=0
 #SBATCH --time=1-00:00:00
+#SBATCH --partition=rleap_cpu
 
 # Benchmarks
 input_dir="./benchmark"
-input_files=("arg_rec_paper_table1.txt")
+input_files=("synth_benchmark.txt")
 
 file_index=0
 line_index=$((SLURM_ARRAY_TASK_ID))
@@ -24,7 +25,7 @@ sed -n "$((line_index + 1))p" "$input_dir/$input_file" > "$temp_file"
 
 cat $temp_file
 
-apptainer run --bind .:/sift --bind /tmp:/tmp ../sift-container.sif /sift/main.py -br "$temp_file" -p 10
+apptainer run --bind .:/sift --bind /tmp:/tmp ../synthp.sif /sift/main.py -br "$temp_file" -p 10
 
 exit_status=$?
 
