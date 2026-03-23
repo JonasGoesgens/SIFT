@@ -11,12 +11,7 @@ import time
 import warnings
 from typing import Set, List, Tuple, Dict, Union, Iterable
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
-
-class StratificationError(Exception):
-    """Execption for issues with applying a previous stratification."""
-    def __init__(self, iteration: int, message: str):
-        super().__init__(message)
-        self.iteration = iteration
+from py_separator_utils.exceptions import StratificationError
 
 class Argument_Recovery_Sift:
     def __init__(self, graphs : Union[List[Tuple[pt.GraphT, pt.NodeT]],

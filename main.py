@@ -1,6 +1,6 @@
 from py_separator_utils.sift import SIFT
 from py_separator_utils.argument_recovery_sift import Argument_Recovery_Sift as ARSift
-from py_separator_utils.argument_recovery_sift import StratificationError
+from py_separator_utils.exceptions import StratificationError
 from py_separator_utils.feature import Feature
 import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
