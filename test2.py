@@ -642,9 +642,9 @@ class TestGraphGenerationMethods(unittest.TestCase):
 
         oi_features = [dict()] * 3
 
-        ### Iteration 1 ###
+        ### Iteration 0 ###
 
-        iteration = 1
+        iteration = 0
         locm_types = locm_types_list[iteration]
 
         # OI Feature 1 Package is loaded into Truck
@@ -664,121 +664,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
             previous_oi_feature,
             type_combination
         )
-        oi_features[2][1] = oi_feature
-
-        # OI Feature 4
-        exist_feature = None
-        existence_feature_sign = None
-        add_patterns = frozenset({('board-truck', (1, 0)), ('disembark-truck', (1, 2))})
-        del_patterns = frozenset({('disembark-truck', (1,)), ('board-truck', (1,))})
-        remaining_pre_patterns = {('load-truck', (1,)), ('drive-truck', (2,)), ('unload-truck', (1,))}
-        previous_oi_feature = None
-        type_combination = Multiset({1: 1})
-        oi_feature = create_oi_feature(
-            existence_feature,
-            existence_feature_sign,
-            add_patterns,
-            del_patterns,
-            remaining_pre_patterns,
-            previous_oi_feature,
-            type_combination
-        )
-        oi_features[2][4] = oi_feature
-
-        # OI Feature 5
-        exist_feature = features[iteration][2]
-        existence_feature_sign = True
-        add_patterns = frozenset({('board-truck', (1, 0))})
-        del_patterns = frozenset({('disembark-truck', (1,))})
-        remaining_pre_patterns = {('drive-truck', (2,))}
-        previous_oi_feature = None
-        type_combination = Multiset({1: 1})
-        oi_feature = create_oi_feature(
-            existence_feature,
-            existence_feature_sign,
-            add_patterns,
-            del_patterns,
-            remaining_pre_patterns,
-            previous_oi_feature,
-            type_combination
-        )
-        oi_features[2][5] = oi_feature
-
-        # OI Feature 6
-        exist_feature = None
-        existence_feature_sign = None
-        add_patterns = frozenset({('drive-truck', (2, 0))})
-        del_patterns = frozenset({('drive-truck', (2,))})
-        remaining_pre_patterns = {('load-truck', (1,)), ('unload-truck', (1,)), ('disembark-truck', (1,)), ('board-truck', (1,))}
-        previous_oi_feature = None
-        type_combination = Multiset({1: 1})
-        oi_feature = create_oi_feature(
-            existence_feature,
-            existence_feature_sign,
-            add_patterns,
-            del_patterns,
-            remaining_pre_patterns,
-            previous_oi_feature,
-            type_combination
-        )
-        oi_features[2][6] = oi_feature
-
-        # OI Feature 7
-        exist_feature = features[iteration][2]
-        existence_feature_sign = False
-        add_patterns = frozenset({('disembark-truck', (1, 2))})
-        del_patterns = frozenset({('board-truck', (1,))})
-        remaining_pre_patterns = set()
-        previous_oi_feature = None
-        type_combination = Multiset({1: 1})
-        oi_feature = create_oi_feature(
-            existence_feature,
-            existence_feature_sign,
-            add_patterns,
-            del_patterns,
-            remaining_pre_patterns,
-            previous_oi_feature,
-            type_combination
-        )
-        oi_features[2][7] = oi_feature
-
-        # OI Feature 8
-        exist_feature = features[iteration][2]
-        existence_feature_sign = True
-        add_patterns = frozenset({('drive-truck', (2, 0)), ('board-truck', (1, 2))})
-        del_patterns = frozenset({('drive-truck', (2,)), ('disembark-truck', (1,))})
-        remaining_pre_patterns = set()
-        previous_oi_feature = None
-        type_combination = Multiset({1: 1})
-        oi_feature = create_oi_feature(
-            existence_feature,
-            existence_feature_sign,
-            add_patterns,
-            del_patterns,
-            remaining_pre_patterns,
-            previous_oi_feature,
-            type_combination
-        )
-        oi_features[2][8] = oi_feature
-
-        # OI Feature 9
-        exist_feature = features[iteration][3]
-        existence_feature_sign = False
-        add_patterns = frozenset({('disembark-truck', (0, 2)), ('walk', (0, 1))})
-        del_patterns = frozenset({('board-truck', (0,)), ('walk', (0,))})
-        remaining_pre_patterns = set()
-        previous_oi_feature = None
-        type_combination = Multiset({3: 1})
-        oi_feature = create_oi_feature(
-            existence_feature,
-            existence_feature_sign,
-            add_patterns,
-            del_patterns,
-            remaining_pre_patterns,
-            previous_oi_feature,
-            type_combination
-        )
-        oi_features[2][9] = oi_feature
+        oi_features[0][1] = oi_feature
 
         # OI Feature 10
         exist_feature = features[iteration][3]
@@ -797,45 +683,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
             previous_oi_feature,
             type_combination
         )
-        oi_features[2][10] = oi_feature
-
-        # OI Feature 11
-        exist_feature = None
-        existence_feature_sign = None
-        add_patterns = frozenset({('disembark-truck', (0, 2)), ('board-truck', (0, 1)), ('walk', (0, 1))})
-        del_patterns = frozenset({('disembark-truck', (0,)), ('board-truck', (0,)), ('walk', (0,))})
-        remaining_pre_patterns = {('drive-truck', (1,))}
-        previous_oi_feature = None
-        type_combination = Multiset({3: 1})
-        oi_feature = create_oi_feature(
-            existence_feature,
-            existence_feature_sign,
-            add_patterns,
-            del_patterns,
-            remaining_pre_patterns,
-            previous_oi_feature,
-            type_combination
-        )
-        oi_features[2][11] = oi_feature
-
-        # OI Feature 12
-        exist_feature = features[iteration][3]
-        existence_feature_sign = True
-        add_patterns = frozenset({('board-truck', (0, 2)), ('drive-truck', (1, 0))})
-        del_patterns = frozenset({('disembark-truck', (0,)), ('drive-truck', (1,))})
-        remaining_pre_patterns = set()
-        previous_oi_feature = None
-        type_combination = Multiset({3: 1})
-        oi_feature = create_oi_feature(
-            existence_feature,
-            existence_feature_sign,
-            add_patterns,
-            del_patterns,
-            remaining_pre_patterns,
-            previous_oi_feature,
-            type_combination
-        )
-        oi_features[2][12] = oi_feature
+        oi_features[0][10] = oi_feature
 
         # OI Feature 13
         exist_feature = None
@@ -854,7 +702,221 @@ class TestGraphGenerationMethods(unittest.TestCase):
             previous_oi_feature,
             type_combination
         )
-        oi_features[2][13] = oi_feature
+        oi_features[0][13] = oi_feature
+
+        ### Iteration 1 ###
+
+        iteration = 1
+        locm_types = locm_types_list[iteration]
+
+        # OI Feature 1 Package is loaded into Truck
+        exist_feature = features[iteration][1]
+        existence_feature_sign = True
+        add_patterns = frozenset({('load-truck', (0, 1))})
+        del_patterns = frozenset({('unload-truck', (0,))})
+        remaining_pre_patterns = set()
+        previous_oi_feature = oi_features[0][1]
+        type_combination = Multiset({0: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][1] = oi_feature
+
+        # OI Feature 4
+        exist_feature = None
+        existence_feature_sign = None
+        add_patterns = frozenset({('board-truck', (1, 0)), ('disembark-truck', (1, 2))})
+        del_patterns = frozenset({('disembark-truck', (1,)), ('board-truck', (1,))})
+        remaining_pre_patterns = {('load-truck', (1,)), ('drive-truck', (2,)), ('unload-truck', (1,))}
+        previous_oi_feature = None
+        type_combination = Multiset({1: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][4] = oi_feature
+
+        # OI Feature 5
+        exist_feature = features[iteration][2]
+        existence_feature_sign = True
+        add_patterns = frozenset({('board-truck', (1, 0))})
+        del_patterns = frozenset({('disembark-truck', (1,))})
+        remaining_pre_patterns = {('drive-truck', (2,))}
+        previous_oi_feature = None
+        type_combination = Multiset({1: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][5] = oi_feature
+
+        # OI Feature 6
+        exist_feature = None
+        existence_feature_sign = None
+        add_patterns = frozenset({('drive-truck', (2, 0))})
+        del_patterns = frozenset({('drive-truck', (2,))})
+        remaining_pre_patterns = {('load-truck', (1,)), ('unload-truck', (1,)), ('disembark-truck', (1,)), ('board-truck', (1,))}
+        previous_oi_feature = None
+        type_combination = Multiset({1: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][6] = oi_feature
+
+        # OI Feature 7
+        exist_feature = features[iteration][2]
+        existence_feature_sign = False
+        add_patterns = frozenset({('disembark-truck', (1, 2))})
+        del_patterns = frozenset({('board-truck', (1,))})
+        remaining_pre_patterns = set()
+        previous_oi_feature = None
+        type_combination = Multiset({1: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][7] = oi_feature
+
+        # OI Feature 8
+        exist_feature = features[iteration][2]
+        existence_feature_sign = True
+        add_patterns = frozenset({('drive-truck', (2, 0)), ('board-truck', (1, 2))})
+        del_patterns = frozenset({('drive-truck', (2,)), ('disembark-truck', (1,))})
+        remaining_pre_patterns = set()
+        previous_oi_feature = None
+        type_combination = Multiset({1: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][8] = oi_feature
+
+        # OI Feature 9
+        exist_feature = features[iteration][3]
+        existence_feature_sign = False
+        add_patterns = frozenset({('disembark-truck', (0, 2)), ('walk', (0, 1))})
+        del_patterns = frozenset({('board-truck', (0,)), ('walk', (0,))})
+        remaining_pre_patterns = set()
+        previous_oi_feature = None
+        type_combination = Multiset({3: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][9] = oi_feature
+
+        # OI Feature 10
+        exist_feature = features[iteration][3]
+        existence_feature_sign = True
+        add_patterns = frozenset({('board-truck', (0, 1))})
+        del_patterns = frozenset({('disembark-truck', (0,))})
+        remaining_pre_patterns = {('drive-truck', (1,))}
+        previous_oi_feature = oi_features[0][10]
+        type_combination = Multiset({3: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][10] = oi_feature
+
+        # OI Feature 11
+        exist_feature = None
+        existence_feature_sign = None
+        add_patterns = frozenset({('disembark-truck', (0, 2)), ('board-truck', (0, 1)), ('walk', (0, 1))})
+        del_patterns = frozenset({('disembark-truck', (0,)), ('board-truck', (0,)), ('walk', (0,))})
+        remaining_pre_patterns = {('drive-truck', (1,))}
+        previous_oi_feature = None
+        type_combination = Multiset({3: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][11] = oi_feature
+
+        # OI Feature 12
+        exist_feature = features[iteration][3]
+        existence_feature_sign = True
+        add_patterns = frozenset({('board-truck', (0, 2)), ('drive-truck', (1, 0))})
+        del_patterns = frozenset({('disembark-truck', (0,)), ('drive-truck', (1,))})
+        remaining_pre_patterns = set()
+        previous_oi_feature = None
+        type_combination = Multiset({3: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][12] = oi_feature
+
+        # OI Feature 13
+        exist_feature = None
+        existence_feature_sign = None
+        add_patterns = frozenset({('drive-truck', (1, 0)), ('walk', (0, 1))})
+        del_patterns = frozenset({('drive-truck', (1,)), ('walk', (0,))})
+        remaining_pre_patterns = {('disembark-truck', (0,)), ('board-truck', (0,))}
+        previous_oi_feature = oi_features[0][13]
+        type_combination = Multiset({3: 1})
+        oi_feature = create_oi_feature(
+            existence_feature,
+            existence_feature_sign,
+            add_patterns,
+            del_patterns,
+            remaining_pre_patterns,
+            previous_oi_feature,
+            type_combination
+        )
+        oi_features[1][13] = oi_feature
 
         # OI Feature 14
         exist_feature = features[iteration][8]
@@ -873,7 +935,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
             previous_oi_feature,
             type_combination
         )
-        oi_features[2][14] = oi_feature
+        oi_features[1][14] = oi_feature
 
         # OI Feature 15
         exist_feature = features[iteration][6]
@@ -892,7 +954,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
             previous_oi_feature,
             type_combination
         )
-        oi_features[2][15] = oi_feature
+        oi_features[1][15] = oi_feature
 
         # OI Feature 16
         exist_feature = features[iteration][21]
@@ -911,7 +973,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
             previous_oi_feature,
             type_combination
         )
-        oi_features[2][16] = oi_feature
+        oi_features[1][16] = oi_feature
 
         ### Iteration 2 ###
 
