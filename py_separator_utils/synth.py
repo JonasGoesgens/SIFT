@@ -11,7 +11,7 @@ from contextlib import redirect_stdout
 
 def get_synth_logger() -> logging.Logger:
     """
-    Logger for synth output to keep progress print statements readable
+    Logger for synth output to keep progress print statements readable.
     """
     logger_name = "synth"
     logger = logging.getLogger(logger_name)
@@ -43,7 +43,7 @@ def get_synth_logger() -> logging.Logger:
 
     logger.propagate = False
 
-    logger.debug("Synth‑Logger initialisiert → %s", log_path.resolve())
+    logger.debug("Synth-Logger initialized → %s", log_path.resolve())
     return logger
 
 def synth_update_graphs(
@@ -71,6 +71,6 @@ def synth_update_graphs(
     if stdout_captured:
         log.debug("=== stdout of alg.synth ===\n%s", stdout_captured)
 
-    print(f"{ut.format_cur_time()}: Updating Graph labels", flush=True)
+    #print(f"{ut.format_cur_time()}: Updating Graph labels", flush=True)
     #add query values to labels
     return graphs, changed
