@@ -924,7 +924,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('load-truck', (0, 1))})
         del_patterns = frozenset({('unload-truck', (0,))})
         remaining_pre_patterns = set()
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][1]
         type_combination = Multiset({0: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -981,7 +981,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('board-truck', (1, 0)), ('disembark-truck', (1, 2))})
         del_patterns = frozenset({('disembark-truck', (1,)), ('board-truck', (1,))})
         remaining_pre_patterns = {('load-truck', (1,)), ('drive-truck', (2,)), ('unload-truck', (1,))}
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][4]
         type_combination = Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1000,7 +1000,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('board-truck', (1, 0))})
         del_patterns = frozenset({('disembark-truck', (1,))})
         remaining_pre_patterns = {('drive-truck', (2,))}
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][5]
         type_combination = Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1019,7 +1019,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('drive-truck', (2, 0))})
         del_patterns = frozenset({('drive-truck', (2,))})
         remaining_pre_patterns = {('load-truck', (1,)), ('unload-truck', (1,)), ('disembark-truck', (1,)), ('board-truck', (1,))}
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][6]
         type_combination = Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1038,7 +1038,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('disembark-truck', (1, 2))})
         del_patterns = frozenset({('board-truck', (1,))})
         remaining_pre_patterns = set()
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][7]
         type_combination = Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1057,7 +1057,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('drive-truck', (2, 0)), ('board-truck', (1, 2))})
         del_patterns = frozenset({('drive-truck', (2,)), ('disembark-truck', (1,))})
         remaining_pre_patterns = set()
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][8]
         type_combination = Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1076,7 +1076,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('disembark-truck', (0, 2)), ('walk', (0, 1))})
         del_patterns = frozenset({('board-truck', (0,)), ('walk', (0,))})
         remaining_pre_patterns = set()
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][9]
         type_combination = Multiset({2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1095,7 +1095,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('board-truck', (0, 1))})
         del_patterns = frozenset({('disembark-truck', (0,))})
         remaining_pre_patterns = {('drive-truck', (1,))}
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][10]
         type_combination = Multiset({2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1114,7 +1114,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('disembark-truck', (0, 2)), ('board-truck', (0, 1)), ('walk', (0, 1))})
         del_patterns = frozenset({('disembark-truck', (0,)), ('board-truck', (0,)), ('walk', (0,))})
         remaining_pre_patterns = {('drive-truck', (1,))}
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][11]
         type_combination = Multiset({2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1133,7 +1133,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('board-truck', (0, 2)), ('drive-truck', (1, 0))})
         del_patterns = frozenset({('disembark-truck', (0,)), ('drive-truck', (1,))})
         remaining_pre_patterns = set()
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][12]
         type_combination = Multiset({2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1152,7 +1152,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('drive-truck', (1, 0)), ('walk', (0, 1))})
         del_patterns = frozenset({('drive-truck', (1,)), ('walk', (0,))})
         remaining_pre_patterns = {('disembark-truck', (0,)), ('board-truck', (0,))}
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][13]
         type_combination = Multiset({2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1171,7 +1171,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('drive-truck', (2, 0, 1)), ('board-truck', (1, 2, 0))})
         del_patterns = frozenset({('drive-truck', (2, 3)), ('disembark-truck', (1, 2))})
         remaining_pre_patterns = set()
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][14]
         type_combination = Multiset({1: 1, 2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1190,7 +1190,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('drive-truck', (2, 1, 0)), ('board-truck', (1, 0, 2))})
         del_patterns = frozenset({('drive-truck', (2, 1)), ('disembark-truck', (1, 0))})
         remaining_pre_patterns = set()
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][15]
         type_combination = Multiset({1: 1, 2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
@@ -1209,7 +1209,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         add_patterns = frozenset({('drive-truck', (0, 1, 2)), ('board-truck', (2, 0, 1))})
         del_patterns = frozenset({('drive-truck', (3, 1)), ('disembark-truck', (2, 0))})
         remaining_pre_patterns = set()
-        previous_oi_feature = None
+        previous_oi_feature = oi_features[1][16]
         type_combination = Multiset({2: 2})
         oi_feature = create_oi_feature(
             existence_feature,
