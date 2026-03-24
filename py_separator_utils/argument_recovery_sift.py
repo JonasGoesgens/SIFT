@@ -433,7 +433,7 @@ class Argument_Recovery_Sift:
         #input_changed == False termination by natural end of stratification clean up.
         #                       can also be caused by verfication mode if primary run ended.
         if input_changed:
-            if find_oi_features_in_last_iteration or synth_changed_graph:
+            if find_oi_features_in_last_iteration:
                 #Search for both types of features in last run
                 print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Finalizing Running Normal Sift and searching for new mutex features", flush=True)
                 self.run_iteration(iteration, process_pool_args)
