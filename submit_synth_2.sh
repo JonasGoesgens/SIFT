@@ -4,10 +4,10 @@
 #SBATCH --error=output/stderr/synth_job_%A_%a.err
 #SBATCH --array=3,5,6,11
 #SBATCH --cpus-per-task=10
-#SBATCH --mem=120G
+#SBATCH --mem=250G
 #SBATCH --gpus=0
 #SBATCH --time=1-00:00:00
-#SBATCH --partition=rleap_cpu
+#SBATCH --partition=rleap_cpu_modern
 
 # Benchmarks
 input_dir="./benchmark"

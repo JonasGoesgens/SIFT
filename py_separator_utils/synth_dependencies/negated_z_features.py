@@ -46,7 +46,7 @@ class NegatedZFeature:
         self.active = True
 
     def get_name(self):
-        return 'not-' + self.predicate_name + str(self.action_pattern)
+        return 'not-' + str(self.predicate_name) + str(self.action_pattern)
 
     def set_identified_position(self):
         for pos, i in enumerate(self.action_pattern):

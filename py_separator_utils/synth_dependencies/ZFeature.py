@@ -62,7 +62,7 @@ class z_feature:
         return True
 
     def get_name(self):
-        return self.predicate_name + str(self.action_pattern)
+        return str(self.predicate_name) + str(self.action_pattern)
 
     def is_active(self):
         return self.active
