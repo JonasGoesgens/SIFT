@@ -11,12 +11,7 @@ import time
 import warnings
 from typing import Set, List, Tuple, Dict, Union, Iterable
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
-
-class StratificationError(Exception):
-    """Execption for issues with applying a previous stratification."""
-    def __init__(self, iteration: int, message: str):
-        super().__init__(message)
-        self.iteration = iteration
+from py_separator_utils.exceptions import StratificationError
 
 class Argument_Recovery_Sift:
     def __init__(self, graphs : Union[List[Tuple[pt.GraphT, pt.NodeT]],
@@ -438,7 +433,7 @@ class Argument_Recovery_Sift:
         #input_changed == False termination by natural end of stratification clean up.
         #                       can also be caused by verfication mode if primary run ended.
         if input_changed:
-            if find_oi_features_in_last_iteration or synth_changed_graph:
+            if find_oi_features_in_last_iteration:
                 #Search for both types of features in last run
                 print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Finalizing Running Normal Sift and searching for new mutex features", flush=True)
                 self.run_iteration(iteration, process_pool_args)

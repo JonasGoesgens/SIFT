@@ -33,6 +33,7 @@ Masked patterns:
 
 import copy
 import itertools
+import typing
 from collections import defaultdict
 from functools import lru_cache
 from typing_extensions import override
@@ -1437,10 +1438,12 @@ class GraphTrace(Trace):
 
     def _get_universe(self, pred, arity):
         """Get or compute the set of all possible groundings for a predicate."""
+        def object_compare_key(obj : typing.Union[int,str]):
+            return (0, obj) if isinstance(obj, int) else (1, obj)
         key = (pred, arity)
         if key not in self._universe_cache:
             self._universe_cache[key] = set(
-                itertools.product(sorted(self._all_objects), repeat=arity))
+                itertools.product(sorted(self._all_objects, key=object_compare_key), repeat=arity))
         return self._universe_cache[key]
 
     def _get_open_world_atoms(self, node):
