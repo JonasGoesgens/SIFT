@@ -1308,5 +1308,66 @@ class TestGraphGenerationMethods(unittest.TestCase):
             'bfs': bfs_state_space
         }
 
+        oi_feature_order = (1,10,13,4,6,5,7,8,9,11,12,14,15,16,2,3)
+
+        self.ar_sift = ARSift(dict())
+        for i in [0,1,2]:
+            self.ar_sift.sift_iterations[i] = SIFT(dict())
+            self.ar_sift.order_id_features[i] = set(oi_features[i].values())
+            self.ar_sift.argument_identifier_features[i] = tuple(
+                oi_features[i][key]
+                for key in oi_feature_order
+                if key in oi_features[i]
+            )
+            self.ar_sift.sift_iterations[i].LOCM_types = locm_types_list[i]
+            self.ar_sift.sift_iterations[i].all_features = set(features[i].values())
+
+        self.ar_sift.updated_oi_features[0] = set()
+        self.ar_sift.revised_oi_feature[0] = (oi_features[0][1],oi_features[0][10],oi_features[0][13])
+
+        self.ar_sift.updated_oi_features[1] = set()
+        self.ar_sift.revised_oi_feature[1] = tuple(
+            oi_features[1][key]
+            for key in oi_feature_order
+            if key not in oi_features[0] and
+            key in oi_features[1]
+        )
+
+        self.ar_sift.updated_oi_features[2] = set(
+            oi_features[2][key]
+            for key in oi_feature_order
+            if key in oi_features[1] and
+            oi_features[2][key].get_type_combination().count(2)>0
+        )
+        self.ar_sift.revised_oi_feature[2] = tuple(
+            oi_features[2][key]
+            for key in oi_feature_order
+            if key not in oi_features[1] or
+            oi_features[2][key].get_type_combination().count(2)>0
+        )
+
+    def test_verifier(self):
+        method_name = 'bfs'
+        for i in range(len(self.instance_paths)):
+            pddl_holder = mimir_holder(self.domain_path, self.instance_paths[i])
+            #static_pddl_holder = mimir_holder(self.domain_path_static, self.instance_path_static)
+
+            verifier = copy.deepcopy(self.ar_sift)
+
+            # Generate graph using bfs_state_space
+            ret = self.methods[method_name](
+                mimir_stuff=pddl_holder,
+                num_edges=self.num_edges[i],
+                number_of_input=self.number_inputs,
+                introduce_false_edge=self.introduce_false_edge,
+                static_relaxation=pddl_holder,
+                arg_mask=self.arg_mask
+            )
+
+            graphs = {0 : (ret[0], ret[1])}
+
+            verifier.replace_graphs(graphs)
+            verifier.run()
+
 if __name__ == '__main__':
     unittest.main()
