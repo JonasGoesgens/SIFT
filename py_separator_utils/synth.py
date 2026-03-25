@@ -58,8 +58,8 @@ def synth_update_graphs(
     log = get_synth_logger()
     buf = io.StringIO()
     try:
-        with redirect_stdout(buf):
-            graphs, changed = alg.synth(graphs)
+        #with redirect_stdout(buf):
+        graphs, changed = alg.synth(graphs)
     except Exception as e:
         log.exception("Synth raised an exception – rollback to backup")
         stdout_captured = buf.getvalue()
