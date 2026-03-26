@@ -190,6 +190,7 @@ class Argument_Recovery_Sift:
         print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Running Normal Sift", flush=True)
         features = self.sift_iterations[iteration].run(process_pool_args)
         print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(features)}/{len(self.sift_iterations[iteration].all_features)} Normal Features", flush=True)
+        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Current Locm Types: {repr(self.sift_iterations[iteration].LOCM_types)}")
         print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Creating mutex features", flush=True)
         action_arities = self.sift_iterations[iteration].LOCM_types.get_action_arities()
         equivalent_switching_patterns = self.sift_iterations[iteration].equivalent_switching_patterns
