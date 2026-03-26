@@ -1,8 +1,10 @@
 import unittest
+import copy
 import networkx as nx
 from py_separator_utils.mimir_holder import mimir_holder
 from graph_generator import bfs_state_space, dfs_state_space, rand_state_space
-from graph_generator import get_nx_graph_from_state_spacefrom py_separator_utils.sift import SIFT
+from graph_generator import get_nx_graph_from_state_space
+from py_separator_utils.sift import SIFT
 from py_separator_utils.argument_recovery_sift import Argument_Recovery_Sift as ARSift
 from py_separator_utils.exceptions import StratificationError
 from py_separator_utils.feature import Feature
@@ -49,7 +51,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         ):
             #pattern structure (name, (arguments,))
             if existence_feature is not None:
-                _, _, pos_pre, neg_pre, _* = existence_feature.get_color_split_combination(0)
+                _, _, pos_pre, neg_pre, *_ = existence_feature.get_color_split_combination(0)
                 type_combination = existence_feature.get_type_combination()
                 if existence_feature_sign:
                     pre_patterns = pos_pre
@@ -89,12 +91,12 @@ class TestGraphGenerationMethods(unittest.TestCase):
         #   walk(0: dri, 1:   to, 2:from)
 
         # Define start point
-        locm_types_list = [LOCM_Types()] * 3
+        locm_types_list = [LOCM_Types(), LOCM_Types(), LOCM_Types()]
         locm_types_list[0].type_args = {
             0: {('unload-truck', 0), ('load-truck', 0)},
             1: {('board-truck', 1), ('load-truck', 1)},
             2: {('walk', 1),
-                ('drive-truck', 0)}
+                ('drive-truck', 0)},
             3: {('disembark-truck', 0),
                 ('drive-truck', 1),
                 ('board-truck', 0),
@@ -110,7 +112,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
                 ('disembark-truck', 2),
                 ('drive-truck', 0),
                 ('drive-truck', 3),
-                ('board-truck', 2)}
+                ('board-truck', 2)},
             3: {('disembark-truck', 0),
                 ('drive-truck', 1),
                 ('board-truck', 0),
@@ -133,11 +135,39 @@ class TestGraphGenerationMethods(unittest.TestCase):
         for locm_types in locm_types_list:
             for arg_type, arg_set in locm_types.type_args.items():
                 locm_types.type_updates[arg_type] = set()
+                locm_types.type_objs[arg_type] = set()
                 for arg in arg_set:
                     locm_types.arg_types[arg] = arg_type
         locm_types_list[2].type_updates[2].add(3)
 
-        features = [dict()] * 3
+        locm_types_list[0].action_arities = {
+            'load-truck' :2,
+            'unload-truck' :1,
+            'board-truck' :2,
+            'disembark-truck' :1,
+            'drive-truck' :2,
+            'walk' :2
+        }
+
+        locm_types_list[1].action_arities = {
+            'load-truck' :2,
+            'unload-truck' :2,
+            'board-truck' :3,
+            'disembark-truck' :3,
+            'drive-truck' :4,
+            'walk' :3
+        }
+
+        locm_types_list[2].action_arities = {
+            'load-truck' :4,
+            'unload-truck' :4,
+            'board-truck' :3,
+            'disembark-truck' :3,
+            'drive-truck' :4,
+            'walk' :3
+        }
+
+        features = [dict(), dict(), dict()]
 
         ### Iteration 0 ###
 
@@ -640,7 +670,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
         )
         features[iteration][22] = (feature)
 
-        oi_features = [dict()] * 3
+        oi_features = [dict(), dict(), dict()]
 
         ### Iteration 0 ###
 
@@ -648,13 +678,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         locm_types = locm_types_list[iteration]
 
         # OI Feature 1 Package is loaded into Truck
-        exist_feature = features[iteration][1]
+        existence_feature = features[iteration][1]
         existence_feature_sign = True
         add_patterns = frozenset({('load-truck', (0, 1))})
         del_patterns = frozenset({('unload-truck', (0,))})
         remaining_pre_patterns = set()
         previous_oi_feature = None
-        type_combination = Multiset({0: 1})
+        type_combination = hm.Multiset({0: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -666,14 +696,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         )
         oi_features[0][1] = oi_feature
 
-        # OI Feature 10
-        exist_feature = features[iteration][3]
+        existence_feature = features[iteration][3]
         existence_feature_sign = True
         add_patterns = frozenset({('board-truck', (0, 1))})
         del_patterns = frozenset({('disembark-truck', (0,))})
         remaining_pre_patterns = {('drive-truck', (1,))}
         previous_oi_feature = None
-        type_combination = Multiset({3: 1})
+        type_combination = hm.Multiset({3: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -685,14 +714,14 @@ class TestGraphGenerationMethods(unittest.TestCase):
         )
         oi_features[0][10] = oi_feature
 
-        # OI Feature 13
-        exist_feature = None
+        # OI Feature 13 pos of Driver
+        existence_feature = None
         existence_feature_sign = None
         add_patterns = frozenset({('drive-truck', (1, 0)), ('walk', (0, 1))})
         del_patterns = frozenset({('drive-truck', (1,)), ('walk', (0,))})
         remaining_pre_patterns = {('disembark-truck', (0,)), ('board-truck', (0,))}
         previous_oi_feature = None
-        type_combination = Multiset({3: 1})
+        type_combination = hm.Multiset({3: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -710,13 +739,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         locm_types = locm_types_list[iteration]
 
         # OI Feature 1 Package is loaded into Truck
-        exist_feature = features[iteration][1]
+        existence_feature = features[iteration][1]
         existence_feature_sign = True
         add_patterns = frozenset({('load-truck', (0, 1))})
         del_patterns = frozenset({('unload-truck', (0,))})
         remaining_pre_patterns = set()
         previous_oi_feature = oi_features[0][1]
-        type_combination = Multiset({0: 1})
+        type_combination = hm.Multiset({0: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -729,13 +758,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][1] = oi_feature
 
         # OI Feature 4
-        exist_feature = None
+        existence_feature = None
         existence_feature_sign = None
         add_patterns = frozenset({('board-truck', (1, 0)), ('disembark-truck', (1, 2))})
         del_patterns = frozenset({('disembark-truck', (1,)), ('board-truck', (1,))})
         remaining_pre_patterns = {('load-truck', (1,)), ('drive-truck', (2,)), ('unload-truck', (1,))}
         previous_oi_feature = None
-        type_combination = Multiset({1: 1})
+        type_combination = hm.Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -748,13 +777,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][4] = oi_feature
 
         # OI Feature 5
-        exist_feature = features[iteration][2]
+        existence_feature = features[iteration][2]
         existence_feature_sign = True
         add_patterns = frozenset({('board-truck', (1, 0))})
         del_patterns = frozenset({('disembark-truck', (1,))})
         remaining_pre_patterns = {('drive-truck', (2,))}
         previous_oi_feature = None
-        type_combination = Multiset({1: 1})
+        type_combination = hm.Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -767,13 +796,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][5] = oi_feature
 
         # OI Feature 6
-        exist_feature = None
+        existence_feature = None
         existence_feature_sign = None
         add_patterns = frozenset({('drive-truck', (2, 0))})
         del_patterns = frozenset({('drive-truck', (2,))})
         remaining_pre_patterns = {('load-truck', (1,)), ('unload-truck', (1,)), ('disembark-truck', (1,)), ('board-truck', (1,))}
         previous_oi_feature = None
-        type_combination = Multiset({1: 1})
+        type_combination = hm.Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -786,13 +815,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][6] = oi_feature
 
         # OI Feature 7
-        exist_feature = features[iteration][2]
+        existence_feature = features[iteration][2]
         existence_feature_sign = False
         add_patterns = frozenset({('disembark-truck', (1, 2))})
         del_patterns = frozenset({('board-truck', (1,))})
         remaining_pre_patterns = set()
         previous_oi_feature = None
-        type_combination = Multiset({1: 1})
+        type_combination = hm.Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -805,13 +834,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][7] = oi_feature
 
         # OI Feature 8
-        exist_feature = features[iteration][2]
+        existence_feature = features[iteration][2]
         existence_feature_sign = True
         add_patterns = frozenset({('drive-truck', (2, 0)), ('board-truck', (1, 2))})
         del_patterns = frozenset({('drive-truck', (2,)), ('disembark-truck', (1,))})
         remaining_pre_patterns = set()
         previous_oi_feature = None
-        type_combination = Multiset({1: 1})
+        type_combination = hm.Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -824,13 +853,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][8] = oi_feature
 
         # OI Feature 9
-        exist_feature = features[iteration][3]
+        existence_feature = features[iteration][3]
         existence_feature_sign = False
         add_patterns = frozenset({('disembark-truck', (0, 2)), ('walk', (0, 1))})
         del_patterns = frozenset({('board-truck', (0,)), ('walk', (0,))})
         remaining_pre_patterns = set()
         previous_oi_feature = None
-        type_combination = Multiset({3: 1})
+        type_combination = hm.Multiset({3: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -843,13 +872,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][9] = oi_feature
 
         # OI Feature 10
-        exist_feature = features[iteration][3]
+        existence_feature = features[iteration][3]
         existence_feature_sign = True
         add_patterns = frozenset({('board-truck', (0, 1))})
         del_patterns = frozenset({('disembark-truck', (0,))})
         remaining_pre_patterns = {('drive-truck', (1,))}
         previous_oi_feature = oi_features[0][10]
-        type_combination = Multiset({3: 1})
+        type_combination = hm.Multiset({3: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -862,13 +891,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][10] = oi_feature
 
         # OI Feature 11
-        exist_feature = None
+        existence_feature = None
         existence_feature_sign = None
         add_patterns = frozenset({('disembark-truck', (0, 2)), ('board-truck', (0, 1)), ('walk', (0, 1))})
         del_patterns = frozenset({('disembark-truck', (0,)), ('board-truck', (0,)), ('walk', (0,))})
         remaining_pre_patterns = {('drive-truck', (1,))}
         previous_oi_feature = None
-        type_combination = Multiset({3: 1})
+        type_combination = hm.Multiset({3: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -881,13 +910,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][11] = oi_feature
 
         # OI Feature 12
-        exist_feature = features[iteration][3]
+        existence_feature = features[iteration][3]
         existence_feature_sign = True
         add_patterns = frozenset({('board-truck', (0, 2)), ('drive-truck', (1, 0))})
         del_patterns = frozenset({('disembark-truck', (0,)), ('drive-truck', (1,))})
         remaining_pre_patterns = set()
         previous_oi_feature = None
-        type_combination = Multiset({3: 1})
+        type_combination = hm.Multiset({3: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -900,13 +929,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][12] = oi_feature
 
         # OI Feature 13
-        exist_feature = None
+        existence_feature = None
         existence_feature_sign = None
         add_patterns = frozenset({('drive-truck', (1, 0)), ('walk', (0, 1))})
         del_patterns = frozenset({('drive-truck', (1,)), ('walk', (0,))})
         remaining_pre_patterns = {('disembark-truck', (0,)), ('board-truck', (0,))}
         previous_oi_feature = oi_features[0][13]
-        type_combination = Multiset({3: 1})
+        type_combination = hm.Multiset({3: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -919,13 +948,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][13] = oi_feature
 
         # OI Feature 14
-        exist_feature = features[iteration][8]
+        existence_feature = features[iteration][8]
         existence_feature_sign = True
         add_patterns = frozenset({('drive-truck', (2, 0, 1)), ('board-truck', (1, 2, 0))})
         del_patterns = frozenset({('drive-truck', (2, 3)), ('disembark-truck', (1, 2))})
         remaining_pre_patterns = set()
         previous_oi_feature = None
-        type_combination = Multiset({1: 1, 2: 1})
+        type_combination = hm.Multiset({1: 1, 2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -938,13 +967,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][14] = oi_feature
 
         # OI Feature 15
-        exist_feature = features[iteration][6]
+        existence_feature = features[iteration][6]
         existence_feature_sign = True
         add_patterns = frozenset({('drive-truck', (2, 1, 0)), ('board-truck', (1, 0, 2))})
         del_patterns = frozenset({('drive-truck', (2, 1)), ('disembark-truck', (1, 0))})
         remaining_pre_patterns = set()
         previous_oi_feature = None
-        type_combination = Multiset({1: 1, 3: 1})
+        type_combination = hm.Multiset({1: 1, 3: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -957,13 +986,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[1][15] = oi_feature
 
         # OI Feature 16
-        exist_feature = features[iteration][21]
+        existence_feature = features[iteration][21]
         existence_feature_sign = True
         add_patterns = frozenset({('drive-truck', (0, 1, 2)), ('board-truck', (2, 0, 1))})
         del_patterns = frozenset({('drive-truck', (3, 1)), ('disembark-truck', (2, 0))})
         remaining_pre_patterns = set()
         previous_oi_feature = None
-        type_combination = Multiset({2: 1, 3: 1})
+        type_combination = hm.Multiset({2: 1, 3: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -981,13 +1010,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         locm_types = locm_types_list[iteration]
 
         # OI Feature 1 Package is loaded into Truck
-        exist_feature = features[iteration][1]
+        existence_feature = features[iteration][1]
         existence_feature_sign = True
         add_patterns = frozenset({('load-truck', (0, 1))})
         del_patterns = frozenset({('unload-truck', (0,))})
         remaining_pre_patterns = set()
         previous_oi_feature = oi_features[1][1]
-        type_combination = Multiset({0: 1})
+        type_combination = hm.Multiset({0: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1000,13 +1029,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][1] = oi_feature
 
         # OI Feature 2
-        exist_feature = features[iteration][1]
+        existence_feature = features[iteration][1]
         existence_feature_sign = False
         add_patterns = frozenset({('unload-truck', (0, 3))})
         del_patterns = frozenset({('load-truck', (0,))})
         remaining_pre_patterns = set()
         previous_oi_feature = None
-        type_combination = Multiset({0: 1})
+        type_combination = hm.Multiset({0: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1019,13 +1048,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][2] = oi_feature
 
         # OI Feature 3
-        exist_feature = None
+        existence_feature = None
         existence_feature_sign = None
         add_patterns = frozenset({('unload-truck', (0, 3)), ('load-truck', (0, 1))})
         del_patterns = frozenset({('unload-truck', (0,)), ('load-truck', (0,))})
         remaining_pre_patterns = set()
         previous_oi_feature = None
-        type_combination = Multiset({0: 1})
+        type_combination = hm.Multiset({0: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1038,13 +1067,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][3] = oi_feature
 
         # OI Feature 4
-        exist_feature = None
+        existence_feature = None
         existence_feature_sign = None
         add_patterns = frozenset({('board-truck', (1, 0)), ('disembark-truck', (1, 2))})
         del_patterns = frozenset({('disembark-truck', (1,)), ('board-truck', (1,))})
         remaining_pre_patterns = {('load-truck', (1,)), ('drive-truck', (2,)), ('unload-truck', (1,))}
         previous_oi_feature = oi_features[1][4]
-        type_combination = Multiset({1: 1})
+        type_combination = hm.Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1057,13 +1086,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][4] = oi_feature
 
         # OI Feature 5
-        exist_feature = features[iteration][2]
+        existence_feature = features[iteration][2]
         existence_feature_sign = True
         add_patterns = frozenset({('board-truck', (1, 0))})
         del_patterns = frozenset({('disembark-truck', (1,))})
         remaining_pre_patterns = {('drive-truck', (2,))}
         previous_oi_feature = oi_features[1][5]
-        type_combination = Multiset({1: 1})
+        type_combination = hm.Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1076,13 +1105,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][5] = oi_feature
 
         # OI Feature 6
-        exist_feature = None
+        existence_feature = None
         existence_feature_sign = None
         add_patterns = frozenset({('drive-truck', (2, 0))})
         del_patterns = frozenset({('drive-truck', (2,))})
         remaining_pre_patterns = {('load-truck', (1,)), ('unload-truck', (1,)), ('disembark-truck', (1,)), ('board-truck', (1,))}
         previous_oi_feature = oi_features[1][6]
-        type_combination = Multiset({1: 1})
+        type_combination = hm.Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1095,13 +1124,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][6] = oi_feature
 
         # OI Feature 7
-        exist_feature = features[iteration][2]
+        existence_feature = features[iteration][2]
         existence_feature_sign = False
         add_patterns = frozenset({('disembark-truck', (1, 2))})
         del_patterns = frozenset({('board-truck', (1,))})
         remaining_pre_patterns = set()
         previous_oi_feature = oi_features[1][7]
-        type_combination = Multiset({1: 1})
+        type_combination = hm.Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1114,13 +1143,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][7] = oi_feature
 
         # OI Feature 8
-        exist_feature = features[iteration][2]
+        existence_feature = features[iteration][2]
         existence_feature_sign = True
         add_patterns = frozenset({('drive-truck', (2, 0)), ('board-truck', (1, 2))})
         del_patterns = frozenset({('drive-truck', (2,)), ('disembark-truck', (1,))})
         remaining_pre_patterns = set()
         previous_oi_feature = oi_features[1][8]
-        type_combination = Multiset({1: 1})
+        type_combination = hm.Multiset({1: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1133,13 +1162,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][8] = oi_feature
 
         # OI Feature 9
-        exist_feature = features[iteration][3]
+        existence_feature = features[iteration][3]
         existence_feature_sign = False
         add_patterns = frozenset({('disembark-truck', (0, 2)), ('walk', (0, 1))})
         del_patterns = frozenset({('board-truck', (0,)), ('walk', (0,))})
         remaining_pre_patterns = set()
         previous_oi_feature = oi_features[1][9]
-        type_combination = Multiset({2: 1})
+        type_combination = hm.Multiset({2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1152,13 +1181,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][9] = oi_feature
 
         # OI Feature 10
-        exist_feature = features[iteration][3]
+        existence_feature = features[iteration][3]
         existence_feature_sign = True
         add_patterns = frozenset({('board-truck', (0, 1))})
         del_patterns = frozenset({('disembark-truck', (0,))})
         remaining_pre_patterns = {('drive-truck', (1,))}
         previous_oi_feature = oi_features[1][10]
-        type_combination = Multiset({2: 1})
+        type_combination = hm.Multiset({2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1171,13 +1200,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][10] = oi_feature
 
         # OI Feature 11
-        exist_feature = None
+        existence_feature = None
         existence_feature_sign = None
         add_patterns = frozenset({('disembark-truck', (0, 2)), ('board-truck', (0, 1)), ('walk', (0, 1))})
         del_patterns = frozenset({('disembark-truck', (0,)), ('board-truck', (0,)), ('walk', (0,))})
         remaining_pre_patterns = {('drive-truck', (1,))}
         previous_oi_feature = oi_features[1][11]
-        type_combination = Multiset({2: 1})
+        type_combination = hm.Multiset({2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1190,13 +1219,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][11] = oi_feature
 
         # OI Feature 12
-        exist_feature = features[iteration][3]
+        existence_feature = features[iteration][3]
         existence_feature_sign = True
         add_patterns = frozenset({('board-truck', (0, 2)), ('drive-truck', (1, 0))})
         del_patterns = frozenset({('disembark-truck', (0,)), ('drive-truck', (1,))})
         remaining_pre_patterns = set()
         previous_oi_feature = oi_features[1][12]
-        type_combination = Multiset({2: 1})
+        type_combination = hm.Multiset({2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1209,13 +1238,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][12] = oi_feature
 
         # OI Feature 13
-        exist_feature = None
+        existence_feature = None
         existence_feature_sign = None
         add_patterns = frozenset({('drive-truck', (1, 0)), ('walk', (0, 1))})
         del_patterns = frozenset({('drive-truck', (1,)), ('walk', (0,))})
         remaining_pre_patterns = {('disembark-truck', (0,)), ('board-truck', (0,))}
         previous_oi_feature = oi_features[1][13]
-        type_combination = Multiset({2: 1})
+        type_combination = hm.Multiset({2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1228,13 +1257,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][13] = oi_feature
 
         # OI Feature 14
-        exist_feature = features[iteration][8]
+        existence_feature = features[iteration][8]
         existence_feature_sign = True
         add_patterns = frozenset({('drive-truck', (2, 0, 1)), ('board-truck', (1, 2, 0))})
         del_patterns = frozenset({('drive-truck', (2, 3)), ('disembark-truck', (1, 2))})
         remaining_pre_patterns = set()
         previous_oi_feature = oi_features[1][14]
-        type_combination = Multiset({1: 1, 2: 1})
+        type_combination = hm.Multiset({1: 1, 2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1247,13 +1276,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][14] = oi_feature
 
         # OI Feature 15
-        exist_feature = features[iteration][6]
+        existence_feature = features[iteration][6]
         existence_feature_sign = True
         add_patterns = frozenset({('drive-truck', (2, 1, 0)), ('board-truck', (1, 0, 2))})
         del_patterns = frozenset({('drive-truck', (2, 1)), ('disembark-truck', (1, 0))})
         remaining_pre_patterns = set()
         previous_oi_feature = oi_features[1][15]
-        type_combination = Multiset({1: 1, 2: 1})
+        type_combination = hm.Multiset({1: 1, 2: 1})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1266,13 +1295,13 @@ class TestGraphGenerationMethods(unittest.TestCase):
         oi_features[2][15] = oi_feature
 
         # OI Feature 16
-        exist_feature = features[iteration][21]
+        existence_feature = features[iteration][21]
         existence_feature_sign = True
         add_patterns = frozenset({('drive-truck', (0, 1, 2)), ('board-truck', (2, 0, 1))})
         del_patterns = frozenset({('drive-truck', (3, 1)), ('disembark-truck', (2, 0))})
         remaining_pre_patterns = set()
         previous_oi_feature = oi_features[1][16]
-        type_combination = Multiset({2: 2})
+        type_combination = hm.Multiset({2: 2})
         oi_feature = create_oi_feature(
             existence_feature,
             existence_feature_sign,
@@ -1287,10 +1316,14 @@ class TestGraphGenerationMethods(unittest.TestCase):
         # Define paths
         self.domain_path = "pddl_files/driverlog/driverlog.pddl"
         self.instance_paths = [
-            "pddl_files/driverlog/driverlog-2.pddl"
+            "pddl_files/driverlog/driverlog-p2l3.pddl",
+            "pddl_files/driverlog/driverlog-t2l3.pddl",
+            "pddl_files/driverlog/driverlog-td2.pddl"
         ]
         self.num_edges = [
-            40000
+            4000,
+            4000,
+            4000
         ]
         # Parameters
         self.number_inputs = 1
@@ -1308,6 +1341,10 @@ class TestGraphGenerationMethods(unittest.TestCase):
             'bfs': bfs_state_space
         }
 
+        self.process_pool_args = {
+            'max_workers' : 10
+        }
+
         oi_feature_order = (1,10,13,4,6,5,7,8,9,11,12,14,15,16,2,3)
 
         self.ar_sift = ARSift(dict())
@@ -1323,10 +1360,10 @@ class TestGraphGenerationMethods(unittest.TestCase):
             self.ar_sift.sift_iterations[i].all_features = set(features[i].values())
 
         self.ar_sift.updated_oi_features[0] = set()
-        self.ar_sift.revised_oi_feature[0] = (oi_features[0][1],oi_features[0][10],oi_features[0][13])
+        self.ar_sift.revised_oi_features[0] = (oi_features[0][1],oi_features[0][10],oi_features[0][13])
 
         self.ar_sift.updated_oi_features[1] = set()
-        self.ar_sift.revised_oi_feature[1] = tuple(
+        self.ar_sift.revised_oi_features[1] = tuple(
             oi_features[1][key]
             for key in oi_feature_order
             if key not in oi_features[0] and
@@ -1339,20 +1376,38 @@ class TestGraphGenerationMethods(unittest.TestCase):
             if key in oi_features[1] and
             oi_features[2][key].get_type_combination().count(2)>0
         )
-        self.ar_sift.revised_oi_feature[2] = tuple(
+        self.ar_sift.revised_oi_features[2] = tuple(
             oi_features[2][key]
             for key in oi_feature_order
             if key not in oi_features[1] or
             oi_features[2][key].get_type_combination().count(2)>0
         )
 
+        assign = {
+            #action -> oif num -> pat[1]
+            "load-truck" : {2 : (4,(1,)), 3 : (6,(1,))},
+            "drive-truck" : {2 : (10,(1,)), 3 : (13,(1,))},
+            "walk" : {2 : (13,(0,))},
+            "board-truck" : {2 : (13,(0,))},
+            "unload-truck" : {1 : (1,(0,)), 2 : (4,(1,)), 3 : (6,(1,))},
+            "disembark-truck" : {1 : (10,(0,)), 2 : (13,(0,))}
+        }
+        for action, assigns in assign.items():
+            self.ar_sift.arg_feature_assignments[action] = dict()
+            for arg, (fnum, pat1) in assigns.items():
+                oi_feature = oi_features[2][fnum]
+                ai_pattern = (action, pat1)
+                self.ar_sift.arg_feature_assignments[action][arg] = (oi_feature,ai_pattern)
+        print(self.ar_sift.arg_feature_assignments)
+
     def test_verifier(self):
+        verifier = copy.deepcopy(self.ar_sift)
+
         method_name = 'bfs'
+        graphs = dict()
         for i in range(len(self.instance_paths)):
             pddl_holder = mimir_holder(self.domain_path, self.instance_paths[i])
             #static_pddl_holder = mimir_holder(self.domain_path_static, self.instance_path_static)
-
-            verifier = copy.deepcopy(self.ar_sift)
 
             # Generate graph using bfs_state_space
             ret = self.methods[method_name](
@@ -1364,10 +1419,27 @@ class TestGraphGenerationMethods(unittest.TestCase):
                 arg_mask=self.arg_mask
             )
 
-            graphs = {0 : (ret[0], ret[1])}
+            graphs[i] = (ret[0], ret[1])
 
-            verifier.replace_graphs(graphs)
-            verifier.run()
+        for instance in graphs.values():
+            for u, v, data in instance[0].edges(data=True):
+                labels = data['action']
+                new_labels = set()
+                for label in labels:
+                    if label[0] in self.arg_mask:
+                        mask = self.arg_mask[label[0]]
+                        new_label = (label[0],tuple(x for i, x in enumerate(label[1]) if i not in mask))
+                    else:
+                        new_label = label
+                    new_labels.add(new_label)
+                data['action'] = new_labels
+            print(f"Graph with {instance[0].number_of_nodes()} nodes and {instance[0].number_of_edges()} edges.")
+
+        verifier.replace_graphs(graphs)
+        verifier.run(
+            self.process_pool_args,
+            verification_mode = True
+        )
 
 if __name__ == '__main__':
     unittest.main()
