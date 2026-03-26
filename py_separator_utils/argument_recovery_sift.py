@@ -308,6 +308,14 @@ class Argument_Recovery_Sift:
                         oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])
                         for oi_feature in self.argument_identifier_features[iteration]
                     ):
+                        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Failed to apply new arguments on {self.argument_identifier_features[iteration]}")
+                        for oi_feature in self.argument_identifier_features[iteration]:
+                            if oi_feature.is_invalid():
+                                print(f"Required OI_Feature {repr(oi_feature)} got invalid")
+                            elif oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature]):
+                                print(f"Required Prec Patterns were disabled: {oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])}")
+                                print(f"Allowed disabled Prec Patterns List: {previous_disabled_patterns[oi_feature]}")
+                                print(f"Actual disabled Prec Patterns List: {oi_feature.disabled_pre_patterns}")
                         raise StratificationError(
                             iteration,
                             f"An OI Feature or Pattern used to setup the next graph became invalid in iteration {iteration}"
