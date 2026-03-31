@@ -798,7 +798,7 @@ def create_clingo_groundings_list(all_ground_edges : dict)->str:
             groundings_encoding += f"action_possible({get_clingo_action_string(action)},{instance},({head})).\n"
     return groundings_encoding
 
-def process_instance(args: argparse.Namespace):
+def process_instance(args: argparse.Namespace, output_file: str = "test"):
     # create domain paths
     start_time = time.time()
     domain_path = os.path.join(
@@ -903,7 +903,7 @@ def process_instance(args: argparse.Namespace):
     print(f"{ut.format_cur_time()}: Learning Domain", flush=True)
     #recovered_graphs = dict()
     if recover_args_mode:
-        ar_sift = ARSift(instance_dict)
+        ar_sift = ARSift(instance_dict, output_file_name=output_file)
         oi_features, features = ar_sift.run(
             process_pool_args,
             max_iterations,
@@ -934,6 +934,15 @@ def process_instance(args: argparse.Namespace):
         meta_info['all_oi_features'] = len(all_tested_oi_features)
         meta_info['admissible_oi_features'] = len(oi_features)
         meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
+        synth_assingments = dict()
+        for iteration, synth_assingment in sorted(ar_sift.stored_queries.items()):
+            for action, assigns in synth_assingment.items():
+                if action not in synth_assingments:
+                    synth_assingments[action] = dict()
+                for arg, assign in assigns.items():
+                    if assign is not None:
+                        synth_assingments[action][arg] = assign
+        meta_info['action_argument_query_assignments'] = synth_assingments
         meta_info['action_argument_multi_assignments'] = ar_sift.multi_arg_feature_assignment
         meta_info['all_action_argument_assignments'] = ar_sift.all_arg_feature_assignments
         meta_info['all_ground_edges'] = ar_sift.sift_iterations[iteration].all_ground_edges
@@ -1207,6 +1216,7 @@ if __name__ == '__main__':
             for run in range(runs):
                 print(f"{ut.format_cur_time()}: Batchmode line {line_num} run {run}", flush=True)
                 start_time = time.time()
+                output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
                 (
                     LOCM_types,
                     oi_features,
@@ -1218,7 +1228,7 @@ if __name__ == '__main__':
                     instance_object_names_dict,
                     verification_val,
                     meta_info
-                ) = process_instance(args)
+                ) = process_instance(args, output_file=output_file)
                 end_time = time.time()
                 sum_time += end_time - start_time
                 if verification_val == 0:
@@ -1230,7 +1240,6 @@ if __name__ == '__main__':
                 sum_all_oi_features += meta_info.get('all_oi_features',0)
                 sum_all_features += meta_info.get('all_features',0)
                 max_all_features = max(max_all_features, meta_info.get('all_oi_features',0))
-                output_file = '{}_{}_{:02d}'.format(benchmark_name,line_num,run)
                 output_path = 'output/{}.txt'.format(output_file)
                 with open(output_path, "w") as out_file:
                     out_file.write(str(LOCM_types)+"\n")
@@ -1257,11 +1266,16 @@ if __name__ == '__main__':
                         #if feature.has_unique_colouring():
                         out_file.write(f"Feature {i+1}:\n")
                         out_file.write(str(feature))
+
+                    synth_assingments = meta_info.get('action_argument_query_assignments',dict())
                     for action, assignments in meta_info.get('action_argument_assignments',dict()).items():
                         output_line = f"Implicit agruments {action}: "
                         #as action is stated already only pattern[1] is needed
                         for index, (oi_feature, pattern) in assignments.items():
                             output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature,repr(oi_feature))} Pattern {pattern[1]}), "
+                        for index, query in synth_assingments.get(action, dict()).items():
+                            if query is not None:
+                                output_line += f"({index}: Query {query},"
                         out_file.write(output_line + "\n")
 
                     if verification_val == 0:
@@ -1470,11 +1484,15 @@ if __name__ == '__main__':
             print(feature)
 
         #print arg assignments
+        synth_assingments = meta_info.get('action_argument_query_assignments',dict())
         for action, assignments in meta_info.get('action_argument_assignments',dict()).items():
             output_line = f"Implicit arguments {action}: "
             #as action is stated already only pattern[1] is needed
             for index, (oi_feature, pattern) in assignments.items():
                 output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature, repr(oi_feature))} Pattern {pattern[1]}), "
+            for index, query in synth_assingments.get(action, dict()).items():
+                if query is not None:
+                    output_line += f"({index}: Query {query},"
             print(output_line)
 
         #print(instance_atoms_dict)

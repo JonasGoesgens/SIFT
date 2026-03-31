@@ -15,7 +15,8 @@ from py_separator_utils.exceptions import StratificationError
 
 class Argument_Recovery_Sift:
     def __init__(self, graphs : Union[List[Tuple[pt.GraphT, pt.NodeT]],
-        Dict[int, Tuple[pt.GraphT, pt.NodeT]]]
+        Dict[int, Tuple[pt.GraphT, pt.NodeT]]],
+        output_file_name : str = "test"
     ):
         self.sift_iterations = dict()
         self.sift_iterations[0] = SIFT(graphs)
@@ -30,7 +31,9 @@ class Argument_Recovery_Sift:
         self.updated_oi_features = dict()
         self.updated_oi_features[0] = set()
         self.revised_oi_features = dict()
+        self.stored_queries = dict()
         self.pre_pattern_disabling = True
+        self.output_file_name = output_file_name
 
     @classmethod
     def _check_feature(
@@ -401,7 +404,12 @@ class Argument_Recovery_Sift:
                 all_objects
             )
             #TODO submit new_graphs to synth
-            new_graphs, synth_changed_graph = synth_update_graphs(new_graphs)
+            stored_queries = self.stored_queries.get(iteration - 1, dict())
+            new_graphs, synth_changed_graph, stored_queries = synth_update_graphs(
+                new_graphs, stored_queries, verification_mode,
+                output_file_name=self.output_file_name,
+            )
+            self.stored_queries[iteration - 1] = stored_queries
             input_changed = input_changed or synth_changed_graph
 
             self.sift_iterations[iteration].replace_graphs(new_graphs)

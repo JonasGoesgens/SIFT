@@ -9,7 +9,7 @@ import py_separator_utils.synth_dependencies.synthalg as alg
 from pathlib import Path
 from contextlib import redirect_stdout
 
-def get_synth_logger() -> logging.Logger:
+def get_synth_logger(output_file_name: str | None = None,) -> logging.Logger:
     """
     Logger for synth output to keep progress print statements readable.
     """
@@ -19,7 +19,11 @@ def get_synth_logger() -> logging.Logger:
     if logger.handlers:
         return logger
 
-    log_path = Path("output/stdout/synth_log.txt")
+    if output_file_name:
+        log_path = Path(f"output/stdout/{output_file_name}_synth_log.txt")
+    else:
+        log_path = Path("output/stdout/synth_log.txt")
+
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
     from logging.handlers import RotatingFileHandler
@@ -47,19 +51,29 @@ def get_synth_logger() -> logging.Logger:
     return logger
 
 def synth_update_graphs(
-    graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]]
+    graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
+    stored_queries : dict = dict(),
+    verification_mode : bool = False,
+    output_file_name: str | None = None,
 ) -> Dict[int, Tuple[pt.GraphT, pt.NodeT]]:
     print(f"{ut.format_cur_time()}: Running SYNTH", flush=True)
     #for instance, (Graph, initial_node_id) in graphs.items():
     #    assert(initial_node_id in Graph.nodes())
     #    print(Graph.nodes[initial_node_id].get(pt.Atom_List_key, dict()))
     #run Synth
+    #stored_queries: action_name -> {arg -> query}
+    #alternative storage tuple(query1, query2...)
+    #   only store queries that add new args.
+    #if stored_queries not applicable raise StratificationError
+    #if verification_mode do not generate new queries just apply the old ones
+    #   and keep the added arguments even is they seem to be duplicates
+    #   as they were not during learning.
     graphs_bak = copy.deepcopy(graphs)
-    log = get_synth_logger()
+    log = get_synth_logger(output_file_name)
     buf = io.StringIO()
     try:
-        #with redirect_stdout(buf):
-        graphs, changed = alg.synth(graphs)
+        with redirect_stdout(buf):
+            graphs, changed, argument_queries = alg.synth(graphs, stored_queries, verification_mode)
     except Exception as e:
         log.exception("Synth raised an exception – rollback to backup")
         stdout_captured = buf.getvalue()
@@ -73,4 +87,4 @@ def synth_update_graphs(
 
     #print(f"{ut.format_cur_time()}: Updating Graph labels", flush=True)
     #add query values to labels
-    return graphs, changed
+    return graphs, changed, argument_queries

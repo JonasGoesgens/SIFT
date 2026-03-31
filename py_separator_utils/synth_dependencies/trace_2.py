@@ -1286,7 +1286,7 @@ class GraphTrace(Trace):
 
         # Normalize input: single graph → dict with key 0
         if isinstance(graph, nx.DiGraph):
-            graphs = {0: (graph, 0)}
+            graphs = {0: (graph, next(iter(graph.nodes())))}
         else:
             graphs = dict()
             for _id, (_g,_sift_int) in graph.items():
