@@ -2,7 +2,7 @@
 #SBATCH --job-name=synth+
 #SBATCH --output=output/stdout/synth_job_%A_%a.out
 #SBATCH --error=output/stderr/synth_job_%A_%a.err
-#SBATCH --array=0-13
+#SBATCH --array=[0,1,2,4,7,8,9,10,12,13]
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=40G
 #SBATCH --gpus=0
