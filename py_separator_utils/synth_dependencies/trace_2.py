@@ -370,6 +370,9 @@ class Trace:
                 self.action_object_list[action_number].append(new_arg)
             self.action_arity[action_name] += 1
 
+        if not already_contained and not self.validation:
+            print(f"There was an arguments added for '{action_name}' with query: {query}!")
+
         return True if self.validation else not already_contained
 
     def _arguments_already_contained(self, argument_dict, action_name):
