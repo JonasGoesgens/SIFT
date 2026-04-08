@@ -1301,6 +1301,19 @@ class GraphTrace(Trace):
         self._node_false_atoms = {}  # {(gid, nid): {pred: set of tuples}}
         pred_arity_dict = {}
 
+        def _has_minus2(tup):
+            return any(arg == -2 or arg == '-2' for arg in tup)
+
+        # Collect predicates that have any grounding containing -2 across all nodes
+        _preds_with_minus2 = set()
+        for gid, g in graphs.items():
+            for node in g.nodes():
+                raw = g.nodes[node].get('atoms', {})
+                for arity, preds in raw.items():
+                    for pred, (true_set, false_set) in preds.items():
+                        if any(_has_minus2(t) for t in true_set) or any(_has_minus2(t) for t in false_set):
+                            _preds_with_minus2.add(pred)
+
         for gid, g in graphs.items():
             for node in g.nodes():
                 raw = g.nodes[node].get('atoms', {})
@@ -1308,6 +1321,8 @@ class GraphTrace(Trace):
                 false_atoms = {}
                 for arity, preds in raw.items():
                     for pred, (true_set, false_set) in preds.items():
+                        if pred in _preds_with_minus2:
+                            continue
                         true_atoms[pred] = set(true_set)
                         false_atoms[pred] = set(false_set)
                         if pred not in pred_arity_dict:
