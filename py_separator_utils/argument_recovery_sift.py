@@ -7,8 +7,10 @@ from py_separator_utils.conflict_manager import ConflictManager
 from py_separator_utils.synth import synth_update_graphs
 import copy
 import sys
+import logging
 import time
 import warnings
+from pathlib import Path
 from typing import Set, List, Tuple, Dict, Union, Iterable
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 from py_separator_utils.exceptions import StratificationError
@@ -34,6 +36,47 @@ class Argument_Recovery_Sift:
         self.stored_queries = dict()
         self.pre_pattern_disabling = True
         self.output_file_name = output_file_name
+
+    def get_arc_rec_logger(self) -> logging.Logger:
+        """
+        Logger for synth output to keep progress print statements readable.
+        """
+        logger_name = "arg_rec_sift"
+        logger = logging.getLogger(logger_name)
+
+        if logger.handlers:
+            return logger
+
+        if self.output_file_name:
+            log_path = Path(f"output/stdout/{self.output_file_name}_arg_rec_sift_log.txt")
+        else:
+            log_path = Path("output/stdout/arg_rec_sift_log.txt")
+
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        from logging.handlers import RotatingFileHandler
+        file_handler = RotatingFileHandler(
+            log_path,
+            mode="a",
+            maxBytes=5 * 1024 * 1024,
+            backupCount=3,
+            encoding="utf-8"
+        )
+        file_handler.setLevel(logging.DEBUG)
+
+        formatter = logging.Formatter(
+            fmt="%(asctime)s %(levelname)-8s %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        file_handler.setFormatter(formatter)
+
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(file_handler)
+
+        logger.propagate = False
+
+        logger.debug("Synth-Logger initialized → %s", log_path.resolve())
+        return logger
 
     @classmethod
     def _check_feature(
@@ -290,6 +333,9 @@ class Argument_Recovery_Sift:
 
         The loop runs until the stratification can no longer be extended or the specified limit is reached.
         """
+        def debug_and_print(line : str):
+            self.get_arc_rec_logger().debug(line)
+            print(line)
         iteration = 0
         input_changed = True
         synth_changed_graph = False
@@ -304,6 +350,16 @@ class Argument_Recovery_Sift:
                     previous_disabled_patterns[oi_feature] = oi_feature.disabled_pre_patterns.copy()
             self.run_iteration(iteration, process_pool_args, verification_mode)
             print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Found {len(self.admissible_order_id_features[iteration])}/{len(self.order_id_features[iteration])} Mutex Features", flush=True)
+            self.get_arc_rec_logger().debug(f"Argument Recovery iteration {iteration}")
+            self.get_arc_rec_logger().debug(f"LOCM types: {repr(self.sift_iterations[iteration].LOCM_types)}")
+            output_lines = ""
+            for feature in self.sift_iterations[iteration].admissible_features:
+                output_lines += f"Feature {repr(feature)}\n"
+                if feature.is_invalid():
+                    continue
+                if feature.has_unique_colouring():
+                    output_lines += f"    {feature.color_splits[0]}\n"
+            self.get_arc_rec_logger().debug(output_lines)
             if verification_mode:
                 if (iteration + 1) in self.sift_iterations:
                     if any(
@@ -311,14 +367,14 @@ class Argument_Recovery_Sift:
                         oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])
                         for oi_feature in self.argument_identifier_features[iteration]
                     ):
-                        print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Failed to apply new arguments on {self.argument_identifier_features[iteration]}")
+                        debug_and_print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Failed to apply new arguments on {self.argument_identifier_features[iteration]}")
                         for oi_feature in self.argument_identifier_features[iteration]:
                             if oi_feature.is_invalid():
-                                print(f"Required OI_Feature {repr(oi_feature)} got invalid")
+                                debug_and_print(f"Required OI_Feature {repr(oi_feature)} got invalid")
                             elif oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature]):
-                                print(f"Required Prec Patterns were disabled: {oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])}")
-                                print(f"Allowed disabled Prec Patterns List: {previous_disabled_patterns[oi_feature]}")
-                                print(f"Actual disabled Prec Patterns List: {oi_feature.disabled_pre_patterns}")
+                                debug_and_print(f"Required Prec Patterns were disabled: {oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])}")
+                                debug_and_print(f"Allowed disabled Prec Patterns List: {previous_disabled_patterns[oi_feature]}")
+                                debug_and_print(f"Actual disabled Prec Patterns List: {oi_feature.disabled_pre_patterns}")
                         raise StratificationError(
                             iteration,
                             f"An OI Feature or Pattern used to setup the next graph became invalid in iteration {iteration}"
@@ -337,6 +393,16 @@ class Argument_Recovery_Sift:
                     if not oi_feature.is_invalid() and
                     oi_feature in self.updated_oi_features[iteration].union(new_oi_features)
                 )
+
+            output_lines = ""
+            for oi_feature in self.argument_identifier_features[iteration]:
+                output_lines += f"OI_Feature {repr(oi_feature)}\n"
+                if oi_feature.is_invalid():
+                    continue
+                output_lines += f"    all precs{oi_feature.pre_patterns}\n"
+                output_lines += f"    disabled precs{oi_feature.disabled_pre_patterns}\n"
+                output_lines += f"    pattern order{oi_feature.argument_identifier_patterns}\n"
+            self.get_arc_rec_logger().debug("OI_Features in priority order\n" + output_lines)
 
             #Interpretation of current run complete prepare next run.
             print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Updating action labels", flush=True)
