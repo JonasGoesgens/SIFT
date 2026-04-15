@@ -3,7 +3,7 @@ from py_separator_utils.synth_dependencies.ActionAdds import AllActionCandidates
 from py_separator_utils.synth_dependencies.trace_2 import GraphTrace
 
 def synth(trace, stored_queries, verification_mode):
-    time_start = time.time()
+
     new_Trace = GraphTrace(trace,dict(),dict(),list())
     num_initial_args = sum([ar for action, ar in new_Trace.action_arity.items()])
 
@@ -24,7 +24,7 @@ def synth(trace, stored_queries, verification_mode):
     effects = new_Trace.get_effect_argument_positions()
     print_effects(effects)
 
-    time_end = str(round(time.time() - time_start, 2)) + ' s'
+    new_Trace.print_query_output()
 
     #num_missing, num_additional = new_Trace.check_final_args()
     #new_Trace.print_action_arity()
