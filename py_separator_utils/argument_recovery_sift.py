@@ -536,6 +536,7 @@ class Argument_Recovery_Sift:
             _ = self.argument_identifier_features.pop(iteration, None)
             _ = self.admissible_order_id_features.pop(iteration, None)
             _ = self.revised_oi_features.pop(iteration, None)
+            _ = self.stored_queries.pop(iteration, None)
             iteration -= 1
 
         #An oi feature may not have been changed in the final iteration

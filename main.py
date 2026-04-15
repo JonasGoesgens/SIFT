@@ -942,15 +942,15 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
         meta_info['all_oi_features'] = len(all_tested_oi_features)
         meta_info['admissible_oi_features'] = len(oi_features)
         meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
-        synth_assingments = dict()
-        for iteration, synth_assingment in sorted(ar_sift.stored_queries.items()):
-            for action, assigns in synth_assingment.items():
-                if action not in synth_assingments:
-                    synth_assingments[action] = dict()
+        synth_assignments = dict()
+        for _, synth_assignment in sorted(ar_sift.stored_queries.items()):
+            for action, assigns in synth_assignment.items():
+                if action not in synth_assignments:
+                    synth_assignments[action] = dict()
                 for arg, assign in assigns.items():
                     if assign is not None:
-                        synth_assingments[action][arg] = assign
-        meta_info['action_argument_query_assignments'] = synth_assingments
+                        synth_assignments[action][arg] = assign
+        meta_info['action_argument_query_assignments'] = synth_assignments
         meta_info['action_argument_multi_assignments'] = ar_sift.multi_arg_feature_assignment
         meta_info['all_action_argument_assignments'] = ar_sift.all_arg_feature_assignments
         meta_info['all_ground_edges'] = ar_sift.sift_iterations[iteration].all_ground_edges
@@ -1276,13 +1276,13 @@ if __name__ == '__main__':
                         out_file.write(f"Feature {i+1}:\n")
                         out_file.write(str(feature))
 
-                    synth_assingments = meta_info.get('action_argument_query_assignments',dict())
+                    synth_assignments = meta_info.get('action_argument_query_assignments',dict())
                     for action, assignments in meta_info.get('action_argument_assignments',dict()).items():
                         output_line = f"Implicit agruments {action}: "
                         #as action is stated already only pattern[1] is needed
                         for index, (oi_feature, pattern) in assignments.items():
                             output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature,repr(oi_feature))} Pattern {pattern[1]}), "
-                        for index, query in synth_assingments.get(action, dict()).items():
+                        for index, query in synth_assignments.get(action, dict()).items():
                             if query is not None:
                                 output_line += f"({index}: Query {query},"
                         out_file.write(output_line + "\n")
@@ -1494,13 +1494,13 @@ if __name__ == '__main__':
             print(feature)
 
         #print arg assignments
-        synth_assingments = meta_info.get('action_argument_query_assignments',dict())
+        synth_assignments = meta_info.get('action_argument_query_assignments',dict())
         for action, assignments in meta_info.get('action_argument_assignments',dict()).items():
             output_line = f"Implicit arguments {action}: "
             #as action is stated already only pattern[1] is needed
             for index, (oi_feature, pattern) in assignments.items():
                 output_line += f"({index}: OI_Feature {feature_numbers.get(oi_feature, repr(oi_feature))} Pattern {pattern[1]}), "
-            for index, query in synth_assingments.get(action, dict()).items():
+            for index, query in synth_assignments.get(action, dict()).items():
                 if query is not None:
                     output_line += f"({index}: Query {query},"
             print(output_line)
