@@ -180,7 +180,7 @@ class Argument_Recovery_Sift:
                 for oi_feature in self.updated_oi_features[iteration]
             )
         if iteration in self.revised_oi_features:
-            self.revised_oi_features[iteration] = set(
+            self.revised_oi_features[iteration] = tuple(
                 oi_features_sorting.get(oi_feature,oi_feature)
                 for oi_feature in self.revised_oi_features[iteration]
             )
