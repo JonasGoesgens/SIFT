@@ -21,27 +21,27 @@ class Argument_Recovery_Sift:
         use_full_synth : bool = True,
         output_file_name : str = "test"
     ):
-        self.sift_iterations = dict()
+        self.sift_iterations : Dict[int,SIFT] = dict()
         self.sift_iterations[0] = SIFT(graphs)
-        self.order_id_features = dict()
+        self.order_id_features : Dict[int,Set[OIFeature]] = dict()
         self.order_id_features[0] = set()
         self.arg_feature_assignments = dict()
         self.multi_arg_feature_assignment = dict()
         self.all_arg_feature_assignments = dict()
-        self.admissible_order_id_features = dict()
-        self.argument_identifier_features = dict()
+        self.admissible_order_id_features : Dict[int,Set[OIFeature]] = dict()
+        self.argument_identifier_features : Dict[int,Tuple[OIFeature]] = dict()
         self.argument_identifier_features[0] = tuple()
-        self.updated_oi_features = dict()
+        self.updated_oi_features : Dict[int,Set[OIFeature]] = dict()
         self.updated_oi_features[0] = set()
-        self.revised_oi_features = dict()
+        self.revised_oi_features : Dict[int,Tuple[OIFeature]] = dict()
         self.stored_queries = dict()
-        self.use_full_synth = use_full_synth
-        self.pre_pattern_disabling = True
-        self.output_file_name = output_file_name
+        self.use_full_synth : bool = use_full_synth
+        self.pre_pattern_disabling : bool = True
+        self.output_file_name : str = output_file_name
 
     def get_arc_rec_logger(self) -> logging.Logger:
         """
-        Logger for synth output to keep progress print statements readable.
+        Logger for arg rec sift output to keep progress print statements readable.
         """
         logger_name = "arg_rec_sift"
         logger = logging.getLogger(logger_name)
@@ -77,7 +77,7 @@ class Argument_Recovery_Sift:
 
         logger.propagate = False
 
-        logger.debug("Synth-Logger initialized → %s", log_path.resolve())
+        logger.debug("Arg-Rec-Sift-Logger initialized → %s", log_path.resolve())
         return logger
 
     @classmethod
