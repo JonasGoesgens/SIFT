@@ -142,11 +142,17 @@ class Ordered_Identifier_Feature:
                             out_state_identified_object = edge_out_identified_object
                         elif out_state_identified_object != edge_out_identified_object:
                             if edge_out_identified_object != pt.ObjectNotKnown:
+                                print(f"Invalidated {repr(self)}, Cause 1 Add effect mismatch", flush=True)
+                                print(edge_out_identified_object, out_state_identified_object, flush=True)
+                                print(label, edge_label, flush=True)
                                 self.invalitate()
                                 return None
                         if in_state_identified_object == out_state_identified_object:
                             #switching effects must actually switch something
                             if out_state_identified_object != pt.ObjectNotKnown:
+                                print(f"Invalidated {repr(self)}, Cause 2 Effect not well formed", flush=True)
+                                print(in_state_identified_object, out_state_identified_object, flush=True)
+                                print(label, edge_label, flush=True)
                                 self.invalitate()
                                 return None
             if found_add:
@@ -158,6 +164,8 @@ class Ordered_Identifier_Feature:
                 #must be changed and remain unchanged at the same time.
                 #This also means this property is decided already
                 #after the first label in the edge_label.
+                print(f"Invalidated {repr(self)}, Cause 3 Edge mixed adds and non adds", flush=True)
+                print(label, edge_label, flush=True)
                 self.invalitate()
                 return None
 
@@ -186,12 +194,16 @@ class Ordered_Identifier_Feature:
                         if in_state_identified_object == pt.ObjectNotExisting:
                             #the previous value must be still unknown or given.
                             #but it can not be no value stored.
+                            print(f"Invalidated {repr(self)}, Cause 4 Delete not well formed", flush=True)
+                            print(label, edge_label, flush=True)
                             self.invalitate()
                             return None
                         #for deletes we need to know whether there was an add
                         if found_add_unmatching:
                             if out_state_identified_object is not None:
                                 if out_state_identified_object != pt.ObjectNotExisting:
+                                    print(f"Invalidated {repr(self)}, Cause 5 Delete ignored", flush=True)
+                                    print(label, edge_label, flush=True)
                                     self.invalitate()
                                     return None
                             else:
@@ -205,6 +217,11 @@ class Ordered_Identifier_Feature:
                                     if self.additional_arguments[
                                         (instance, state, label, sel_pat)
                                     ] != in_state_identified_object:
+                                        print(f"Invalidated {repr(self)}, Cause 6 stored value mismatch for in node del", flush=True)
+                                        print(in_state_identified_object, self.additional_arguments[
+                                            (instance, state, label, sel_pat)
+                                        ], flush=True)
+                                        print(label, edge_label, flush=True)
                                         self.invalitate()
                                         return None
                                 else:
@@ -222,12 +239,16 @@ class Ordered_Identifier_Feature:
                 #existing and unchanged) at the same time.
                 #This also means this property is decided already
                 #after the first label in the edge_label.
+                print(f"Invalidated {repr(self)}, Cause 7 Edge mixed dels and non dels", flush=True)
+                print(label, edge_label, flush=True)
                 self.invalitate()
                 return None
             if found_add_matching and found_del_unmatching:
                 #in state has no stored object
                 if in_state_identified_object is not None:
                     if in_state_identified_object != pt.ObjectNotExisting:
+                        print(f"Invalidated {repr(self)}, Cause 8 Pure add requires empty mutex", flush=True)
+                        print(label, edge_label, flush=True)
                         self.invalitate()
                         return None
                 else:
@@ -237,6 +258,8 @@ class Ordered_Identifier_Feature:
                 if in_state_identified_object is None:
                     in_state_identified_object = pt.ObjectNotKnown
                 elif in_state_identified_object == pt.ObjectNotExisting:
+                    print(f"Invalidated {repr(self)}, Cause 9 Nothing to delete compare cause 4", flush=True)
+                    print(label, edge_label, flush=True)
                     self.invalitate()
                     return None
             if found_add_unmatching and found_del_unmatching:
@@ -250,6 +273,9 @@ class Ordered_Identifier_Feature:
                 elif out_state_identified_object == pt.ObjectNotKnown:
                     out_state_identified_object = in_state_identified_object
                 elif in_state_identified_object != out_state_identified_object:
+                    print(f"Invalidated {repr(self)}, Cause 10 Inertia failure", flush=True)
+                    print(in_state_identified_object, out_state_identified_object, flush=True)
+                    print(label, edge_label, flush=True)
                     self.invalitate()
                     return None
 
@@ -277,6 +303,9 @@ class Ordered_Identifier_Feature:
                         #    f"False indentifing precontition, this should never happen. oi feature:\n{self}existence:\n{self.existence_feature}",
                         #    UserWarning
                         #)
+                        print(f"Invalidated {repr(self)}, Cause 11 Precondition on empty mutex", flush=True)
+                        print(sel_pat, flush=True)
+                        print(label, edge_label, flush=True)
                         self.invalitate()
                         return None
                     elif (
@@ -291,6 +320,11 @@ class Ordered_Identifier_Feature:
                                 if self.additional_arguments[
                                     (instance, state, label, sel_pat)
                                 ] != in_state_identified_object:
+                                    print(f"Invalidated {repr(self)}, Cause 12 stored value mismatch for in node prec", flush=True)
+                                    print(in_state_identified_object, self.additional_arguments[
+                                        (instance, state, label, sel_pat)
+                                    ], flush=True)
+                                    print(label, edge_label, flush=True)
                                     self.invalitate()
                                     return None
                             else:
@@ -339,6 +373,7 @@ class Ordered_Identifier_Feature:
                         grounding
                     )
                     if result is None:
+                        print(f"Invalidated {repr(self)}, Cause 13 label parsing failed")
                         self.invalitate()
                         return None
                     if self.is_invalid():
