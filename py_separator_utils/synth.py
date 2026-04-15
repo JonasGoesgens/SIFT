@@ -20,9 +20,9 @@ def get_synth_logger(output_file_name: str | None = None,) -> logging.Logger:
         return logger
 
     if output_file_name:
-        log_path = Path(f"output/stdout/{output_file_name}_synth_log.txt")
+        log_path = Path(f"output/logs/{output_file_name}_synth_log.txt")
     else:
-        log_path = Path("output/stdout/synth_log.txt")
+        log_path = Path("output/logs/synth_log.txt")
 
     log_path.parent.mkdir(parents=True, exist_ok=True)
 

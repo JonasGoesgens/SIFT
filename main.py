@@ -816,6 +816,7 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
 
     recover_args_mode = False
     argument_mask_file = args.argument_mask
+    use_full_synth = False
     if argument_mask_file:
         predicate_mask_file = args.predicate_mask
         recover_args_mode = True
@@ -826,9 +827,12 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
             max_iterations = -max_iterations
             find_oi_features_in_last_iteration = True
         if predicate_mask_file:
+            #use an empty dict file to test full synth in sift+ setting
             predicate_mask = read_pred_dict_from_file(predicate_mask_file)
+            use_full_synth = True
         else:
             predicate_mask = dict()
+            use_full_synth = False
 
     instance_dict = dict()
     instance_backup_dict = dict()
@@ -903,7 +907,11 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
     print(f"{ut.format_cur_time()}: Learning Domain", flush=True)
     #recovered_graphs = dict()
     if recover_args_mode:
-        ar_sift = ARSift(instance_dict, output_file_name=output_file)
+        ar_sift = ARSift(
+            instance_dict,
+            use_full_synth=use_full_synth,
+            output_file_name=output_file
+        )
         oi_features, features = ar_sift.run(
             process_pool_args,
             max_iterations,
@@ -1187,6 +1195,7 @@ if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.realpath(__file__))
     if batch_mode:
         os.makedirs(os.path.join(dir_path, "output"          ), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "logs"), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "tables"), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "pddl"), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "statics"), exist_ok=True)
@@ -1443,6 +1452,7 @@ if __name__ == '__main__':
         ) = process_instance(args)
 
         os.makedirs(os.path.join(dir_path, "output", "statics"), exist_ok=True)
+        os.makedirs(os.path.join(dir_path, "output", "logs"), exist_ok=True)
         os.makedirs(os.path.join(dir_path, "output", "statics", "clingo"), exist_ok=True)
 
         #print secondary information

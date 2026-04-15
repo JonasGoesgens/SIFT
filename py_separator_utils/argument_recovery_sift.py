@@ -18,6 +18,7 @@ from py_separator_utils.exceptions import StratificationError
 class Argument_Recovery_Sift:
     def __init__(self, graphs : Union[List[Tuple[pt.GraphT, pt.NodeT]],
         Dict[int, Tuple[pt.GraphT, pt.NodeT]]],
+        use_full_synth : bool = True,
         output_file_name : str = "test"
     ):
         self.sift_iterations = dict()
@@ -34,6 +35,7 @@ class Argument_Recovery_Sift:
         self.updated_oi_features[0] = set()
         self.revised_oi_features = dict()
         self.stored_queries = dict()
+        self.use_full_synth = use_full_synth
         self.pre_pattern_disabling = True
         self.output_file_name = output_file_name
 
@@ -48,9 +50,9 @@ class Argument_Recovery_Sift:
             return logger
 
         if self.output_file_name:
-            log_path = Path(f"output/stdout/{self.output_file_name}_arg_rec_sift_log.txt")
+            log_path = Path(f"output/logs/{self.output_file_name}_arg_rec_sift_log.txt")
         else:
-            log_path = Path("output/stdout/arg_rec_sift_log.txt")
+            log_path = Path("output/logs/arg_rec_sift_log.txt")
 
         log_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -397,9 +399,9 @@ class Argument_Recovery_Sift:
             output_lines = ""
             for oi_feature in self.argument_identifier_features[iteration]:
                 output_lines += f"OI_Feature {repr(oi_feature)}\n"
+                output_lines += f"    all precs{oi_feature.pre_patterns}\n"
                 if oi_feature.is_invalid():
                     continue
-                output_lines += f"    all precs{oi_feature.pre_patterns}\n"
                 output_lines += f"    disabled precs{oi_feature.disabled_pre_patterns}\n"
                 output_lines += f"    pattern order{oi_feature.argument_identifier_patterns}\n"
             self.get_arc_rec_logger().debug("OI_Features in priority order\n" + output_lines)
@@ -471,12 +473,13 @@ class Argument_Recovery_Sift:
             )
             #TODO submit new_graphs to synth
             stored_queries = self.stored_queries.get(iteration - 1, dict())
-            new_graphs, synth_changed_graph, stored_queries = synth_update_graphs(
-                new_graphs, stored_queries, verification_mode,
-                output_file_name=self.output_file_name,
-            )
+            if self.use_full_synth:
+                new_graphs, synth_changed_graph, stored_queries = synth_update_graphs(
+                    new_graphs, stored_queries, verification_mode,
+                    output_file_name=self.output_file_name,
+                )
+                input_changed = input_changed or synth_changed_graph
             self.stored_queries[iteration - 1] = stored_queries
-            input_changed = input_changed or synth_changed_graph
 
             self.sift_iterations[iteration].replace_graphs(new_graphs)
             if not verification_mode:

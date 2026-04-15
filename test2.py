@@ -1347,7 +1347,7 @@ class TestGraphGenerationMethods(unittest.TestCase):
 
         oi_feature_order = (1,10,13,4,6,5,7,8,9,11,12,14,15,16,2,3)
 
-        self.ar_sift = ARSift(dict(), output_file_name="module_test_2")
+        self.ar_sift = ARSift(dict(), use_full_synth=False, output_file_name="module_test_2")
         for i in [0,1,2]:
             self.ar_sift.sift_iterations[i] = SIFT(dict())
             self.ar_sift.order_id_features[i] = set(oi_features[i].values())
