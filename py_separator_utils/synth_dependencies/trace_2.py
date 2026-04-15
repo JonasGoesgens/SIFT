@@ -148,6 +148,8 @@ class Trace:
 
         # Track which query/feature inferred each extended argument position.
         # Starts with None for all original (non-dropped) positions.
+        
+        
         self.argument_queries = {
             action: {ar: None for ar in range(arity)}
             for action, arity in self.action_arity.items()
@@ -1278,7 +1280,7 @@ class GraphTrace(Trace):
     """
 
     def __init__(self, graph: nx.DiGraph | dict[int, (nx.DiGraph, int)],
-                 dropped_args: dict, dropped_preds: set, type_list):
+                 dropped_args: dict, dropped_preds: set, type_list, current_queries: dict):
         # Bypass Trace.__init__ entirely — we build from graph data
         self.problem = None
         self.dropped_args = dropped_args
@@ -1414,10 +1416,12 @@ class GraphTrace(Trace):
 
         self._action_indices = self._build_action_indices()
 
-        self.argument_queries = {
-            action: {ar: None for ar in range(arity)}
-            for action, arity in self.action_arity.items()
-        }
+
+        self.argument_queries = current_queries
+        for _act, _ar in self.action_arity.items():
+            for _i in range(_ar):
+                if _i not in self.argument_queries[_act]:
+                    self.argument_queries[_act][_i] = None
 
         # Pre-compute effects from true_groundings only (definite changes)
         raw_affected_obj = []
