@@ -363,24 +363,24 @@ class Argument_Recovery_Sift:
                     output_lines += f"    {feature.color_splits[0]}\n"
             self.get_arc_rec_logger().debug(output_lines)
             if verification_mode:
-                if (iteration + 1) in self.sift_iterations:
-                    if any(
-                        oi_feature.is_invalid() or
-                        oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])
-                        for oi_feature in self.argument_identifier_features[iteration]
-                    ):
-                        debug_and_print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Failed to apply new arguments on {self.argument_identifier_features[iteration]}")
-                        for oi_feature in self.argument_identifier_features[iteration]:
-                            if oi_feature.is_invalid():
-                                debug_and_print(f"Required OI_Feature {repr(oi_feature)} got invalid")
-                            elif oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature]):
-                                debug_and_print(f"Required Prec Patterns were disabled: {oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])}")
-                                debug_and_print(f"Allowed disabled Prec Patterns List: {previous_disabled_patterns[oi_feature]}")
-                                debug_and_print(f"Actual disabled Prec Patterns List: {oi_feature.disabled_pre_patterns}")
-                        raise StratificationError(
-                            iteration,
-                            f"An OI Feature or Pattern used to setup the next graph became invalid in iteration {iteration}"
-                        )
+                #if (iteration + 1) in self.sift_iterations:
+                if any(
+                    oi_feature.is_invalid() or
+                    oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])
+                    for oi_feature in self.argument_identifier_features[iteration]
+                ):
+                    debug_and_print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Failed to apply new arguments on {self.argument_identifier_features[iteration]}")
+                    for oi_feature in self.argument_identifier_features[iteration]:
+                        if oi_feature.is_invalid():
+                            debug_and_print(f"Required OI_Feature {repr(oi_feature)} got invalid")
+                        elif oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature]):
+                            debug_and_print(f"Required Prec Patterns were disabled: {oi_feature.disabled_pre_patterns.difference(previous_disabled_patterns[oi_feature])}")
+                            debug_and_print(f"Allowed disabled Prec Patterns List: {previous_disabled_patterns[oi_feature]}")
+                            debug_and_print(f"Actual disabled Prec Patterns List: {oi_feature.disabled_pre_patterns}")
+                    raise StratificationError(
+                        iteration,
+                        f"An OI Feature or Pattern used to setup the next graph became invalid in iteration {iteration}"
+                    )
             else:
                 new_oi_features = tuple(
                     self.admissible_order_id_features[iteration].difference(self.argument_identifier_features[iteration])
