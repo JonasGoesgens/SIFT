@@ -97,7 +97,7 @@ def synth_update_graphs(
             raise ExecutionError(iteration,
                 "Unexpected exception happened during reapplying Synth during verification."
             )
-        return graphs_bak, False, dict()
+        return graphs_bak, False, stored_queries
 
     stdout_captured = buf.getvalue()
     if stdout_captured:

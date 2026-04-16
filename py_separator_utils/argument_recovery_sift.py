@@ -473,7 +473,7 @@ class Argument_Recovery_Sift:
             )
 
             if verification_mode:
-                stored_queries = self.stored_queries.get(iteration - 1, previous_queries)
+                stored_queries = self.stored_queries.get(iteration - 1, dict())
             else:
                 previous_queries = self.stored_queries.get(iteration - 2, dict())
                 #TODO For learning twice we need to also consider queries of iteration - 1

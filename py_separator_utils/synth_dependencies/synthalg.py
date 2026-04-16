@@ -63,7 +63,7 @@ def synth(trace, stored_queries, verification_mode, iteration):
                     continue
                 was_added = new_all_things.add_query_arguments(action, queries[position], new_Trace)
                 if not was_added:
-                    raise StratificationError
+                    raise StratificationError(iteration, "Synth was not able to readd a query")
         return new_Trace.to_graphs(), None, None
 
 

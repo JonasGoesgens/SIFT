@@ -15,6 +15,7 @@ import typing
 import copy
 import clingo
 import itertools
+import traceback
 from pathlib import Path
 import networkx as nx
 from py_separator_utils.pddl_generator import PDDLGenerator
@@ -943,11 +944,11 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
         meta_info['admissible_oi_features'] = len(oi_features)
         meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
         synth_assignments = dict()
-        for _, synth_assignment in sorted(ar_sift.stored_queries.items()):
+        for _iteration, synth_assignment in sorted(ar_sift.stored_queries.items()):
             for action, assigns in synth_assignment.items():
                 if action not in synth_assignments:
                     synth_assignments[action] = dict()
-                for arg, assign in assigns.items():
+                for arg, assign in assigns[_iteration].items():
                     if assign is not None:
                         synth_assignments[action][arg] = assign
         meta_info['action_argument_query_assignments'] = synth_assignments
@@ -1465,7 +1466,7 @@ if __name__ == '__main__':
 
         #print identifier features
         multi_assignment = meta_info.get('action_argument_multi_assignments',dict())
-        print(multi_assignment)
+        print("Multi assignments: " + str(multi_assignment))
         feature_numbers = dict()
         feature_typecombinaton_pairs = [
             (feature, feature.get_type_combination())
