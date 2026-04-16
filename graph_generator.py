@@ -1,5 +1,5 @@
 import itertools
-
+import warnings
 import pymimir
 import networkx as nx
 import random
@@ -527,6 +527,10 @@ def dfs_lookahead_state_space(
     pred_mask : dict = dict(),
     use_strings_as_id : bool = True
 ):
+    warnings.warn(
+        f"Generation function dfs lookahead not yet fully implemented",
+        UserWarning
+    )
     # get object mapping
     object_mapping = mimir_stuff.get_object_mapping(use_strings_as_id)
     action_mapping, _ = mimir_stuff.get_action_mapping_and_arity()
@@ -700,6 +704,12 @@ def get_trace_rl(
     use_strings_as_id : bool = True
 ):
 
+    if len(arg_mask):
+        warnings.warn(
+            f"RL traces are not supported as input for Sift+ or Synth+.",
+            UserWarning
+        )
+
     if (introduce_false_edge and (number_edges < 2)):
         return None
 
@@ -826,6 +836,11 @@ def get_trace_simple(
     pred_mask : dict = dict(),
     use_strings_as_id : bool = True
 ):
+    if len(arg_mask):
+        warnings.warn(
+            f"simple traces are not supported as input for Sift+ or Synth+.",
+            UserWarning
+        )
 
     if (introduce_false_edge and (length < 2)):
         return None
@@ -948,100 +963,84 @@ def get_nx_graph_from_state_space(
     pred_mask : dict = dict(),
     use_strings_as_id : bool = True
 ) -> (nx.DiGraph, int, dict, dict):
+    try:
+        # get object mapping
+        object_mapping = mimir_stuff.get_object_mapping(use_strings_as_id)
+        action_mapping, _ = mimir_stuff.get_action_mapping_and_arity()
+        # get state space, expensive!
+        state_space = mimir_stuff.get_complete_statespace()
 
-    # get object mapping
-    object_mapping = mimir_stuff.get_object_mapping(use_strings_as_id)
-    action_mapping, _ = mimir_stuff.get_action_mapping_and_arity()
-    # get state space, expensive!
-    state_space = mimir_stuff.get_complete_statespace()
+        # set that contains all actions
+        all_possible_actions = set()
 
-    # set that contains all actions
-    all_possible_actions = set()
+        # create graph
+        G = nx.DiGraph()
 
-    # create graph
-    G = nx.DiGraph()
+        node_atoms_dict = dict()
 
-    node_atoms_dict = dict()
+        # get state indices
+        states = {state_space.get_state_index(state) : state for state in state_space.get_states()}
 
-    # get state indices 
-    states = {state_space.get_state_index(state) : state for state in state_space.get_states()}
+        # add all states to the graph
+        G.add_nodes_from(states.keys())
 
-    # add all states to the graph 
-    G.add_nodes_from(states.keys())
+        init_id = mimir_stuff.get_SSG().get_or_create_initial_state().get_id()
 
-    init_id = mimir_stuff.get_SSG().get_or_create_initial_state().get_id()
+        #TODO pred_mask
+        if pred_mask:
+            warnings.warn(
+                f"Predicate mask for Synth+ not yet implemented for fg creation.",
+                UserWarning
+            )
 
-    # for each transition create a edge in the graph which is labeled with the corresponding grounded action
-    for state in states.keys():
-        for trans in state_space.get_forward_transitions(state):
-            action_name = trans.get_creating_action().get_name()
-            action_objects = tuple([object_mapping[_obj.get_name()] for _obj in trans.get_creating_action().get_objects()])
-            current_action = (action_name, action_objects)
-            if G.has_edge(trans.get_source_state(), trans.get_target_state()):
-                G.edges[(trans.get_source_state(), trans.get_target_state())]['action'].add(current_action)
-            else:
-                G.add_edge(trans.get_source_state(), trans.get_target_state(), action={current_action})
-            all_possible_actions.add(current_action)
+        # for each transition create a edge in the graph which is labeled with the corresponding grounded action
+        for state in states.keys():
+            for trans in state_space.get_forward_transitions(state):
+                action_name = trans.get_creating_action().get_name()
+                action_objects = tuple([object_mapping[_obj.get_name()] for _obj in trans.get_creating_action().get_objects()])
+                current_action = (action_name, action_objects)
+                if G.has_edge(trans.get_source_state(), trans.get_target_state()):
+                    G.edges[(trans.get_source_state(), trans.get_target_state())]['action'].add(current_action)
+                else:
+                    G.add_edge(trans.get_source_state(), trans.get_target_state(), action={current_action})
+                all_possible_actions.add(current_action)
 
-    all_nodes = [i for i in G.nodes()]
-    all_atoms = set()
-    for node in all_nodes:
-        state = states[node]
-        atoms = state.get_fluent_atoms()
-        all_atoms.update(atoms)
+        all_nodes = [i for i in G.nodes()]
+        all_atoms = set()
+        for node in all_nodes:
+            state = states[node]
+            atoms = state.get_fluent_atoms()
+            all_atoms.update(atoms)
 
-    #print(all_atoms)
+        #print(all_atoms)
 
-    sample = random.sample(all_nodes, k=min(10, len(all_nodes)))
-    for node in sample:
-        node_atoms_dict[node] = set()
-        state = states[node]
-        atoms = state.get_fluent_atoms()
-        neg_atoms = list(all_atoms.difference(atoms))
-        atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
-        neg_atoms = random.sample(neg_atoms, k=int((len(neg_atoms)+1)/2))
-        for atom in state_space.get_pddl_factories().get_fluent_ground_atoms_from_ids(atoms):
-            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), True))
-        for atom in state_space.get_pddl_factories().get_fluent_ground_atoms_from_ids(neg_atoms):
-            node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), False))
+        sample = random.sample(all_nodes, k=min(10, len(all_nodes)))
+        for node in sample:
+            node_atoms_dict[node] = set()
+            state = states[node]
+            atoms = state.get_fluent_atoms()
+            neg_atoms = list(all_atoms.difference(atoms))
+            atoms = random.sample(atoms, k=int((len(atoms)+1)/2))
+            neg_atoms = random.sample(neg_atoms, k=int((len(neg_atoms)+1)/2))
+            for atom in state_space.get_pddl_factories().get_fluent_ground_atoms_from_ids(atoms):
+                node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), True))
+            for atom in state_space.get_pddl_factories().get_fluent_ground_atoms_from_ids(neg_atoms):
+                node_atoms_dict[node].add((atom.get_predicate().get_name(), tuple(object_mapping[obj.get_name()] for obj in atom.get_objects()), False))
 
-    if introduce_false_edge:
-        random.shuffle(all_nodes)
-        while len(all_nodes):
-            # get random node
-            manipulated_node = all_nodes.pop(0)
+        if introduce_false_edge:
+            G = bisimulate_and_add_error(
+                G, init_id, object_mapping, all_possible_actions,
+                static_relaxation,
+                arg_mask
+            )
 
-            manipulated_node_actions = set()
+            if G is None:
+                return None
 
-            # get all its outgoing edges
-            for edge in G.out_edges(manipulated_node, data='action'):
-                for _act in edge[2]:
-                    manipulated_node_actions.add(_act)
+        # return created graph
+        return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping(use_strings_as_id)
 
-            # get edges that are not outgoing
-            possible_negative_actions = all_possible_actions - manipulated_node_actions
-
-            if len(possible_negative_actions) > 0:
-                break
-
-        # get random nodes that the edge leads to
-        negative_action = random.choice(list(possible_negative_actions))
-        
-        # add edge to the graph
-        node_dict = dict(nx.bfs_successors(G, manipulated_node, 3))
-        
-        node_set = set()
-        for _, _nodes in node_dict.items():
-            for _node in _nodes:
-                node_set.add(_node)
-
-        reached_node = random.choice(list(node_set))
-
-        if G.has_edge(manipulated_node, reached_node):
-            G.edges[(manipulated_node, reached_node)]['action'].add(negative_action)
-        else:
-            G.add_edge(manipulated_node, reached_node, action={negative_action})
-
-    # return created graph
-    return G, init_id, node_atoms_dict, mimir_stuff.get_inverse_object_mapping(use_strings_as_id)
-
+    except Exception as e:
+        sys.stderr.write(f"{ut.format_cur_time()}: Exception {e} happened during graph creation.\n")
+        sys.stderr.write(traceback.format_exc())
+        return None
