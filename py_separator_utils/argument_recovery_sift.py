@@ -471,15 +471,21 @@ class Argument_Recovery_Sift:
                 self.revised_oi_features[iteration - 1],
                 all_objects
             )
-            #TODO submit new_graphs to synth
-            stored_queries = self.stored_queries.get(iteration - 1, dict())
+
+            if verification_mode:
+                stored_queries = self.stored_queries[iteration]
+            else:
+                stored_queries = self.stored_queries.get(iteration - 1, dict())
+
             if self.use_full_synth:
                 new_graphs, synth_changed_graph, stored_queries = synth_update_graphs(
                     new_graphs, stored_queries, verification_mode,
-                    output_file_name=self.output_file_name,
+                    output_file_name=self.output_file_name, iteration=iteration
                 )
                 input_changed = input_changed or synth_changed_graph
-            self.stored_queries[iteration - 1] = stored_queries
+
+            if verification_mode:
+                self.stored_queries[iteration] = stored_queries
 
             self.sift_iterations[iteration].replace_graphs(new_graphs)
             if not verification_mode:

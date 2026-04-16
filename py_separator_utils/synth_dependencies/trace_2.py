@@ -1280,12 +1280,12 @@ class GraphTrace(Trace):
     """
 
     def __init__(self, graph: nx.DiGraph | dict[int, (nx.DiGraph, int)],
-                 dropped_args: dict, dropped_preds: set, type_list, current_queries: dict):
+                 dropped_args: dict, dropped_preds: set, type_list, current_queries: dict, validation: bool):
         # Bypass Trace.__init__ entirely — we build from graph data
         self.problem = None
         self.dropped_args = dropped_args
         self.dropped_preds = dropped_preds
-        self.validation = False
+        self.validation = validation
 
         self.sift_meta_info = dict()
 
@@ -1419,6 +1419,8 @@ class GraphTrace(Trace):
 
         self.argument_queries = current_queries
         for _act, _ar in self.action_arity.items():
+            if _act not in self.argument_queries:
+                self.argument_queries[_act] = dict()
             for _i in range(_ar):
                 if _i not in self.argument_queries[_act]:
                     self.argument_queries[_act][_i] = None

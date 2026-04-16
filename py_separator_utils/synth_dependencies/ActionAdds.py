@@ -92,17 +92,16 @@ class AllActionCandidates:
                 self.actions[action] = ActionCandidates(action, arity, predicate_arity, self.all_arities,
                                                         predicate_types, object_types, None)
         else:
-            for action, action_z_features in validation_features.items():
-
-                possible_z_features = [feat for feat in action_z_features if action_arity[action] > pattern_max(feat)]
-
+            for action, query_list in validation_features.items():
                 self.actions[action] = ActionCandidates(action,None, predicate_arity,
                                                         0, predicate_types,
-                                                        object_types, possible_z_features)
+                                                        object_types, query_list)
         self.results = dict()
 
     def parse_state(self, parsed_state, action_name, action_objects, state_index):
         # print(action_name, state_index, action_objects)
+        if action_name not in self.actions:
+            return None
         if self.actions[action_name].is_active():
             self.actions[action_name].parse_state(parsed_state, action_objects, state_index)
 
@@ -202,8 +201,14 @@ class ActionCandidates:
 
             self.z_features = self.z_features + negated_z_features
         else:
-            self.z_features = features
-
+            self.z_features, negated_z_features = list(), list()
+            for (feature_name, feature_pattern) in features:
+                if feature_name.startswith('not-'):
+                    feature_name = feature_name[4:]
+                    negated_z_features.append(NegatedZFeature(feature_pattern, feature_name, self.name, predicate_types, object_types))
+                else:
+                    self.z_features.append(z_feature(feature_pattern, feature_name, self.name, predicate_arity))
+            self.z_features = self.z_features + negated_z_features
         self.unique_queries = set()
 
 
@@ -356,7 +361,7 @@ class ActionCandidates:
             inter = set.intersection(*set_list)
             if len(inter) == 0:
                 #print('add2')
-                raise ValidationFailed
+                return False
             elif len(inter) > 1:
                 #print('IT IS NOT UNIQUE')
                 return False

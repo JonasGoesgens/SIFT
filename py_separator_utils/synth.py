@@ -55,6 +55,7 @@ def synth_update_graphs(
     stored_queries : dict = dict(),
     verification_mode : bool = False,
     output_file_name: str | None = None,
+    iteration: int = None
 ) -> Dict[int, Tuple[pt.GraphT, pt.NodeT]]:
     print(f"{ut.format_cur_time()}: Running SYNTH", flush=True)
     #for instance, (Graph, initial_node_id) in graphs.items():
@@ -71,15 +72,17 @@ def synth_update_graphs(
     graphs_bak = copy.deepcopy(graphs)
     log = get_synth_logger(output_file_name)
     buf = io.StringIO()
+
     try:
         with redirect_stdout(buf):
-            graphs, changed, argument_queries = alg.synth(graphs, stored_queries, verification_mode)
+            graphs, changed, argument_queries = alg.synth(graphs, stored_queries, verification_mode, iteration)
     except Exception as e:
         log.exception("Synth raised an exception – rollback to backup")
         stdout_captured = buf.getvalue()
         if stdout_captured:
             log.debug("=== stdout of alg.synth ===\n%s", stdout_captured)
-        return graphs_bak, False
+        
+        return graphs_bak, False, argument_queries
 
     stdout_captured = buf.getvalue()
     if stdout_captured:
