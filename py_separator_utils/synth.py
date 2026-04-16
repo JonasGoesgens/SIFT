@@ -1,6 +1,5 @@
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 import copy
-import sys
 import io
 import logging
 import py_separator_utils.py_types as pt
@@ -8,12 +7,13 @@ import py_separator_utils.utils as ut
 import py_separator_utils.synth_dependencies.synthalg as alg
 from pathlib import Path
 from contextlib import redirect_stdout
+from py_separator_utils.exceptions import StratificationError, ExecutionError
 
 def get_synth_logger(output_file_name: str | None = None,) -> logging.Logger:
     """
     Logger for synth output to keep progress print statements readable.
     """
-    logger_name = "synth"
+    logger_name = f"synth_{output_file_name}" if output_file_name else "synth"
     logger = logging.getLogger(logger_name)
 
     if logger.handlers:
@@ -52,12 +52,14 @@ def get_synth_logger(output_file_name: str | None = None,) -> logging.Logger:
 
 def synth_update_graphs(
     graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
-    stored_queries : dict = dict(),
+    iteration : int,
+    stored_queries : Optional[dict] = None,
     verification_mode : bool = False,
-    output_file_name: str | None = None,
-    iteration: int = None
-) -> Dict[int, Tuple[pt.GraphT, pt.NodeT]]:
+    output_file_name : Optional[str] = None,
+) -> Tuple[Dict[int, Tuple[pt.GraphT, pt.NodeT]], bool, dict]:
     print(f"{ut.format_cur_time()}: Running SYNTH", flush=True)
+    if stored_queries == None:
+        stored_queries = dict()
     #for instance, (Graph, initial_node_id) in graphs.items():
     #    assert(initial_node_id in Graph.nodes())
     #    print(Graph.nodes[initial_node_id].get(pt.Atom_List_key, dict()))
@@ -76,13 +78,26 @@ def synth_update_graphs(
     try:
         with redirect_stdout(buf):
             graphs, changed, argument_queries = alg.synth(graphs, stored_queries, verification_mode, iteration)
+    except StratificationError:
+        # It is not possible to reapply the stored queries.
+        # Thus a quantified precondition got violated.
+        # Forward exception to the learning algorithm.
+        raise
     except Exception as e:
+        # Technical failure in Synth implementation, try to recover.
         log.exception("Synth raised an exception – rollback to backup")
         stdout_captured = buf.getvalue()
         if stdout_captured:
             log.debug("=== stdout of alg.synth ===\n%s", stdout_captured)
-        
-        return graphs_bak, False, argument_queries
+        if verification_mode and any(
+            assign is not None
+            for action, assigns in stored_queries.items()
+            for arg, assign in assigns.items()
+        ):
+            raise ExecutionError(iteration,
+                "Unexpected exception happened during reapplying Synth during verification."
+            )
+        return graphs_bak, False, dict()
 
     stdout_captured = buf.getvalue()
     if stdout_captured:

@@ -43,7 +43,7 @@ class Argument_Recovery_Sift:
         """
         Logger for arg rec sift output to keep progress print statements readable.
         """
-        logger_name = "arg_rec_sift"
+        logger_name = f"arg_rec_sift_{self.output_file_name}" if self.output_file_name else "arg_rec_sift"
         logger = logging.getLogger(logger_name)
 
         if logger.handlers:
@@ -473,19 +473,21 @@ class Argument_Recovery_Sift:
             )
 
             if verification_mode:
-                stored_queries = self.stored_queries[iteration]
+                stored_queries = self.stored_queries.get(iteration - 1, previous_queries)
             else:
-                stored_queries = self.stored_queries.get(iteration - 1, dict())
+                previous_queries = self.stored_queries.get(iteration - 2, dict())
+                #TODO For learning twice we need to also consider queries of iteration - 1
+                stored_queries = copy.deepcopy(previous_queries)
 
             if self.use_full_synth:
                 new_graphs, synth_changed_graph, stored_queries = synth_update_graphs(
-                    new_graphs, stored_queries, verification_mode,
-                    output_file_name=self.output_file_name, iteration=iteration
+                    new_graphs, iteration - 1, stored_queries, verification_mode,
+                    output_file_name=self.output_file_name
                 )
                 input_changed = input_changed or synth_changed_graph
 
-            if verification_mode:
-                self.stored_queries[iteration] = stored_queries
+            if not verification_mode:
+                self.stored_queries[iteration - 1] = stored_queries
 
             self.sift_iterations[iteration].replace_graphs(new_graphs)
             if not verification_mode:
