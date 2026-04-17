@@ -5,7 +5,7 @@ from py_separator_utils.exceptions import StratificationError
 
 def synth(trace, stored_queries, verification_mode, iteration):
 
-    new_Trace = GraphTrace(trace,dict(),dict(),list(),copy.deepcopy(stored_queries), verification_mode)
+    new_Trace = GraphTrace(trace,dict(),set(),list(),copy.deepcopy(stored_queries), verification_mode)
     # num_initial_args = sum([ar for action, ar in new_Trace.action_arity.items()])
 
     if not verification_mode:
