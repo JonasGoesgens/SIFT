@@ -481,6 +481,7 @@ class Argument_Recovery_Sift:
 
             if self.use_full_synth:
                 new_graphs, synth_changed_graph, stored_queries = synth_update_graphs(
+                    process_pool_args,
                     new_graphs, iteration - 1, stored_queries, verification_mode,
                     output_file_name=self.output_file_name
                 )

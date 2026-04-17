@@ -51,6 +51,7 @@ def get_synth_logger(output_file_name: str | None = None,) -> logging.Logger:
     return logger
 
 def synth_update_graphs(
+    process_pool_args : dict,
     graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
     iteration : int,
     stored_queries : Optional[dict] = None,
