@@ -505,6 +505,8 @@ class Trace:
                     if action not in action_effects[sign]:
                         continue
                     for predicate in action_effects[sign][action]:
+                        if predicate not in effects[sign]:
+                            continue
                         for pred_pos in action_effects[sign][action][predicate]:
                             action_effects[sign][action][predicate][pred_pos] = {
                                 arg_pos for arg_pos
@@ -1563,6 +1565,12 @@ class GraphTrace(Trace):
         else:
             # Second half: open world — everything NOT in false = universe - false
             atoms = self._get_open_world_atoms(state)
+            other_atoms = self._node_true_atoms.get(state, {})
+            # atoms['loc'] = other_atoms['loc']
+            for _c_pred_name in atoms:
+                # TODO this has to be done in a better way, this is just a temporary fix
+                if isinstance(_c_pred_name, str):
+                    atoms[_c_pred_name] = other_atoms[_c_pred_name]
 
         _populate_mask_dict(dicts, atoms)
         self.parsed_state_dict[trace_position] = dicts
