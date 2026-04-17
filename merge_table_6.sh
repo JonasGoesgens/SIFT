@@ -33,7 +33,7 @@ done
 units=("" "" "" "" "" "" "" "" "" '\\seconds' "" "" '\\seconds' '\\%' )
 num_units=${#units[@]}
 
-split_lines=("03" "09" "11" "13")
+split_lines=("03" "09" "11" "13" "14")
 
 for table_line in "${split_lines[@]}"; do
 
