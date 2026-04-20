@@ -3,7 +3,7 @@
 work_dir="output/tables"
 output_file="$work_dir"/arg_rec_paper_table1_table.txt
 
-max_line_index=14
+max_line_index=16
 
 declare -A max_values
 declare -A table_entries
@@ -33,7 +33,7 @@ done
 units=("" "" "" "" "" "" "" "" "" '\\seconds' "" "" '\\seconds' '\\%' )
 num_units=${#units[@]}
 
-split_lines=("03" "09" "11" "13" "14")
+split_lines=("03" "09" "11" "13" "14" "15")
 
 for table_line in "${split_lines[@]}"; do
 
