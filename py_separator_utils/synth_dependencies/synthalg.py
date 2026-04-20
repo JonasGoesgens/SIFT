@@ -54,6 +54,7 @@ def synth(trace, stored_queries, verification_mode, iteration):
             new_parsed_state = new_Trace.parse_state(t)
             new_all_things.parse_state(new_parsed_state, new_Trace.get_action_name(t), new_Trace.get_action_objects(t),t)
 
+        changed = False
         for action in stored_queries:
             if action not in new_Trace.action_arity:
                 continue
@@ -66,7 +67,9 @@ def synth(trace, stored_queries, verification_mode, iteration):
                 was_added = new_all_things.add_query_arguments(action, queries[position], new_Trace)
                 if not was_added:
                     raise StratificationError(iteration, "Synth was not able to readd a query")
-        return new_Trace.to_graphs(), None, None
+                else:
+                    changed = True
+        return new_Trace.to_graphs(), changed, stored_queries
 
 
 def unpack_stored_queries(storred_q):
