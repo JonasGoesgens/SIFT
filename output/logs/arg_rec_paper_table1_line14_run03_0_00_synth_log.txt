@@ -1,0 +1,183 @@
+2026-04-17 17:07:17 DEBUG    Synth-Logger initialized → /work/rleap1/jonas.goesgens/domainlearner/sift/output/logs/arg_rec_paper_table1_line14_run03_0_00_synth_log.txt
+2026-04-17 17:07:28 DEBUG    === stdout of alg.synth ===
+13 13
+18 13
+6 13
+13 13
+There was an arguments added for 'push-box' with query: {('adjacent', (-1, 0)), ('adjacent_2', (-1, 1))}!
+THERE WAS AN ARGUMENT ADDED BY AN COMBINATION!
+push-box
+(-1, 1) adjacent_2 adjacent_2(-1, 1)
+(-1, 0) adjacent adjacent(-1, 0)
+############################################
+
+16 13
+NEW ARGUMENTS ADDED:  True
+Positive Effects: 
+
+move-player(1,) on (frozenset({('move-player', (0,)), ('push-box', (0,))}), frozenset({('move-player', ()), ('push-box', ())}))
+push-box(1,) on (frozenset({('move-player', (0,)), ('push-box', (0,))}), frozenset({('move-player', ()), ('push-box', ())}))
+
+ Negative Effects: 
+
+move-player(0,) on (frozenset({('move-player', (0,)), ('push-box', (0,))}), frozenset({('move-player', ()), ('push-box', ())}))
+push-box(0,) on (frozenset({('move-player', (0,)), ('push-box', (0,))}), frozenset({('move-player', ()), ('push-box', ())}))
+The 0. argument of the action move-player refers to the query None
+The 1. argument of the action move-player refers to the query None
+The 0. argument of the action push-box refers to the query None
+The 1. argument of the action push-box refers to the query None
+The 2. argument of the action push-box refers to the query {('adjacent', (-1, 0)), ('adjacent_2', (-1, 1))}
+
+2026-04-17 17:13:42 DEBUG    === stdout of alg.synth ===
+15 15
+19 15
+2 15
+20 20
+34 20
+4 20
+NEW ARGUMENTS ADDED:  False
+Positive Effects: 
+
+move-player(1,) on frozenset({('move-player', (0,)), ('push-box', (1,)), ('move-player', (1,)), ('push-box', (2,))})
+move-player(1,) on (frozenset({('move-player', (0,)), ('push-box', (0,))}), frozenset({('move-player', ()), ('push-box', ())}))
+move-player(1,) on frozenset({('move-player', (0,)), ('move-player', (1,)), ('push-box', (0,)), ('push-box', (1,))})
+push-box(1,) on frozenset({('move-player', (0,)), ('push-box', (1,)), ('move-player', (1,)), ('push-box', (2,))})
+push-box(0,) on frozenset({('push-box', (0,)), ('push-box', (2,))})
+push-box(1,) on (frozenset({('move-player', (0,)), ('push-box', (0,))}), frozenset({('move-player', ()), ('push-box', ())}))
+push-box(1,) on frozenset({('move-player', (0,)), ('move-player', (1,)), ('push-box', (0,)), ('push-box', (1,))})
+
+ Negative Effects: 
+
+move-player(0,) on frozenset({('move-player', (0,)), ('push-box', (1,)), ('move-player', (1,)), ('push-box', (2,))})
+move-player(0,) on (frozenset({('move-player', (0,)), ('push-box', (0,))}), frozenset({('move-player', ()), ('push-box', ())}))
+move-player(0,) on frozenset({('move-player', (0,)), ('move-player', (1,)), ('push-box', (0,)), ('push-box', (1,))})
+push-box(2,) on frozenset({('move-player', (0,)), ('push-box', (1,)), ('move-player', (1,)), ('push-box', (2,))})
+push-box(2,) on frozenset({('push-box', (0,)), ('push-box', (2,))})
+push-box(0,) on (frozenset({('move-player', (0,)), ('push-box', (0,))}), frozenset({('move-player', ()), ('push-box', ())}))
+push-box(0,) on frozenset({('move-player', (0,)), ('move-player', (1,)), ('push-box', (0,)), ('push-box', (1,))})
+The 0. argument of the action move-player refers to the query {0: None, 1: None}
+The 1. argument of the action move-player refers to the query None
+The 0. argument of the action push-box refers to the query {0: None, 1: None, 2: {('adjacent', (-1, 0)), ('adjacent_2', (-1, 1))}}
+The 1. argument of the action push-box refers to the query None
+The 2. argument of the action push-box refers to the query None
+
+2026-04-17 17:20:09 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 17:29:38 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 17:37:41 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 17:40:53 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 17:46:40 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 17:54:57 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:04:29 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:07:17 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:10:03 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:12:37 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:15:07 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:17:48 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:22:04 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:29:15 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:34:03 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:42:13 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:45:09 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:48:07 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:50:44 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 18:54:22 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 19:01:23 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 19:11:00 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 19:18:04 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 19:20:55 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 19:27:07 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 19:36:13 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 19:50:40 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 20:02:29 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 20:12:31 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+
+2026-04-17 20:26:57 DEBUG    === stdout of alg.synth ===
+('adjacent', (-1, 0))
+('adjacent_2', (-1, 1))
+

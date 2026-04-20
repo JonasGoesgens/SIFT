@@ -1,0 +1,26 @@
+(define (problem sokoban-4)
+  (:domain sokoban)
+  (:objects
+    Type0_I4_Objs_3_3 Type0_I4_Objs_2_2 Type0_I4_Objs_4_3 Type0_I4_Objs_2_4 Type0_I4_Objs_3_2 Type0_I4_Objs_3_1 Type0_I4_Objs_1_3 Type0_I4_Objs_1_2 Type0_I4_Objs_4_1 Type0_I4_Objs_3_4 Type0_I4_Objs_2_3 Type0_I4_Objs_1_4 Type0_I4_Objs_4_2 Type0_I4_Objs_4_4 - Type0
+  )
+  (:init
+    (Static_move-player Type0_I4_Objs_4_1 Type0_I4_Objs_4_2) (Static_move-player Type0_I4_Objs_3_4 Type0_I4_Objs_3_3) (Static_move-player Type0_I4_Objs_2_3 Type0_I4_Objs_2_2) (Feature_0_v0_s1 Type0_I4_Objs_1_3)
+    (Feature_0_v0_s1 Type0_I4_Objs_1_2) (Feature_1_v0_s1 Type0_I4_Objs_2_2) (Feature_1_v0_s1 Type0_I4_Objs_4_3) (Feature_0_v0_s1 Type0_I4_Objs_2_3)
+    (Feature_1_v0_s1 Type0_I4_Objs_4_1) (Static_move-player Type0_I4_Objs_3_3 Type0_I4_Objs_2_3) (Static_move-player Type0_I4_Objs_3_2 Type0_I4_Objs_2_2) (Static_move-player Type0_I4_Objs_3_1 Type0_I4_Objs_4_1)
+    (Static_move-player Type0_I4_Objs_4_2 Type0_I4_Objs_3_2) (Feature_0_v0_s0 Type0_I4_Objs_2_4) (Feature_0_v0_s1 Type0_I4_Objs_2_2) (Feature_0_v0_s1 Type0_I4_Objs_4_1)
+    (Feature_0_v0_s1 Type0_I4_Objs_4_3) (Static_move-player Type0_I4_Objs_2_3 Type0_I4_Objs_2_4) (Static_move-player Type0_I4_Objs_2_2 Type0_I4_Objs_2_3) (Static_move-player Type0_I4_Objs_2_2 Type0_I4_Objs_3_2)
+    (Static_move-player Type0_I4_Objs_3_4 Type0_I4_Objs_4_4) (Static_move-player Type0_I4_Objs_1_4 Type0_I4_Objs_1_3) (Static_move-player Type0_I4_Objs_3_4 Type0_I4_Objs_2_4) (Feature_0_v0_s1 Type0_I4_Objs_4_2)
+    (Static_move-player Type0_I4_Objs_3_1 Type0_I4_Objs_3_2) (Feature_1_v0_s0 Type0_I4_Objs_2_4) (Feature_1_v0_s1 Type0_I4_Objs_4_4) (Static_move-player Type0_I4_Objs_3_3 Type0_I4_Objs_4_3)
+    (Static_move-player Type0_I4_Objs_4_4 Type0_I4_Objs_3_4) (Feature_1_v0_s1 Type0_I4_Objs_1_2) (Static_move-player Type0_I4_Objs_3_2 Type0_I4_Objs_3_1) (Static_move-player Type0_I4_Objs_2_4 Type0_I4_Objs_3_4)
+    (Static_move-player Type0_I4_Objs_1_2 Type0_I4_Objs_1_3) (Feature_0_v0_s1 Type0_I4_Objs_4_4) (Static_move-player Type0_I4_Objs_2_4 Type0_I4_Objs_1_4) (Static_move-player Type0_I4_Objs_3_2 Type0_I4_Objs_3_3)
+    (Feature_0_v0_s1 Type0_I4_Objs_3_2) (Feature_1_v0_s1 Type0_I4_Objs_3_1) (Feature_1_v0_s1 Type0_I4_Objs_1_4) (Static_move-player Type0_I4_Objs_1_3 Type0_I4_Objs_2_3)
+    (Static_move-player Type0_I4_Objs_1_3 Type0_I4_Objs_1_2) (Static_move-player Type0_I4_Objs_2_3 Type0_I4_Objs_3_3) (Static_move-player Type0_I4_Objs_4_4 Type0_I4_Objs_4_3) (Feature_1_v0_s1 Type0_I4_Objs_3_3)
+    (Static_move-player Type0_I4_Objs_1_2 Type0_I4_Objs_2_2) (Static_move-player Type0_I4_Objs_4_3 Type0_I4_Objs_4_4) (Feature_0_v0_s1 Type0_I4_Objs_3_1) (Feature_1_v0_s1 Type0_I4_Objs_3_4)
+    (Static_move-player Type0_I4_Objs_2_4 Type0_I4_Objs_2_3) (Static_move-player Type0_I4_Objs_1_4 Type0_I4_Objs_2_4) (Feature_1_v0_s1 Type0_I4_Objs_4_2) (Static_move-player Type0_I4_Objs_3_3 Type0_I4_Objs_3_2)
+    (Feature_0_v0_s1 Type0_I4_Objs_1_4) (Static_move-player Type0_I4_Objs_3_2 Type0_I4_Objs_4_2) (Static_move-player Type0_I4_Objs_2_2 Type0_I4_Objs_1_2) (Feature_0_v0_s1 Type0_I4_Objs_3_3)
+    (Static_move-player Type0_I4_Objs_4_2 Type0_I4_Objs_4_3) (Static_move-player Type0_I4_Objs_4_2 Type0_I4_Objs_4_1) (Feature_0_v0_s1 Type0_I4_Objs_3_4) (Static_move-player Type0_I4_Objs_4_1 Type0_I4_Objs_3_1)
+    (Static_move-player Type0_I4_Objs_2_3 Type0_I4_Objs_1_3) (Static_move-player Type0_I4_Objs_1_3 Type0_I4_Objs_1_4) (Feature_1_v0_s1 Type0_I4_Objs_1_3) (Static_move-player Type0_I4_Objs_4_3 Type0_I4_Objs_3_3)
+    (Feature_1_v0_s1 Type0_I4_Objs_2_3) (Feature_1_v0_s1 Type0_I4_Objs_3_2) (Static_move-player Type0_I4_Objs_4_3 Type0_I4_Objs_4_2) (Static_move-player Type0_I4_Objs_3_3 Type0_I4_Objs_3_4)
+  )
+)
+
