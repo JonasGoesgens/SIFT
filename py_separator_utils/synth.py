@@ -1,6 +1,7 @@
 from typing import Dict, Set, Tuple, Optional
 import copy
 import io
+import sys
 import logging
 import itertools
 import py_separator_utils.py_types as pt
@@ -50,6 +51,18 @@ def get_synth_logger(output_file_name: str | None = None,) -> logging.Logger:
 
     logger.debug("Synth-Logger initialized → %s", log_path.resolve())
     return logger
+
+class StdoutForwarder:
+    def __init__(self, logger):
+        self._logger = logger
+        #self._logger.debug("=== stdout of alg.synth ===\n%s")
+
+    def write(self, data: str):
+        clean = data.rstrip("\n")
+        self._logger.debug(clean)
+
+    def flush(self):
+        pass
 
 def find_equivalent_predicates(
     graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
@@ -207,7 +220,7 @@ def synth_update_graphs(
     buf = io.StringIO()
 
     try:
-        with redirect_stdout(buf):
+        with redirect_stdout(StdoutForwarder(log)):
             
             has_undefined, drop_predicates = dict(), set()
             if not verification_mode:
@@ -243,10 +256,6 @@ def synth_update_graphs(
                 "Unexpected exception happened during reapplying Synth during verification."
             )
         return graphs_bak, False, stored_queries
-
-    stdout_captured = buf.getvalue()
-    if stdout_captured:
-        log.debug("=== stdout of alg.synth ===\n%s", stdout_captured)
 
     #print(f"{ut.format_cur_time()}: Updating Graph labels", flush=True)
     #add query values to labels
