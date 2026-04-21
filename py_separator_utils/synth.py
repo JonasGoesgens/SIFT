@@ -58,11 +58,13 @@ class StdoutForwarder:
         #self._logger.debug("=== stdout of alg.synth ===\n%s")
 
     def write(self, data: str):
-        clean = data.rstrip("\n")
-        self._logger.debug(clean)
+        clean = data.rstrip("\n").rstrip(" ")
+        if clean:
+            self._logger.debug(clean)
 
     def flush(self):
-        pass
+        for h in self._logger.handlers:
+            h.flush()
 
 def find_equivalent_predicates(
     graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
