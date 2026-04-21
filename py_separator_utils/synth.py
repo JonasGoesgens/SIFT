@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, Optional
+from typing import Dict, Set, Tuple, Optional
 import copy
 import io
 import logging
@@ -132,6 +132,7 @@ def synth_update_graphs(
     process_pool_args : dict,
     graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
     iteration : int,
+    mutex_to_exist_predicates : [dict],
     stored_queries : Optional[dict] = None,
     verification_mode : bool = False,
     output_file_name : Optional[str] = None,
