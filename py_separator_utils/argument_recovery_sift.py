@@ -281,6 +281,7 @@ class Argument_Recovery_Sift:
         print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Testing {len(self.order_id_features[iteration])} mutex features", flush=True)
         with ProcessPoolExecutor(**process_pool_args) as process_pool:
             runs = dict()
+            lookup_dict = dict()
             for oi_feature in self.order_id_features[iteration]:
                 if oi_feature.is_invalid():
                     continue
@@ -295,17 +296,47 @@ class Argument_Recovery_Sift:
                         #unless they got more prec patterns
                         continue
                 check_list = self._get_graph_list_for_feature(oi_feature, iteration)
+                lookup_dict[oi_feature] = oi_feature
                 runs[oi_feature] = process_pool.submit(
                     self.__class__._check_feature,
                     oi_feature, check_list
                 )
-            wait(runs.values(), return_when=ALL_COMPLETED)
-            for oi_feature, future in runs.items():
+
+            total = len(runs)
+            done  = 0
+            bar_len = 30
+
+            def _render():
+                filled = int(done / total * bar_len)
+                empty  = bar_len - filled
+                percent = int(done / total * 100)
+                return f'\r[{"#" * filled}{"-" * empty}] {percent:3d}% ({done}/{total})'
+
+            sys.stdout.write(_render())
+            sys.stdout.flush()
+
+            for future in as_completed(runs.values()):
                 try:
                     checked_oi_feature = future.result()
+                    oi_feature = lookup_dict[checked_oi_feature]
                     oi_feature.overwrite_feature(checked_oi_feature)
-                except Exception as e:
-                    sys.stderr.write(f"Error processing {oi_feature}: {e}")
+                except Exception as exc:
+                    sys.stderr.write(f'\nError processing {oi_feature}: {exc}\n')
+                    #sys.stderr.flush()
+                finally:
+                    done += 1
+                    sys.stdout.write(_render())
+                    sys.stdout.flush()
+
+            sys.stdout.write('\n')
+
+            #wait(runs.values(), return_when=ALL_COMPLETED)
+            #for oi_feature, future in runs.items():
+            #    try:
+            #        checked_oi_feature = future.result()
+            #        oi_feature.overwrite_feature(checked_oi_feature)
+            #    except Exception as e:
+            #        sys.stderr.write(f"Error processing {oi_feature}: {e}")
 
         self.admissible_order_id_features[iteration] = set()
         for feature in self.order_id_features[iteration]:
