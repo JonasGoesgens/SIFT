@@ -1282,7 +1282,7 @@ class GraphTrace(Trace):
     """
 
     def __init__(self, graph: nx.DiGraph | dict[int, (nx.DiGraph, int)],
-                 dropped_args: dict, dropped_preds: set, type_list, current_queries: dict, validation: bool):
+                 dropped_args: dict, dropped_preds: set, type_list, current_queries: dict, validation: bool, has_undefined: dict):
         # Bypass Trace.__init__ entirely — we build from graph data
         self.problem = None
         self.dropped_args = dropped_args
@@ -1290,6 +1290,8 @@ class GraphTrace(Trace):
         self.validation = validation
 
         self.sift_meta_info = dict()
+
+        self.has_undefined = has_undefined
 
         # Normalize input: single graph → dict with key 0
         if isinstance(graph, nx.DiGraph):
@@ -1308,18 +1310,18 @@ class GraphTrace(Trace):
         self._node_false_atoms = {}  # {(gid, nid): {pred: set of tuples}}
         pred_arity_dict = {}
 
-        def _has_minus2(tup):
-            return any(arg == -2 or arg == '-2' for arg in tup)
+        #def _has_minus2(tup):
+        #    return any(arg == -2 or arg == '-2' for arg in tup)
 
         # Collect predicates that have any grounding containing -2 across all nodes
-        _preds_with_minus2 = set()
-        for gid, g in graphs.items():
-            for node in g.nodes():
-                raw = g.nodes[node].get('atoms', {})
-                for arity, preds in raw.items():
-                    for pred, (true_set, false_set) in preds.items():
-                        if any(_has_minus2(t) for t in true_set) or any(_has_minus2(t) for t in false_set):
-                            _preds_with_minus2.add(pred)
+        #_preds_with_minus2 = set()
+        #for gid, g in graphs.items():
+        #    for node in g.nodes():
+        #        raw = g.nodes[node].get('atoms', {})
+        #        for arity, preds in raw.items():
+        #            for pred, (true_set, false_set) in preds.items():
+        #                if any(_has_minus2(t) for t in true_set) or any(_has_minus2(t) for t in false_set):
+        #                    _preds_with_minus2.add(pred)
 
         for gid, g in graphs.items():
             for node in g.nodes():
@@ -1328,7 +1330,9 @@ class GraphTrace(Trace):
                 false_atoms = {}
                 for arity, preds in raw.items():
                     for pred, (true_set, false_set) in preds.items():
-                        if pred in _preds_with_minus2:
+                        if pred in has_undefined and has_undefined[pred]:
+                            continue
+                        elif pred in self.dropped_preds:
                             continue
                         true_atoms[pred] = set(true_set)
                         false_atoms[pred] = set(false_set)
