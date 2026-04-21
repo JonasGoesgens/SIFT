@@ -2,6 +2,7 @@ from typing import Dict, Tuple, Optional
 import copy
 import io
 import logging
+import itertools
 import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 import py_separator_utils.synth_dependencies.synthalg as alg
@@ -49,6 +50,83 @@ def get_synth_logger(output_file_name: str | None = None,) -> logging.Logger:
 
     logger.debug("Synth-Logger initialized → %s", log_path.resolve())
     return logger
+
+def find_equivalent_predicates(
+    graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
+) -> Dict[int, Dict[pt.Predicate_IdentifierT, Dict[
+    pt.Predicate_IdentifierT, Set[Tuple[int, ...]]
+]]]:
+    permutations_dict = dict()
+    permutations_sets = dict()
+    def get_permutation_dict(arity : int) -> Dict[Tuple[int, ...], Tuple[int, ...]]:
+        if arity in permutations_dict:
+            return permutations_dict[arity]
+        def _inverse(p: Tuple[int, ...]) -> Tuple[int, ...]:
+            inv = [0] * len(p)
+            for i, pi in enumerate(p):
+                inv[pi] = i
+            return tuple(inv)
+        result : Dict[Tuple[int, ...], Tuple[int, ...]] = dict()
+        for p in itertools.permutations(range(arity)):
+            result[p] = _inverse(p)
+        return result
+    def get_permutation_set(arity : int) -> Dict[Tuple[int, ...], Tuple[int, ...]]:
+        if arity in permutations_sets:
+            return permutations_sets[arity]
+        permutations_set = set(get_permutation_dict(arity).keys())
+        permutations_sets[arity] = permutations_set
+        return permutations_set
+    def apply_permutation_forward(
+        grounding : pt.GroundingT,
+        permutation : Tuple[int, ...]
+    ) -> pt.GroundingT:
+        return tuple(grounding[i] for i in permutation)
+    def apply_permutation_backward(
+        grounding : pt.GroundingT,
+        arity : int,
+        permutation : Tuple[int, ...]
+    ) -> pt.GroundingT:
+        backward_permutation = get_permutation_dict(arity)[permutation]
+        return apply_permutation_forward(grounding, backward_permutation)
+    #Atom_ListT = typing.Dict[Arity,typing.Dict[
+    #    Predicate_IdentifierT,typing.Tuple[
+    #        typing.Set[GroundingT],
+    #        typing.Set[GroundingT]
+    #    ]
+    #]]
+    predicate_conflict_adjacency_dict = dict()
+    for instance_id, graph in graphs.items():
+        for node, atoms in graph.nodes(data=pt.Atom_List_key):
+            for arity, arity_atoms_dict in atoms.items():
+                if arity not in predicate_conflict_adjacency_dict:
+                    predicate_conflict_adjacency_dict[arity] = dict()
+                for predicate_1, (true_atoms_1, false_atoms_1) in arity_atoms_dict.items():
+                    if predicate_1 not in predicate_conflict_adjacency_dict[arity]:
+                        predicate_conflict_adjacency_dict[arity][predicate_1] = dict()
+                    for predicate_2, (true_atoms_2, false_atoms_2) in arity_atoms_dict.items():
+                        if predicate_2 not in predicate_conflict_adjacency_dict[arity][predicate_1]:
+                            predicate_conflict_adjacency_dict[arity][predicate_1][predicate_2] = set(get_permutation_set(arity))
+                        for permutation in predicate_conflict_adjacency_dict[arity][predicate_1][predicate_2].copy():
+                            permuted_atoms = set(
+                                apply_permutation_forward(atom, permutation)
+                                for atom in true_atoms_1
+                            )
+                            if permuted_atoms != true_atoms_2:
+                                predicate_conflict_adjacency_dict[arity][predicate_1][predicate_2].remove(permutation)
+                                continue
+                            permuted_atoms = set(
+                                apply_permutation_forward(atom, permutation)
+                                for atom in false_atoms_1
+                            )
+                            if permuted_atoms != false_atoms_2:
+                                predicate_conflict_adjacency_dict[arity][predicate_1][predicate_2].remove(permutation)
+                                continue
+
+    #TODO postprocess predicate_conflict_adjacency_dict
+    #Cases p1 p2 point at  empty set -> different predicates
+    #Cases p1 p2 point at filled set -> p1 less or equal informative than p2
+    #Cases p1 p2 not a key           -> p1 and p2 do not interact, different predicates
+    return predicate_conflict_adjacency_dict
 
 def synth_update_graphs(
     process_pool_args : dict,
