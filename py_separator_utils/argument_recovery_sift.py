@@ -38,6 +38,7 @@ class Argument_Recovery_Sift:
         self.use_full_synth : bool = use_full_synth
         self.pre_pattern_disabling : bool = True
         self.output_file_name : str = output_file_name
+        self.mutex_to_exist_predicates : dict = dict()
 
     def get_arc_rec_logger(self) -> logging.Logger:
         """
@@ -480,15 +481,14 @@ class Argument_Recovery_Sift:
                 stored_queries = copy.deepcopy(previous_queries)
 
             if self.use_full_synth:
-                mutex_to_exist_predicates = dict()
                 for oi_feature in self.admissible_order_id_features[iteration - 1]:
                     if oi_feature.has_static_existence():
-                        mutex_to_exist_predicates[oi_feature.get_identifier()] = None
+                        self.mutex_to_exist_predicates[oi_feature.get_identifier()] = None
                     else:
-                        mutex_to_exist_predicates[oi_feature.get_identifier()] = oi_feature.existence_feature.get_identifier()
+                        self.mutex_to_exist_predicates[oi_feature.get_identifier()] = oi_feature.existence_feature.get_identifier()
                 new_graphs, synth_changed_graph, stored_queries = synth_update_graphs(
                     process_pool_args,
-                    new_graphs, iteration - 1, mutex_to_exist_predicates,
+                    new_graphs, iteration - 1, self.mutex_to_exist_predicates,
                     stored_queries, verification_mode,
                     output_file_name=self.output_file_name
                 )
