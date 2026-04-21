@@ -1570,8 +1570,10 @@ class GraphTrace(Trace):
             for _c_pred_name in atoms:
                 # TODO this has to be done in a better way, this is just a temporary fix
                 if isinstance(_c_pred_name, str):
-                    atoms[_c_pred_name] = other_atoms[_c_pred_name]
-
+                    if _c_pred_name in other_atoms:
+                        atoms[_c_pred_name] = other_atoms[_c_pred_name]
+                    else:
+                        atoms[_c_pred_name] = set()
         _populate_mask_dict(dicts, atoms)
         self.parsed_state_dict[trace_position] = dicts
         return dicts

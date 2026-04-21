@@ -404,6 +404,7 @@ class ActionCandidates:
             print(len(current_sets), len(non_unique))
 
             next_sets = []
+            next_all_combi_dicts = dict()
 
             for cset in current_sets:
                 u_res, p_res = parallel_function(
@@ -445,8 +446,9 @@ class ActionCandidates:
 
                 for p_tuple, p_dict in p_res.items():
                     next_sets.append(copy.deepcopy(p_tuple))
-                    all_combi_dicts[p_tuple] = p_dict
+                    next_all_combi_dicts[p_tuple] = p_dict
 
+            all_combi_dicts = next_all_combi_dicts
             current_sets = copy.deepcopy(next_sets)
         if add_args:
             return argument_was_added
