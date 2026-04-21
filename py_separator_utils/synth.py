@@ -95,7 +95,7 @@ def find_equivalent_predicates(
     #    ]
     #]]
     predicate_conflict_adjacency_dict = dict()
-    for instance_id, graph in graphs.items():
+    for instance_id, (graph, init) in graphs.items():
         for node, atoms in graph.nodes(data=pt.Atom_List_key):
             for arity, arity_atoms_dict in atoms.items():
                 if arity not in predicate_conflict_adjacency_dict:
@@ -103,7 +103,17 @@ def find_equivalent_predicates(
                 for predicate_1, (true_atoms_1, false_atoms_1) in arity_atoms_dict.items():
                     if predicate_1 not in predicate_conflict_adjacency_dict[arity]:
                         predicate_conflict_adjacency_dict[arity][predicate_1] = dict()
+    for instance_id, (graph, init) in graphs.items():
+        for node, atoms in graph.nodes(data=pt.Atom_List_key):
+            for arity, arity_atoms_dict in atoms.items():
+                for predicate_1, (true_atoms_1, false_atoms_1) in arity_atoms_dict.items():
+                    for predicate_2 in predicate_conflict_adjacency_dict[arity].keys():
+                        if predicate_2 not in arity_atoms_dict:
+                            # p2 does not explain some state at all, but p1 does.
+                            predicate_conflict_adjacency_dict[arity][predicate_2][predicate_1] = set()
                     for predicate_2, (true_atoms_2, false_atoms_2) in arity_atoms_dict.items():
+                        if predicate_1 == predicate_2:
+                            continue
                         if predicate_2 not in predicate_conflict_adjacency_dict[arity][predicate_1]:
                             predicate_conflict_adjacency_dict[arity][predicate_1][predicate_2] = set(get_permutation_set(arity))
                         for permutation in predicate_conflict_adjacency_dict[arity][predicate_1][predicate_2].copy():
@@ -111,21 +121,24 @@ def find_equivalent_predicates(
                                 apply_permutation_forward(atom, permutation)
                                 for atom in true_atoms_1
                             )
-                            if permuted_atoms != true_atoms_2:
+                            if true_atoms_2.difference(permuted_atoms):
+                                #p2 provides a true atom p1 does not
                                 predicate_conflict_adjacency_dict[arity][predicate_1][predicate_2].remove(permutation)
                                 continue
                             permuted_atoms = set(
                                 apply_permutation_forward(atom, permutation)
                                 for atom in false_atoms_1
                             )
-                            if permuted_atoms != false_atoms_2:
+                            if false_atoms_2.difference(permuted_atoms):
+                                #p2 provides a false atom p1 does not
                                 predicate_conflict_adjacency_dict[arity][predicate_1][predicate_2].remove(permutation)
                                 continue
 
     #TODO postprocess predicate_conflict_adjacency_dict
     #Cases p1 p2 point at  empty set -> different predicates
     #Cases p1 p2 point at filled set -> p1 less or equal informative than p2
-    #Cases p1 p2 not a key           -> p1 and p2 do not interact, different predicates
+    #Cases p1 p2 not a key           -> p1 and p2 do not interact, different predicates (should no longer happen)
+    #arity -> {p1 -> {p2 -> {set of mapping permutations}}}
     return predicate_conflict_adjacency_dict
 
 def synth_update_graphs(
