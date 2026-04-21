@@ -1453,10 +1453,6 @@ class GraphTrace(Trace):
         # Build mask-based pattern dictionaries
         self.candidate_dict = self.predicate_patterns()
 
-        # Compute precondition mappings (uses open-world atoms)
-        self.grounding_preconditions_pos, self.grounding_preconditions_neg, \
-            self.mask_pre_pos, self.mask_pre_neg = self._compute_grounding_preconditions()
-
         # Load type list
         if isinstance(type_list, list):
             self.types_list = type_list
@@ -1589,76 +1585,6 @@ class GraphTrace(Trace):
             pred: {pos: set() for pos in range(arity)}
             for pred, arity in self.predicate_arity_dict.items()
         }
-
-    @override
-    def _compute_grounding_preconditions(self):
-        """Compute precondition mappings using open-world atoms (true + unknown)."""
-        pos_pre = {}
-        neg_pre = {}
-        mask_pos = {}
-        mask_neg = {}
-
-        for action, a_arity in self.action_arity.items():
-            pos_pre[action] = {}
-            neg_pre[action] = {}
-            mask_pos[action] = {}
-            mask_neg[action] = {}
-
-            for predicate, p_arity in self.predicate_arity_dict.items():
-                if predicate in self.dropped_preds:
-                    continue
-                if p_arity > 0:
-                    all_perms = set(itertools.permutations(range(a_arity), r=p_arity))
-                    pos_pre[action][predicate] = set(all_perms)
-                    neg_pre[action][predicate] = set(all_perms)
-                else:
-                    pos_pre[action][predicate] = {tuple()}
-                    neg_pre[action][predicate] = {tuple()}
-                if p_arity >= 2:
-                    masked = _get_masked_patterns(a_arity, p_arity)
-                    mask_pos[action][predicate] = set(masked)
-                    mask_neg[action][predicate] = set(masked)
-
-        all_predicates = set(self.predicate_arity_dict.keys())
-        num_edges = len(self._edge_actions)
-
-        # Use open-world atoms for precondition filtering (keeps all possibly-valid ones)
-        for state_num in range(num_edges):
-            state = self._raw_state_trace[state_num]
-            open_atoms = self._get_open_world_atoms(state)
-            parsed_state, parsed_full_state = _build_state_precondition_from_atoms(
-                open_atoms, self.dropped_preds)
-            cur_action = self.action_name_list[state_num]
-            action_objs = self.action_object_list[state_num]
-
-            for predicate in all_predicates:
-                if predicate in self.dropped_preds:
-                    continue
-                if predicate not in parsed_state:
-                    pos_pre[cur_action][predicate] = set()
-                    mask_pos[cur_action][predicate] = set()
-                    continue
-                if pos_pre[cur_action][predicate]:
-                    pos_pre[cur_action][predicate] = _filter_mapping_patterns(
-                        parsed_state[predicate], action_objs,
-                        pos_pre[cur_action][predicate], positive=True)
-                if neg_pre[cur_action][predicate]:
-                    neg_pre[cur_action][predicate] = _filter_mapping_patterns(
-                        parsed_state[predicate], action_objs,
-                        neg_pre[cur_action][predicate], positive=False)
-                if predicate not in parsed_full_state:
-                    mask_pos[cur_action][predicate] = set()
-                    continue
-                if mask_pos[cur_action].get(predicate):
-                    mask_pos[cur_action][predicate] = self.get_masked_preconditions(
-                        parsed_full_state[predicate], action_objs,
-                        mask_pos[cur_action][predicate], positive=True)
-                if mask_neg[cur_action].get(predicate):
-                    mask_neg[cur_action][predicate] = self.get_masked_preconditions(
-                        parsed_full_state[predicate], action_objs,
-                        mask_neg[cur_action][predicate], positive=False)
-
-        return pos_pre, neg_pre, mask_pos, mask_neg
 
     @override
     def _extract_effects(self, action):
