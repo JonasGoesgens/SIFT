@@ -1,6 +1,7 @@
 from typing import Dict, Set, Tuple, Optional
 import copy
 import io
+import sys
 import logging
 import itertools
 import py_separator_utils.py_types as pt
@@ -50,6 +51,18 @@ def get_synth_logger(output_file_name: str | None = None,) -> logging.Logger:
 
     logger.debug("Synth-Logger initialized → %s", log_path.resolve())
     return logger
+
+class StdoutForwarder:
+    def __init__(self, logger):
+        self._logger = logger
+        #self._logger.debug("=== stdout of alg.synth ===\n%s")
+
+    def write(self, data: str):
+        clean = data.rstrip("\n")
+        self._logger.debug(clean)
+
+    def flush(self):
+        pass
 
 def find_equivalent_predicates(
     graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
@@ -145,7 +158,7 @@ def synth_update_graphs(
     process_pool_args : dict,
     graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
     iteration : int,
-    mutex_to_exist_predicates : [dict],
+    mutex_to_exist_predicates : dict,
     stored_queries : Optional[dict] = None,
     verification_mode : bool = False,
     output_file_name : Optional[str] = None,
@@ -169,7 +182,7 @@ def synth_update_graphs(
     buf = io.StringIO()
 
     try:
-        with redirect_stdout(buf):
+        with redirect_stdout(StdoutForwarder(log)):
             graphs, changed, argument_queries = alg.synth(graphs, stored_queries, verification_mode, iteration)
     except StratificationError:
         # It is not possible to reapply the stored queries.
@@ -191,10 +204,6 @@ def synth_update_graphs(
                 "Unexpected exception happened during reapplying Synth during verification."
             )
         return graphs_bak, False, stored_queries
-
-    stdout_captured = buf.getvalue()
-    if stdout_captured:
-        log.debug("=== stdout of alg.synth ===\n%s", stdout_captured)
 
     #print(f"{ut.format_cur_time()}: Updating Graph labels", flush=True)
     #add query values to labels
