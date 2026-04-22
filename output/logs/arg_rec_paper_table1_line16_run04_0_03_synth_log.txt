@@ -1,0 +1,633 @@
+2026-04-21 00:33:59 DEBUG    Synth-Logger initialized → /work/rleap1/jonas.goesgens/domainlearner/sift/output/logs/arg_rec_paper_table1_line16_run04_0_03_synth_log.txt
+2026-04-21 00:34:22 DEBUG    === stdout of alg.synth ===
+There was an arguments added for 'down' with query: {('at-agent', (-1,))}!
+There was an arguments added for 'right' with query: {('at-agent', (-1,))}!
+There was an arguments added for 'up' with query: {('at-agent', (-1,))}!
+There was an arguments added for 'left' with query: {('at-agent', (-1,))}!
+There was an arguments added for 'pick' with query: {('at-agent', (-1,))}!
+There was an arguments added for 'drop' with query: {('at-agent', (-1,))}!
+4 4
+6 4
+4 4
+1 4
+4 4
+6 4
+4 4
+1 4
+4 4
+6 4
+4 4
+1 4
+4 4
+6 4
+4 4
+1 4
+4 4
+6 4
+4 4
+1 4
+5 5
+6 5
+4 5
+1 5
+NEW ARGUMENTS ADDED:  True
+Positive Effects: 
+
+down(0,) on at-agent
+right(0,) on at-agent
+up(0,) on at-agent
+left(0,) on at-agent
+drop() on frozenset({('drop', ()), ('pick', ())})
+drop(0,) on (frozenset({('pick', (0,))}), frozenset({('drop', ())}))
+
+ Negative Effects: 
+
+pick() on frozenset({('drop', ()), ('pick', ())})
+pick(0,) on (frozenset({('pick', (0,))}), frozenset({('drop', ())}))
+The 0. argument of the action down refers to the query {('at-agent', (-1,))}
+The 0. argument of the action right refers to the query {('at-agent', (-1,))}
+The 0. argument of the action up refers to the query {('at-agent', (-1,))}
+The 0. argument of the action left refers to the query {('at-agent', (-1,))}
+The 0. argument of the action pick refers to the query None
+The 1. argument of the action pick refers to the query {('at-agent', (-1,))}
+The 0. argument of the action drop refers to the query None
+The 1. argument of the action drop refers to the query {('at-agent', (-1,))}
+
+2026-04-21 00:36:45 DEBUG    === stdout of alg.synth ===
+There was an arguments added for 'down' with query: {('connected-up', (-1, 0))}!
+There was an arguments added for 'right' with query: {('connected-left', (-1, 0))}!
+There was an arguments added for 'up' with query: {('connected-up', (0, -1))}!
+There was an arguments added for 'left' with query: {('connected-left', (0, -1))}!
+8 8
+13 8
+6 8
+1 8
+8 8
+13 8
+6 8
+1 8
+8 8
+13 8
+6 8
+1 8
+8 8
+13 8
+6 8
+1 8
+11 11
+15 11
+6 11
+1 11
+10 10
+9 10
+4 10
+1 10
+NEW ARGUMENTS ADDED:  True
+Positive Effects: 
+
+down(0,) on at-agent
+right(0,) on at-agent
+up(0,) on at-agent
+left(0,) on at-agent
+pick(0, 1) on frozenset({('pick', (0, 1)), ('drop', (0, 1))})
+pick(0, 1) on (frozenset({('drop', (0, 1))}), frozenset({('pick', (0,))}))
+drop(0,) on (frozenset({('pick', (0,))}), frozenset({('drop', ())}))
+drop(0,) on frozenset({('pick', (0,)), ('drop', (0,))})
+drop() on frozenset({('drop', ()), ('pick', ())})
+
+ Negative Effects: 
+
+down(1,) on at-agent
+right(1,) on at-agent
+up(1,) on at-agent
+left(1,) on at-agent
+pick(0,) on (frozenset({('pick', (0,))}), frozenset({('drop', ())}))
+pick(0,) on frozenset({('pick', (0,)), ('drop', (0,))})
+pick() on frozenset({('drop', ()), ('pick', ())})
+drop(0, 1) on frozenset({('pick', (0, 1)), ('drop', (0, 1))})
+drop(0, 1) on (frozenset({('drop', (0, 1))}), frozenset({('pick', (0,))}))
+The 0. argument of the action down refers to the query {0: {('at-agent', (-1,))}}
+The 1. argument of the action down refers to the query {('connected-up', (-1, 0))}
+The 0. argument of the action right refers to the query {0: {('at-agent', (-1,))}}
+The 1. argument of the action right refers to the query {('connected-left', (-1, 0))}
+The 0. argument of the action up refers to the query {0: {('at-agent', (-1,))}}
+The 1. argument of the action up refers to the query {('connected-up', (0, -1))}
+The 0. argument of the action left refers to the query {0: {('at-agent', (-1,))}}
+The 1. argument of the action left refers to the query {('connected-left', (0, -1))}
+The 0. argument of the action pick refers to the query {0: None, 1: {('at-agent', (-1,))}}
+The 1. argument of the action pick refers to the query None
+The 0. argument of the action drop refers to the query {0: None, 1: {('at-agent', (-1,))}}
+The 1. argument of the action drop refers to the query None
+
+2026-04-21 00:41:59 DEBUG    === stdout of alg.synth ===
+9 9
+13 9
+6 9
+1 9
+9 9
+13 9
+6 9
+1 9
+9 9
+13 9
+6 9
+1 9
+9 9
+13 9
+6 9
+1 9
+12 12
+15 12
+6 12
+1 12
+11 11
+9 11
+4 11
+1 11
+NEW ARGUMENTS ADDED:  False
+Positive Effects: 
+
+down(0,) on frozenset({('up', (1,)), ('up', (0,)), ('left', (1,)), ('down', (1,)), ('right', (1,)), ('down', (0,)), ('right', (0,)), ('left', (0,))})
+down(0,) on (frozenset({('down', (1,)), ('right', (1,)), ('left', (1,)), ('up', (1,))}), frozenset({('up', ()), ('down', ()), ('right', ()), ('left', ())}))
+down(0,) on at-agent
+right(0,) on frozenset({('up', (1,)), ('up', (0,)), ('left', (1,)), ('down', (1,)), ('right', (1,)), ('down', (0,)), ('right', (0,)), ('left', (0,))})
+right(0,) on (frozenset({('down', (1,)), ('right', (1,)), ('left', (1,)), ('up', (1,))}), frozenset({('up', ()), ('down', ()), ('right', ()), ('left', ())}))
+right(0,) on at-agent
+up(0,) on frozenset({('up', (1,)), ('up', (0,)), ('left', (1,)), ('down', (1,)), ('right', (1,)), ('down', (0,)), ('right', (0,)), ('left', (0,))})
+up(0,) on (frozenset({('down', (1,)), ('right', (1,)), ('left', (1,)), ('up', (1,))}), frozenset({('up', ()), ('down', ()), ('right', ()), ('left', ())}))
+up(0,) on at-agent
+left(0,) on frozenset({('up', (1,)), ('up', (0,)), ('left', (1,)), ('down', (1,)), ('right', (1,)), ('down', (0,)), ('right', (0,)), ('left', (0,))})
+left(0,) on (frozenset({('down', (1,)), ('right', (1,)), ('left', (1,)), ('up', (1,))}), frozenset({('up', ()), ('down', ()), ('right', ()), ('left', ())}))
+left(0,) on at-agent
+pick(0, 1) on frozenset({('pick', (0, 1)), ('drop', (0, 1))})
+pick(0, 1) on (frozenset({('drop', (0, 1))}), frozenset({('pick', (0,))}))
+drop(0,) on (frozenset({('pick', (0,))}), frozenset({('drop', ())}))
+drop(0,) on frozenset({('pick', (0,)), ('drop', (0,))})
+drop() on frozenset({('drop', ()), ('pick', ())})
+
+ Negative Effects: 
+
+down(1,) on frozenset({('up', (1,)), ('up', (0,)), ('left', (1,)), ('down', (1,)), ('right', (1,)), ('down', (0,)), ('right', (0,)), ('left', (0,))})
+down(1,) on (frozenset({('down', (1,)), ('right', (1,)), ('left', (1,)), ('up', (1,))}), frozenset({('up', ()), ('down', ()), ('right', ()), ('left', ())}))
+down(1,) on at-agent
+right(1,) on frozenset({('up', (1,)), ('up', (0,)), ('left', (1,)), ('down', (1,)), ('right', (1,)), ('down', (0,)), ('right', (0,)), ('left', (0,))})
+right(1,) on (frozenset({('down', (1,)), ('right', (1,)), ('left', (1,)), ('up', (1,))}), frozenset({('up', ()), ('down', ()), ('right', ()), ('left', ())}))
+right(1,) on at-agent
+up(1,) on frozenset({('up', (1,)), ('up', (0,)), ('left', (1,)), ('down', (1,)), ('right', (1,)), ('down', (0,)), ('right', (0,)), ('left', (0,))})
+up(1,) on (frozenset({('down', (1,)), ('right', (1,)), ('left', (1,)), ('up', (1,))}), frozenset({('up', ()), ('down', ()), ('right', ()), ('left', ())}))
+up(1,) on at-agent
+left(1,) on frozenset({('up', (1,)), ('up', (0,)), ('left', (1,)), ('down', (1,)), ('right', (1,)), ('down', (0,)), ('right', (0,)), ('left', (0,))})
+left(1,) on (frozenset({('down', (1,)), ('right', (1,)), ('left', (1,)), ('up', (1,))}), frozenset({('up', ()), ('down', ()), ('right', ()), ('left', ())}))
+left(1,) on at-agent
+pick(0,) on (frozenset({('pick', (0,))}), frozenset({('drop', ())}))
+pick(0,) on frozenset({('pick', (0,)), ('drop', (0,))})
+pick() on frozenset({('drop', ()), ('pick', ())})
+drop(0, 1) on frozenset({('pick', (0, 1)), ('drop', (0, 1))})
+drop(0, 1) on (frozenset({('drop', (0, 1))}), frozenset({('pick', (0,))}))
+The 0. argument of the action down refers to the query {0: {('at-agent', (-1,))}}
+The 1. argument of the action down refers to the query {1: {('connected-up', (-1, 0))}}
+The 0. argument of the action right refers to the query {0: {('at-agent', (-1,))}}
+The 1. argument of the action right refers to the query {1: {('connected-left', (-1, 0))}}
+The 0. argument of the action up refers to the query {0: {('at-agent', (-1,))}}
+The 1. argument of the action up refers to the query {1: {('connected-up', (0, -1))}}
+The 0. argument of the action left refers to the query {0: {('at-agent', (-1,))}}
+The 1. argument of the action left refers to the query {1: {('connected-left', (0, -1))}}
+The 0. argument of the action pick refers to the query {0: None, 1: {('at-agent', (-1,))}}
+The 1. argument of the action pick refers to the query {}
+The 0. argument of the action drop refers to the query {0: None, 1: {('at-agent', (-1,))}}
+The 1. argument of the action drop refers to the query {}
+
+2026-04-21 00:45:45 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 00:48:25 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 00:51:54 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 00:54:16 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 00:57:43 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 01:00:06 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 01:04:01 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 01:06:37 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 01:10:35 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 01:13:33 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 01:17:09 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 01:19:35 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 01:23:22 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 01:26:12 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 01:30:12 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 01:32:36 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 01:36:11 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 01:38:40 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 01:42:29 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 01:45:29 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 01:49:27 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 01:51:49 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 01:55:45 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 01:58:22 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 02:02:16 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 02:05:11 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 02:08:43 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 02:11:07 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 02:14:52 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 02:17:46 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 02:22:06 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 02:24:28 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 02:27:56 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 02:30:22 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 02:34:41 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 02:37:23 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 02:40:58 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 02:43:25 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 02:46:59 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 02:49:24 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 02:53:22 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 02:56:22 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 02:59:51 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 03:02:12 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 03:05:42 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 03:08:08 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 03:11:52 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 03:15:07 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 03:19:01 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 03:21:03 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 03:24:29 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 03:26:33 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 03:30:05 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 03:32:10 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 03:37:06 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 03:39:27 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 03:49:51 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 03:51:55 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 03:55:39 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 03:57:55 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
+2026-04-21 04:04:46 DEBUG    === stdout of alg.synth ===
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+('at-agent', (-1,))
+
+2026-04-21 04:07:01 DEBUG    === stdout of alg.synth ===
+('connected-up', (-1, 0))
+('connected-left', (-1, 0))
+('connected-up', (0, -1))
+('connected-left', (0, -1))
+
