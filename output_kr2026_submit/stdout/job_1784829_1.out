@@ -1,0 +1,1139 @@
+--------------------- Slurm Task Prolog ------------------------
+Job ID: 1789052
+Job name: arg_rec_sift
+Host: cn-427
+Date: Fr 20. Feb 05:18:55 CET 2026
+User: jonas.goesgens
+Slurm account: rleap
+Slurm partition: rleap_cpu_modern
+Work dir: 
+------------------
+Node usage:
+JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+1784829_1 rleap_cpu arg_rec_ jonas.go  R       0:00      1 cn-427
+1784829_0 rleap_cpu arg_rec_ jonas.go  R      32:12      1 cn-427
+1784828_19 rleap_cpu arg_rec_ jonas.go  R    2:46:31      1 cn-427
+1784828_11 rleap_cpu arg_rec_ jonas.go  R   22:45:00      1 cn-427
+1784828_10 rleap_cpu arg_rec_ jonas.go  R   22:57:58      1 cn-427
+1784828_7 rleap_cpu arg_rec_ jonas.go  R   23:36:15      1 cn-427
+------------------
+Show launch script with:
+sacct -B -j 
+------------------
+--------------------- Slurm Task Prolog ------------------------
+1 -lm pg -ls 20000 -ln 6 -d pddl_files/driverlog/driverlog.pddl -ds pddl_files/driverlog/driverlog_static_relax.pddl -i pddl_files/driverlog/driverlog-1.pddl -ai 0 -am implicit_arg_masks/driverlog_mask.txt -v pddl_files/driverlog/driverlog-2.pddl,pg,80000,24 -v pddl_files/driverlog/driverlog-2.pddl,npg,80000,24,pddl_files/driverlog/driverlog-2_static_relax.pddl
+Fri Feb 20 05:18:55 CET 2026
+2026-02-20 05:18:55: Batchmode line 0
+2026-02-20 05:18:55: Batchmode line 0 run 0
+2026-02-20 05:18:55: Input generation
+2026-02-20 05:18:55: Generating input 5/6
+2026-02-20 05:18:55: Generating input 3/6
+2026-02-20 05:18:55: Generating input 4/6
+2026-02-20 05:18:55: Generating input 6/6
+2026-02-20 05:18:55: Generating input 2/6
+2026-02-20 05:18:55: Generating input 1/6
+2026-02-20 05:19:00: Generated 6 Graphs:
+Graph with 3734 nodes and 20002 edges.
+Graph with 3806 nodes and 20000 edges.
+Graph with 3700 nodes and 20006 edges.
+Graph with 3744 nodes and 20004 edges.
+Graph with 3746 nodes and 20002 edges.
+Graph with 3658 nodes and 20002 edges.
+2026-02-20 05:19:00: Learning Domain
+2026-02-20 05:19:00: Argument Recovery iteration 0: Running Normal Sift
+2026-02-20 05:19:00: Sift: Merging graphs by missing arguments
+2026-02-20 05:19:09: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-20 05:19:13: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-20 05:19:28: Sift: generating features
+2026-02-20 05:19:28: Sift: Testing 2 features
+2026-02-20 05:19:28: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-20 05:19:28: Argument Recovery iteration 0: Creating mutex features
+2026-02-20 05:19:28: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-20 05:19:53: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-20 05:19:53: Argument Recovery iteration 0: Updating action labels
+2026-02-20 05:19:58: Argument Recovery iteration 1: Running Normal Sift
+2026-02-20 05:19:58: Sift: Merging graphs by missing arguments
+2026-02-20 05:20:12: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-20 05:20:23: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-20 05:20:34: Sift: generating features
+2026-02-20 05:20:34: Sift: Testing 16 features
+2026-02-20 05:20:35: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-20 05:20:35: Argument Recovery iteration 1: Creating mutex features
+2026-02-20 05:20:35: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-20 05:24:20: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-20 05:24:20: Argument Recovery iteration 1: Updating action labels
+2026-02-20 05:24:47: Argument Recovery iteration 2: Running Normal Sift
+2026-02-20 05:24:47: Sift: Merging graphs by missing arguments
+2026-02-20 05:25:01: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-20 05:26:09: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-20 05:26:55: Sift: generating features
+2026-02-20 05:26:55: Sift: Testing 49 features
+2026-02-20 05:27:04: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-20 05:27:04: Argument Recovery iteration 2: Creating mutex features
+2026-02-20 05:27:35: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 15:07:14: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 15:07:14: Argument Recovery iteration 2: Updating action labels
+2026-02-22 15:13:20: Verification input generation
+2026-02-22 15:18:34: Generating input 1/24
+2026-02-22 15:18:34: Generating input 10/24
+2026-02-22 15:18:34: Generating input 8/24
+2026-02-22 15:18:34: Generating input 6/24
+2026-02-22 15:18:34: Generating input 9/24
+2026-02-22 15:18:34: Generating input 2/24
+2026-02-22 15:18:34: Generating input 7/24
+2026-02-22 15:18:34: Generating input 5/24
+2026-02-22 15:18:34: Generating input 3/24
+2026-02-22 15:18:34: Generating input 4/24
+2026-02-22 15:19:23: Generating input 11/24
+2026-02-22 15:19:25: Generating input 12/24
+2026-02-22 15:19:33: Generating input 13/24
+2026-02-22 15:19:37: Generating input 14/24
+2026-02-22 15:19:37: Generating input 15/24
+2026-02-22 15:19:38: Generating input 16/24
+2026-02-22 15:19:39: Generating input 17/24
+2026-02-22 15:19:40: Generating input 18/24
+2026-02-22 15:19:43: Generating input 19/24
+2026-02-22 15:19:47: Generating input 20/24
+2026-02-22 15:20:16: Generating input 21/24
+2026-02-22 15:20:27: Generating input 22/24
+2026-02-22 15:20:54: Generating input 23/24
+2026-02-22 15:21:33: Generating input 24/24
+2026-02-22 15:21:33: Generating input 1/24
+2026-02-22 15:21:33: Generating input 2/24
+2026-02-22 15:21:33: Generating input 3/24
+2026-02-22 15:21:33: Generating input 4/24
+2026-02-22 15:21:33: Generating input 5/24
+2026-02-22 15:21:34: Generating input 6/24
+2026-02-22 15:21:34: Generating input 7/24
+2026-02-22 15:22:02: Generating input 8/24
+2026-02-22 15:22:05: Generating input 9/24
+2026-02-22 15:22:28: Generating input 10/24
+2026-02-22 15:22:54: Generating input 11/24
+2026-02-22 15:22:59: Generating input 12/24
+2026-02-22 15:23:03: Generating input 13/24
+2026-02-22 15:23:04: Generating input 14/24
+2026-02-22 15:23:19: Generating input 15/24
+2026-02-22 15:23:27: Generating input 16/24
+2026-02-22 15:23:28: Generating input 17/24
+2026-02-22 15:23:29: Generating input 18/24
+2026-02-22 15:23:40: Generating input 19/24
+2026-02-22 15:24:01: Generating input 20/24
+2026-02-22 15:24:18: Generating input 21/24
+2026-02-22 15:24:29: Generating input 22/24
+2026-02-22 15:24:30: Generating input 23/24
+2026-02-22 15:24:31: Generating input 24/24
+2026-02-22 15:26:15: Verifing learned Domain
+2026-02-22 15:30:13: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 15:30:13: Sift: Merging graphs by missing arguments
+2026-02-22 15:30:31: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 15:30:40: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 15:33:42: Sift: generating features
+2026-02-22 15:33:42: Sift: Testing 2 features
+2026-02-22 15:33:49: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 15:33:49: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 15:33:49: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 15:33:56: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 15:33:56: Argument Recovery iteration 0: Updating action labels
+2026-02-22 15:33:58: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 15:33:58: Sift: Merging graphs by missing arguments
+2026-02-22 15:34:29: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 15:34:47: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 15:38:23: Sift: generating features
+2026-02-22 15:38:23: Sift: Testing 16 features
+2026-02-22 15:38:30: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 15:38:30: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 15:38:30: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 15:38:38: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 15:38:38: Argument Recovery iteration 1: Updating action labels
+2026-02-22 15:38:53: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 15:38:53: Sift: Merging graphs by missing arguments
+2026-02-22 15:39:28: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 15:40:47: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 15:44:04: Sift: generating features
+2026-02-22 15:44:04: Sift: Testing 49 features
+2026-02-22 15:44:15: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 15:44:15: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 15:44:15: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 15:44:26: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 15:44:26: Argument Recovery iteration 2: Updating action labels
+2026-02-22 15:48:20: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 15:48:20: Sift: Merging graphs by missing arguments
+2026-02-22 15:48:40: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 15:48:51: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 15:51:53: Sift: generating features
+2026-02-22 15:51:53: Sift: Testing 2 features
+2026-02-22 15:52:02: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 15:52:02: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 15:52:02: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 15:52:10: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 15:52:10: Argument Recovery iteration 0: Updating action labels
+2026-02-22 15:52:12: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 15:52:12: Sift: Merging graphs by missing arguments
+2026-02-22 15:52:48: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 15:53:08: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 15:56:08: Sift: generating features
+2026-02-22 15:56:08: Sift: Testing 16 features
+2026-02-22 15:56:17: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 15:56:17: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 15:56:17: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 15:56:27: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 15:56:27: Argument Recovery iteration 1: Updating action labels
+2026-02-22 15:56:42: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 15:56:42: Sift: Merging graphs by missing arguments
+2026-02-22 15:57:24: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 15:58:02: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:01:19: Sift: generating features
+2026-02-22 16:01:19: Sift: Testing 49 features
+2026-02-22 16:01:28: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 16:01:28: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 16:01:28: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 16:01:40: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 16:01:40: Argument Recovery iteration 2: Updating action labels
+2026-02-22 16:05:46: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 16:05:46: Sift: Merging graphs by missing arguments
+2026-02-22 16:06:10: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:06:21: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:09:10: Sift: generating features
+2026-02-22 16:09:10: Sift: Testing 2 features
+2026-02-22 16:09:19: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 16:09:19: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 16:09:19: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 16:09:29: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 16:09:29: Argument Recovery iteration 0: Updating action labels
+2026-02-22 16:09:31: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 16:09:31: Sift: Merging graphs by missing arguments
+2026-02-22 16:10:16: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:10:39: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:12:44: Sift: generating features
+2026-02-22 16:12:44: Sift: Testing 16 features
+2026-02-22 16:12:54: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 16:12:54: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 16:12:54: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 16:13:03: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 16:13:03: Argument Recovery iteration 1: Updating action labels
+2026-02-22 16:13:18: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 16:13:18: Sift: Merging graphs by missing arguments
+2026-02-22 16:14:02: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:14:43: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:18:01: Sift: generating features
+2026-02-22 16:18:01: Sift: Testing 49 features
+2026-02-22 16:18:11: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 16:18:11: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 16:18:11: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 16:18:24: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 16:18:24: Argument Recovery iteration 2: Updating action labels
+2026-02-22 16:22:15: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 16:22:15: Sift: Merging graphs by missing arguments
+2026-02-22 16:22:39: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:22:51: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:24:45: Sift: generating features
+2026-02-22 16:24:45: Sift: Testing 2 features
+2026-02-22 16:24:54: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 16:24:54: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 16:24:54: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 16:25:04: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 16:25:04: Argument Recovery iteration 0: Updating action labels
+2026-02-22 16:25:06: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 16:25:06: Sift: Merging graphs by missing arguments
+2026-02-22 16:25:48: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:26:09: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:28:20: Sift: generating features
+2026-02-22 16:28:20: Sift: Testing 16 features
+2026-02-22 16:28:28: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 16:28:28: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 16:28:28: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 16:28:37: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 16:28:37: Argument Recovery iteration 1: Updating action labels
+2026-02-22 16:28:52: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 16:28:52: Sift: Merging graphs by missing arguments
+2026-02-22 16:29:31: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:30:09: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:32:56: Sift: generating features
+2026-02-22 16:32:56: Sift: Testing 49 features
+2026-02-22 16:33:09: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 16:33:09: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 16:33:09: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 16:33:24: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 16:33:24: Argument Recovery iteration 2: Updating action labels
+2026-02-22 16:37:06: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 16:37:06: Sift: Merging graphs by missing arguments
+2026-02-22 16:37:26: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:37:37: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:40:14: Sift: generating features
+2026-02-22 16:40:14: Sift: Testing 2 features
+2026-02-22 16:40:25: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 16:40:25: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 16:40:25: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 16:40:35: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 16:40:35: Argument Recovery iteration 0: Updating action labels
+2026-02-22 16:40:37: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 16:40:37: Sift: Merging graphs by missing arguments
+2026-02-22 16:41:15: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:41:37: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:44:16: Sift: generating features
+2026-02-22 16:44:16: Sift: Testing 16 features
+2026-02-22 16:44:24: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 16:44:24: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 16:44:24: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 16:44:33: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 16:44:33: Argument Recovery iteration 1: Updating action labels
+2026-02-22 16:45:27: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 16:45:27: Sift: Merging graphs by missing arguments
+2026-02-22 16:46:07: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:46:44: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:49:01: Sift: generating features
+2026-02-22 16:49:01: Sift: Testing 49 features
+2026-02-22 16:49:09: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 16:49:09: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 16:49:09: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 16:49:21: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 16:49:21: Argument Recovery iteration 2: Updating action labels
+2026-02-22 16:52:50: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 16:52:50: Sift: Merging graphs by missing arguments
+2026-02-22 16:53:10: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:53:20: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 16:55:58: Sift: generating features
+2026-02-22 16:55:58: Sift: Testing 2 features
+2026-02-22 16:56:07: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 16:56:07: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 16:56:07: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 16:56:17: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 16:56:17: Argument Recovery iteration 0: Updating action labels
+2026-02-22 16:56:19: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 16:56:19: Sift: Merging graphs by missing arguments
+2026-02-22 16:57:03: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 16:57:28: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:00:11: Sift: generating features
+2026-02-22 17:00:11: Sift: Testing 16 features
+2026-02-22 17:00:19: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 17:00:19: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 17:00:19: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 17:00:28: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 17:00:28: Argument Recovery iteration 1: Updating action labels
+2026-02-22 17:00:42: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 17:00:42: Sift: Merging graphs by missing arguments
+2026-02-22 17:01:22: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:01:58: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:05:09: Sift: generating features
+2026-02-22 17:05:09: Sift: Testing 49 features
+2026-02-22 17:05:19: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 17:05:19: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 17:05:19: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 17:05:31: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 17:05:31: Argument Recovery iteration 2: Updating action labels
+2026-02-22 17:09:06: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 17:09:06: Sift: Merging graphs by missing arguments
+2026-02-22 17:09:28: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:09:39: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:12:21: Sift: generating features
+2026-02-22 17:12:21: Sift: Testing 2 features
+2026-02-22 17:12:30: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 17:12:30: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 17:12:30: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 17:12:38: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 17:12:38: Argument Recovery iteration 0: Updating action labels
+2026-02-22 17:12:40: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 17:12:40: Sift: Merging graphs by missing arguments
+2026-02-22 17:13:20: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:13:41: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:16:30: Sift: generating features
+2026-02-22 17:16:30: Sift: Testing 16 features
+2026-02-22 17:16:38: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 17:16:38: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 17:16:38: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 17:16:46: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 17:16:46: Argument Recovery iteration 1: Updating action labels
+2026-02-22 17:17:01: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 17:17:01: Sift: Merging graphs by missing arguments
+2026-02-22 17:17:39: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:18:16: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:21:33: Sift: generating features
+2026-02-22 17:21:33: Sift: Testing 49 features
+2026-02-22 17:21:42: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 17:21:42: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 17:21:42: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 17:22:46: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 17:22:46: Argument Recovery iteration 2: Updating action labels
+2026-02-22 17:26:11: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 17:26:11: Sift: Merging graphs by missing arguments
+2026-02-22 17:26:31: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:26:43: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:29:15: Sift: generating features
+2026-02-22 17:29:15: Sift: Testing 2 features
+2026-02-22 17:29:26: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 17:29:26: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 17:29:26: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 17:29:34: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 17:29:34: Argument Recovery iteration 0: Updating action labels
+2026-02-22 17:30:14: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 17:30:14: Sift: Merging graphs by missing arguments
+2026-02-22 17:30:51: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:31:12: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:33:13: Sift: generating features
+2026-02-22 17:33:13: Sift: Testing 16 features
+2026-02-22 17:33:22: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 17:33:22: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 17:33:22: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 17:33:31: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 17:33:31: Argument Recovery iteration 1: Updating action labels
+2026-02-22 17:33:45: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 17:33:45: Sift: Merging graphs by missing arguments
+2026-02-22 17:34:24: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:35:02: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:37:10: Sift: generating features
+2026-02-22 17:37:10: Sift: Testing 49 features
+2026-02-22 17:37:20: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 17:37:20: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 17:37:20: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 17:37:32: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 17:37:32: Argument Recovery iteration 2: Updating action labels
+2026-02-22 17:41:02: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 17:41:02: Sift: Merging graphs by missing arguments
+2026-02-22 17:41:22: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:41:33: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:44:11: Sift: generating features
+2026-02-22 17:44:11: Sift: Testing 2 features
+2026-02-22 17:44:19: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 17:44:19: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 17:44:19: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 17:44:27: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 17:44:27: Argument Recovery iteration 0: Updating action labels
+2026-02-22 17:44:29: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 17:44:29: Sift: Merging graphs by missing arguments
+2026-02-22 17:45:07: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:45:28: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:48:11: Sift: generating features
+2026-02-22 17:48:11: Sift: Testing 16 features
+2026-02-22 17:48:19: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 17:48:19: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 17:48:19: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 17:48:27: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 17:48:27: Argument Recovery iteration 1: Updating action labels
+2026-02-22 17:48:43: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 17:48:43: Sift: Merging graphs by missing arguments
+2026-02-22 17:49:21: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:49:59: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:53:13: Sift: generating features
+2026-02-22 17:53:13: Sift: Testing 49 features
+2026-02-22 17:53:23: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 17:53:23: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 17:53:23: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 17:53:34: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 17:53:34: Argument Recovery iteration 2: Updating action labels
+2026-02-22 17:56:21: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 17:56:21: Sift: Merging graphs by missing arguments
+2026-02-22 17:56:42: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 17:56:53: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 17:59:26: Sift: generating features
+2026-02-22 17:59:26: Sift: Testing 2 features
+2026-02-22 17:59:35: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 17:59:35: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 17:59:35: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 17:59:44: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 17:59:44: Argument Recovery iteration 0: Updating action labels
+2026-02-22 18:00:23: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 18:00:23: Sift: Merging graphs by missing arguments
+2026-02-22 18:01:02: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:01:25: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:03:21: Sift: generating features
+2026-02-22 18:03:21: Sift: Testing 16 features
+2026-02-22 18:03:29: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 18:03:29: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 18:03:29: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 18:03:37: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 18:03:37: Argument Recovery iteration 1: Updating action labels
+2026-02-22 18:03:52: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 18:03:52: Sift: Merging graphs by missing arguments
+2026-02-22 18:04:32: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:05:10: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:07:22: Sift: generating features
+2026-02-22 18:07:22: Sift: Testing 49 features
+2026-02-22 18:07:31: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 18:07:31: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 18:07:31: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 18:07:43: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 18:07:43: Argument Recovery iteration 2: Updating action labels
+2026-02-22 18:11:13: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 18:11:13: Sift: Merging graphs by missing arguments
+2026-02-22 18:11:33: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:11:44: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:13:46: Sift: generating features
+2026-02-22 18:13:46: Sift: Testing 2 features
+2026-02-22 18:13:55: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 18:13:55: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 18:13:55: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 18:14:04: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 18:14:04: Argument Recovery iteration 0: Updating action labels
+2026-02-22 18:14:06: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 18:14:06: Sift: Merging graphs by missing arguments
+2026-02-22 18:14:47: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:15:10: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:17:50: Sift: generating features
+2026-02-22 18:17:50: Sift: Testing 16 features
+2026-02-22 18:17:59: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 18:17:59: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 18:17:59: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 18:18:08: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 18:18:08: Argument Recovery iteration 1: Updating action labels
+2026-02-22 18:18:23: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 18:18:23: Sift: Merging graphs by missing arguments
+2026-02-22 18:19:01: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:19:39: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:22:34: Sift: generating features
+2026-02-22 18:22:34: Sift: Testing 49 features
+2026-02-22 18:22:43: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 18:22:43: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 18:22:43: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 18:22:55: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 18:22:55: Argument Recovery iteration 2: Updating action labels
+2026-02-22 18:25:42: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 18:25:42: Sift: Merging graphs by missing arguments
+2026-02-22 18:27:08: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:27:56: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:30:03: Sift: generating features
+2026-02-22 18:30:03: Sift: Testing 2 features
+2026-02-22 18:30:12: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 18:30:12: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 18:30:12: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 18:30:21: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 18:30:21: Argument Recovery iteration 0: Updating action labels
+2026-02-22 18:30:23: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 18:30:23: Sift: Merging graphs by missing arguments
+2026-02-22 18:31:00: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:31:21: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:33:22: Sift: generating features
+2026-02-22 18:33:22: Sift: Testing 16 features
+2026-02-22 18:33:30: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 18:33:30: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 18:33:30: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 18:33:39: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 18:33:39: Argument Recovery iteration 1: Updating action labels
+2026-02-22 18:33:54: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 18:33:54: Sift: Merging graphs by missing arguments
+2026-02-22 18:34:33: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:35:12: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:38:02: Sift: generating features
+2026-02-22 18:38:02: Sift: Testing 49 features
+2026-02-22 18:38:11: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 18:38:11: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 18:38:11: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 18:38:22: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 18:38:22: Argument Recovery iteration 2: Updating action labels
+2026-02-22 18:41:52: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 18:41:52: Sift: Merging graphs by missing arguments
+2026-02-22 18:42:12: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:42:23: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:44:28: Sift: generating features
+2026-02-22 18:44:28: Sift: Testing 2 features
+2026-02-22 18:44:37: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 18:44:37: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 18:44:37: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 18:44:47: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 18:44:47: Argument Recovery iteration 0: Updating action labels
+2026-02-22 18:44:49: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 18:44:49: Sift: Merging graphs by missing arguments
+2026-02-22 18:45:30: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:45:51: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:48:29: Sift: generating features
+2026-02-22 18:48:29: Sift: Testing 16 features
+2026-02-22 18:48:38: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 18:48:38: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 18:48:38: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 18:48:48: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 18:48:48: Argument Recovery iteration 1: Updating action labels
+2026-02-22 18:49:02: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 18:49:02: Sift: Merging graphs by missing arguments
+2026-02-22 18:49:41: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:51:08: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 18:53:35: Sift: generating features
+2026-02-22 18:53:35: Sift: Testing 49 features
+2026-02-22 18:53:44: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 18:53:44: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 18:53:44: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 18:53:56: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 18:53:56: Argument Recovery iteration 2: Updating action labels
+2026-02-22 18:57:31: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 18:57:31: Sift: Merging graphs by missing arguments
+2026-02-22 18:57:52: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 18:58:03: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:01:01: Sift: generating features
+2026-02-22 19:01:01: Sift: Testing 2 features
+2026-02-22 19:01:10: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 19:01:10: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 19:01:10: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 19:01:18: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 19:01:18: Argument Recovery iteration 0: Updating action labels
+2026-02-22 19:01:20: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 19:01:20: Sift: Merging graphs by missing arguments
+2026-02-22 19:01:57: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:02:19: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:04:28: Sift: generating features
+2026-02-22 19:04:28: Sift: Testing 16 features
+2026-02-22 19:04:37: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 19:04:37: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 19:04:37: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 19:04:46: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 19:04:46: Argument Recovery iteration 1: Updating action labels
+2026-02-22 19:05:00: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 19:05:00: Sift: Merging graphs by missing arguments
+2026-02-22 19:05:39: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:06:18: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:09:22: Sift: generating features
+2026-02-22 19:09:22: Sift: Testing 49 features
+2026-02-22 19:09:31: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 19:09:31: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 19:09:31: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 19:09:43: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 19:09:43: Argument Recovery iteration 2: Updating action labels
+2026-02-22 19:13:27: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 19:13:27: Sift: Merging graphs by missing arguments
+2026-02-22 19:13:48: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:13:59: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:15:27: Sift: generating features
+2026-02-22 19:15:27: Sift: Testing 2 features
+2026-02-22 19:15:36: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 19:15:36: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 19:15:36: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 19:15:45: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 19:15:45: Argument Recovery iteration 0: Updating action labels
+2026-02-22 19:15:47: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 19:15:47: Sift: Merging graphs by missing arguments
+2026-02-22 19:16:26: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:16:47: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:18:47: Sift: generating features
+2026-02-22 19:18:47: Sift: Testing 16 features
+2026-02-22 19:18:55: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 19:18:55: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 19:18:55: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 19:19:04: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 19:19:04: Argument Recovery iteration 1: Updating action labels
+2026-02-22 19:19:20: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 19:19:20: Sift: Merging graphs by missing arguments
+2026-02-22 19:20:00: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:20:39: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:22:54: Sift: generating features
+2026-02-22 19:22:54: Sift: Testing 49 features
+2026-02-22 19:23:03: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 19:23:03: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 19:23:03: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 19:23:15: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 19:23:15: Argument Recovery iteration 2: Updating action labels
+2026-02-22 19:27:17: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 19:27:17: Sift: Merging graphs by missing arguments
+2026-02-22 19:27:39: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:27:50: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:31:03: Sift: generating features
+2026-02-22 19:31:03: Sift: Testing 2 features
+2026-02-22 19:31:11: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 19:31:11: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 19:31:11: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 19:31:20: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 19:31:20: Argument Recovery iteration 0: Updating action labels
+2026-02-22 19:31:22: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 19:31:22: Sift: Merging graphs by missing arguments
+2026-02-22 19:32:01: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:32:23: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:34:27: Sift: generating features
+2026-02-22 19:34:27: Sift: Testing 16 features
+2026-02-22 19:34:35: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 19:34:35: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 19:34:35: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 19:34:44: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 19:34:44: Argument Recovery iteration 1: Updating action labels
+2026-02-22 19:34:59: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 19:34:59: Sift: Merging graphs by missing arguments
+2026-02-22 19:35:40: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:36:21: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:39:17: Sift: generating features
+2026-02-22 19:39:17: Sift: Testing 49 features
+2026-02-22 19:39:27: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 19:39:27: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 19:39:27: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 19:39:38: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 19:39:38: Argument Recovery iteration 2: Updating action labels
+2026-02-22 19:43:20: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 19:43:20: Sift: Merging graphs by missing arguments
+2026-02-22 19:43:42: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:43:54: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:45:51: Sift: generating features
+2026-02-22 19:45:51: Sift: Testing 2 features
+2026-02-22 19:46:00: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 19:46:00: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 19:46:00: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 19:46:09: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 19:46:09: Argument Recovery iteration 0: Updating action labels
+2026-02-22 19:46:11: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 19:46:11: Sift: Merging graphs by missing arguments
+2026-02-22 19:46:49: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:47:11: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:49:10: Sift: generating features
+2026-02-22 19:49:10: Sift: Testing 16 features
+2026-02-22 19:49:18: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 19:49:18: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 19:49:18: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 19:49:27: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 19:49:27: Argument Recovery iteration 1: Updating action labels
+2026-02-22 19:49:42: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 19:49:42: Sift: Merging graphs by missing arguments
+2026-02-22 19:50:22: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:52:41: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 19:54:09: Sift: generating features
+2026-02-22 19:54:09: Sift: Testing 49 features
+2026-02-22 19:54:19: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 19:54:19: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 19:54:19: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 19:54:31: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 19:54:31: Argument Recovery iteration 2: Updating action labels
+2026-02-22 19:58:10: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 19:58:10: Sift: Merging graphs by missing arguments
+2026-02-22 19:58:34: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 19:58:46: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:00:56: Sift: generating features
+2026-02-22 20:00:56: Sift: Testing 2 features
+2026-02-22 20:01:04: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 20:01:04: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 20:01:04: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 20:01:13: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 20:01:13: Argument Recovery iteration 0: Updating action labels
+2026-02-22 20:01:15: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 20:01:15: Sift: Merging graphs by missing arguments
+2026-02-22 20:01:54: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:02:16: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:04:24: Sift: generating features
+2026-02-22 20:04:24: Sift: Testing 16 features
+2026-02-22 20:04:32: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 20:04:32: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 20:04:32: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 20:04:42: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 20:04:42: Argument Recovery iteration 1: Updating action labels
+2026-02-22 20:04:57: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 20:04:57: Sift: Merging graphs by missing arguments
+2026-02-22 20:05:38: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:06:18: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:08:43: Sift: generating features
+2026-02-22 20:08:43: Sift: Testing 49 features
+2026-02-22 20:08:52: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 20:08:52: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 20:08:52: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 20:09:05: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 20:09:05: Argument Recovery iteration 2: Updating action labels
+2026-02-22 20:12:56: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 20:12:56: Sift: Merging graphs by missing arguments
+2026-02-22 20:13:17: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:13:28: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:15:32: Sift: generating features
+2026-02-22 20:15:32: Sift: Testing 2 features
+2026-02-22 20:15:41: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 20:15:41: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 20:15:41: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 20:15:49: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 20:15:49: Argument Recovery iteration 0: Updating action labels
+2026-02-22 20:15:52: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 20:15:52: Sift: Merging graphs by missing arguments
+2026-02-22 20:16:30: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:16:52: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:19:01: Sift: generating features
+2026-02-22 20:19:01: Sift: Testing 16 features
+2026-02-22 20:19:10: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 20:19:10: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 20:19:10: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 20:19:19: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 20:19:19: Argument Recovery iteration 1: Updating action labels
+2026-02-22 20:19:34: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 20:19:34: Sift: Merging graphs by missing arguments
+2026-02-22 20:20:14: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:20:52: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:23:10: Sift: generating features
+2026-02-22 20:23:10: Sift: Testing 49 features
+2026-02-22 20:23:20: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 20:23:20: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 20:23:20: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 20:23:33: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 20:23:33: Argument Recovery iteration 2: Updating action labels
+2026-02-22 20:27:20: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 20:27:20: Sift: Merging graphs by missing arguments
+2026-02-22 20:27:42: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:27:54: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:30:07: Sift: generating features
+2026-02-22 20:30:07: Sift: Testing 2 features
+2026-02-22 20:30:16: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 20:30:16: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 20:30:16: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 20:30:26: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 20:30:26: Argument Recovery iteration 0: Updating action labels
+2026-02-22 20:30:28: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 20:30:28: Sift: Merging graphs by missing arguments
+2026-02-22 20:31:06: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:31:28: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:33:38: Sift: generating features
+2026-02-22 20:33:38: Sift: Testing 16 features
+2026-02-22 20:33:46: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 20:33:46: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 20:33:46: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 20:33:56: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 20:33:56: Argument Recovery iteration 1: Updating action labels
+2026-02-22 20:34:10: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 20:34:10: Sift: Merging graphs by missing arguments
+2026-02-22 20:34:53: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:35:33: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:37:48: Sift: generating features
+2026-02-22 20:37:48: Sift: Testing 49 features
+2026-02-22 20:37:58: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 20:37:58: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 20:37:58: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 20:38:10: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 20:38:10: Argument Recovery iteration 2: Updating action labels
+2026-02-22 20:41:49: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 20:41:49: Sift: Merging graphs by missing arguments
+2026-02-22 20:42:11: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:42:23: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:45:07: Sift: generating features
+2026-02-22 20:45:07: Sift: Testing 2 features
+2026-02-22 20:45:17: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 20:45:17: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 20:45:17: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 20:45:28: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 20:45:28: Argument Recovery iteration 0: Updating action labels
+2026-02-22 20:45:30: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 20:45:30: Sift: Merging graphs by missing arguments
+2026-02-22 20:46:11: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:46:34: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:49:21: Sift: generating features
+2026-02-22 20:49:21: Sift: Testing 16 features
+2026-02-22 20:49:30: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 20:49:30: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 20:49:30: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 20:49:39: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 20:49:39: Argument Recovery iteration 1: Updating action labels
+2026-02-22 20:49:54: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 20:49:54: Sift: Merging graphs by missing arguments
+2026-02-22 20:50:36: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:51:16: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 20:54:35: Sift: generating features
+2026-02-22 20:54:35: Sift: Testing 49 features
+2026-02-22 20:54:44: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 20:54:44: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 20:54:44: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 20:54:57: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 20:54:57: Argument Recovery iteration 2: Updating action labels
+2026-02-22 20:58:32: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 20:58:32: Sift: Merging graphs by missing arguments
+2026-02-22 20:58:54: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 20:59:05: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:01:36: Sift: generating features
+2026-02-22 21:01:36: Sift: Testing 2 features
+2026-02-22 21:01:45: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 21:01:45: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 21:01:45: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 21:01:54: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 21:01:54: Argument Recovery iteration 0: Updating action labels
+2026-02-22 21:01:56: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 21:01:56: Sift: Merging graphs by missing arguments
+2026-02-22 21:02:34: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:02:56: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:05:56: Sift: generating features
+2026-02-22 21:05:56: Sift: Testing 16 features
+2026-02-22 21:06:05: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 21:06:05: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 21:06:05: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 21:06:14: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 21:06:14: Argument Recovery iteration 1: Updating action labels
+2026-02-22 21:06:29: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 21:06:29: Sift: Merging graphs by missing arguments
+2026-02-22 21:07:10: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:07:51: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:10:18: Sift: generating features
+2026-02-22 21:10:18: Sift: Testing 49 features
+2026-02-22 21:10:27: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 21:10:27: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 21:10:27: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 21:10:40: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 21:10:40: Argument Recovery iteration 2: Updating action labels
+2026-02-22 21:14:13: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 21:14:13: Sift: Merging graphs by missing arguments
+2026-02-22 21:14:34: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:14:45: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:16:44: Sift: generating features
+2026-02-22 21:16:44: Sift: Testing 2 features
+2026-02-22 21:16:53: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 21:16:53: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 21:16:53: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 21:17:02: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 21:17:02: Argument Recovery iteration 0: Updating action labels
+2026-02-22 21:17:04: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 21:17:04: Sift: Merging graphs by missing arguments
+2026-02-22 21:17:42: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:18:04: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:20:03: Sift: generating features
+2026-02-22 21:20:03: Sift: Testing 16 features
+2026-02-22 21:20:11: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 21:20:11: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 21:20:11: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 21:20:21: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 21:20:21: Argument Recovery iteration 1: Updating action labels
+2026-02-22 21:20:36: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 21:20:36: Sift: Merging graphs by missing arguments
+2026-02-22 21:21:16: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:21:54: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:24:05: Sift: generating features
+2026-02-22 21:24:05: Sift: Testing 49 features
+2026-02-22 21:24:15: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 21:24:15: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 21:24:15: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 21:24:27: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 21:24:27: Argument Recovery iteration 2: Updating action labels
+2026-02-22 21:28:05: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 21:28:05: Sift: Merging graphs by missing arguments
+2026-02-22 21:28:26: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:28:37: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:31:14: Sift: generating features
+2026-02-22 21:31:14: Sift: Testing 2 features
+2026-02-22 21:31:23: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 21:31:23: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 21:31:23: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 21:31:33: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 21:31:33: Argument Recovery iteration 0: Updating action labels
+2026-02-22 21:31:34: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 21:31:34: Sift: Merging graphs by missing arguments
+2026-02-22 21:32:15: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:32:38: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:35:14: Sift: generating features
+2026-02-22 21:35:14: Sift: Testing 16 features
+2026-02-22 21:35:22: Argument Recovery iteration 1: Found 12/16 Normal Features
+2026-02-22 21:35:22: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 21:35:22: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 21:35:32: Argument Recovery iteration 1: Found 14/1445 Mutex Features
+2026-02-22 21:35:32: Argument Recovery iteration 1: Updating action labels
+2026-02-22 21:36:26: Argument Recovery iteration 2: Running Normal Sift
+2026-02-22 21:36:26: Sift: Merging graphs by missing arguments
+2026-02-22 21:37:07: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:37:46: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:40:50: Sift: generating features
+2026-02-22 21:40:50: Sift: Testing 49 features
+2026-02-22 21:40:59: Argument Recovery iteration 2: Found 23/49 Normal Features
+2026-02-22 21:40:59: Argument Recovery iteration 2: Creating mutex features
+2026-02-22 21:40:59: Argument Recovery iteration 2: Testing 1505800 mutex features
+2026-02-22 21:41:11: Argument Recovery iteration 2: Found 16/1505800 Mutex Features
+2026-02-22 21:41:11: Argument Recovery iteration 2: Updating action labels
+2026-02-22 21:45:01: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 21:45:01: Sift: Merging graphs by missing arguments
+2026-02-22 21:45:22: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:45:34: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:47:53: Sift: generating features
+2026-02-22 21:47:53: Sift: Testing 2 features
+2026-02-22 21:48:02: Argument Recovery iteration 0: Found 1/2 Normal Features
+2026-02-22 21:48:02: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 21:48:02: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 21:48:12: Argument Recovery iteration 0: Found 2/86 Mutex Features
+2026-02-22 21:48:12: Expected stratification Exception on negative sample
+2026-02-22 21:51:05: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 21:51:05: Sift: Merging graphs by missing arguments
+2026-02-22 21:52:06: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:52:17: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:54:45: Sift: generating features
+2026-02-22 21:54:45: Sift: Testing 2 features
+2026-02-22 21:54:54: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 21:54:54: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 21:54:54: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 21:55:03: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 21:55:03: Argument Recovery iteration 0: Updating action labels
+2026-02-22 21:55:40: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 21:55:40: Sift: Merging graphs by missing arguments
+2026-02-22 21:56:20: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 21:56:42: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 21:58:42: Sift: generating features
+2026-02-22 21:58:42: Sift: Testing 16 features
+2026-02-22 21:58:51: Argument Recovery iteration 1: Found 11/16 Normal Features
+2026-02-22 21:58:51: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 21:58:51: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 21:59:01: Argument Recovery iteration 1: Found 13/1445 Mutex Features
+2026-02-22 21:59:01: Expected stratification Exception on negative sample
+2026-02-22 22:02:34: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 22:02:34: Sift: Merging graphs by missing arguments
+2026-02-22 22:02:55: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 22:03:07: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 22:04:50: Sift: generating features
+2026-02-22 22:04:50: Sift: Testing 2 features
+2026-02-22 22:04:58: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 22:04:58: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 22:04:58: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 22:05:07: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 22:05:07: Argument Recovery iteration 0: Updating action labels
+2026-02-22 22:05:09: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 22:05:09: Sift: Merging graphs by missing arguments
+2026-02-22 22:05:47: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 22:06:09: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 22:07:32: Sift: generating features
+2026-02-22 22:07:32: Sift: Testing 16 features
+2026-02-22 22:07:40: Argument Recovery iteration 1: Found 11/16 Normal Features
+2026-02-22 22:07:40: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 22:07:40: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 22:07:49: Argument Recovery iteration 1: Found 13/1445 Mutex Features
+2026-02-22 22:07:49: Expected stratification Exception on negative sample
+2026-02-22 22:10:39: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 22:10:39: Sift: Merging graphs by missing arguments
+2026-02-22 22:11:51: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 22:12:38: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 22:14:57: Sift: generating features
+2026-02-22 22:14:57: Sift: Testing 2 features
+2026-02-22 22:15:05: Argument Recovery iteration 0: Found 1/2 Normal Features
+2026-02-22 22:15:05: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 22:15:05: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 22:15:14: Argument Recovery iteration 0: Found 2/86 Mutex Features
+2026-02-22 22:15:14: Expected stratification Exception on negative sample
+2026-02-22 22:18:54: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 22:18:54: Sift: Merging graphs by missing arguments
+2026-02-22 22:19:15: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 22:19:26: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 22:21:49: Sift: generating features
+2026-02-22 22:21:49: Sift: Testing 2 features
+2026-02-22 22:21:57: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 22:21:57: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 22:21:57: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 22:22:05: Argument Recovery iteration 0: Found 1/86 Mutex Features
+2026-02-22 22:22:05: Expected stratification Exception on negative sample
+2026-02-22 22:25:02: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 22:25:02: Sift: Merging graphs by missing arguments
+2026-02-22 22:25:24: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 22:25:35: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 22:28:59: Sift: generating features
+2026-02-22 22:28:59: Sift: Testing 2 features
+2026-02-22 22:29:08: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 22:29:08: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 22:29:08: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 22:29:17: Argument Recovery iteration 0: Found 2/86 Mutex Features
+2026-02-22 22:29:17: Expected stratification Exception on negative sample
+2026-02-22 22:32:40: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 22:32:40: Sift: Merging graphs by missing arguments
+2026-02-22 22:33:01: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 22:33:12: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 22:35:44: Sift: generating features
+2026-02-22 22:35:44: Sift: Testing 2 features
+2026-02-22 22:35:53: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 22:35:53: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 22:35:53: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 22:36:02: Argument Recovery iteration 0: Found 2/86 Mutex Features
+2026-02-22 22:36:02: Expected stratification Exception on negative sample
+2026-02-22 22:39:33: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 22:39:33: Sift: Merging graphs by missing arguments
+2026-02-22 22:39:53: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 22:40:04: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 22:42:42: Sift: generating features
+2026-02-22 22:42:42: Sift: Testing 2 features
+2026-02-22 22:42:50: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 22:42:50: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 22:42:50: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 22:42:59: Argument Recovery iteration 0: Found 2/86 Mutex Features
+2026-02-22 22:42:59: Expected stratification Exception on negative sample
+2026-02-22 22:46:22: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 22:46:22: Sift: Merging graphs by missing arguments
+2026-02-22 22:46:41: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 22:46:53: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 22:50:03: Sift: generating features
+2026-02-22 22:50:03: Sift: Testing 2 features
+2026-02-22 22:50:11: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 22:50:11: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 22:50:11: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 22:50:20: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 22:50:20: Argument Recovery iteration 0: Updating action labels
+2026-02-22 22:50:22: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 22:50:22: Sift: Merging graphs by missing arguments
+2026-02-22 22:50:59: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 22:51:22: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 22:53:57: Sift: generating features
+2026-02-22 22:53:57: Sift: Testing 16 features
+2026-02-22 22:54:06: Argument Recovery iteration 1: Found 11/16 Normal Features
+2026-02-22 22:54:06: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 22:54:06: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 22:54:14: Argument Recovery iteration 1: Found 13/1445 Mutex Features
+2026-02-22 22:54:14: Expected stratification Exception on negative sample
+2026-02-22 22:57:37: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 22:57:37: Sift: Merging graphs by missing arguments
+2026-02-22 22:57:58: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 22:58:09: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 23:00:06: Sift: generating features
+2026-02-22 23:00:06: Sift: Testing 2 features
+2026-02-22 23:00:15: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 23:00:15: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 23:00:15: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 23:00:24: Argument Recovery iteration 0: Found 3/86 Mutex Features
+2026-02-22 23:00:24: Argument Recovery iteration 0: Updating action labels
+2026-02-22 23:00:26: Argument Recovery iteration 1: Running Normal Sift
+2026-02-22 23:00:26: Sift: Merging graphs by missing arguments
+2026-02-22 23:01:03: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 23:01:26: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 23:03:23: Sift: generating features
+2026-02-22 23:03:23: Sift: Testing 16 features
+2026-02-22 23:03:31: Argument Recovery iteration 1: Found 11/16 Normal Features
+2026-02-22 23:03:31: Argument Recovery iteration 1: Creating mutex features
+2026-02-22 23:03:31: Argument Recovery iteration 1: Testing 1445 mutex features
+2026-02-22 23:03:40: Argument Recovery iteration 1: Found 13/1445 Mutex Features
+2026-02-22 23:03:40: Expected stratification Exception on negative sample
+2026-02-22 23:07:01: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 23:07:01: Sift: Merging graphs by missing arguments
+2026-02-22 23:07:21: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 23:07:32: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 23:10:15: Sift: generating features
+2026-02-22 23:10:15: Sift: Testing 2 features
+2026-02-22 23:10:25: Argument Recovery iteration 0: Found 1/2 Normal Features
+2026-02-22 23:10:25: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 23:10:25: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 23:10:34: Argument Recovery iteration 0: Found 2/86 Mutex Features
+2026-02-22 23:10:34: Expected stratification Exception on negative sample
+2026-02-22 23:13:57: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 23:13:57: Sift: Merging graphs by missing arguments
+2026-02-22 23:14:17: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 23:14:28: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 23:16:24: Sift: generating features
+2026-02-22 23:16:24: Sift: Testing 2 features
+2026-02-22 23:16:32: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 23:16:32: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 23:16:32: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 23:16:41: Argument Recovery iteration 0: Found 2/86 Mutex Features
+2026-02-22 23:16:41: Expected stratification Exception on negative sample
+2026-02-22 23:20:02: Argument Recovery iteration 0: Running Normal Sift
+2026-02-22 23:20:02: Sift: Merging graphs by missing arguments
+2026-02-22 23:20:22: Sift: Merging graphs by by dead patterns with weak constraints
+2026-02-22 23:20:34: Sift: Merging graphs by by dead patterns with strong constraints
+2026-02-22 23:22:29: Sift: generating features
+2026-02-22 23:22:29: Sift: Testing 2 features
+2026-02-22 23:22:38: Argument Recovery iteration 0: Found 2/2 Normal Features
+2026-02-22 23:22:38: Argument Recovery iteration 0: Creating mutex features
+2026-02-22 23:22:38: Argument Recovery iteration 0: Testing 86 mutex features
+2026-02-22 23:22:46: Argument Recovery iteration 0: Found 2/86 Mutex Features
+2026-02-22 23:22:46: Expected stratification Exception on negative sample
+Process started at: Fri Feb 20 05:18:55 CET 2026
+Process ended at: Sun Feb 22 23:23:17 CET 2026
+Runtime: 237862 Seconds.
+Resource usage:
+	Command being timed: "python3.11 /sift/main.py -br /tmp/arg_rec_paper_table1_line15_run01.4zs5L8 -p 10"
+	User time (seconds): 1219119.98
+	System time (seconds): 44561.63
+	Percent of CPU this job got: 531%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 66:04:22
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 47206104
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 245
+	Minor (reclaiming a frame) page faults: 13260440509
+	Voluntary context switches: 151992825
+	Involuntary context switches: 7455729
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 5520
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+--------------------- Slurm Task Epilog ------------------------
+Job ID: 1789052
+Time: So 22. Feb 23:23:17 CET 2026
+Elapsed Time: 2-18:04:22
+Billing per second for TRES: billing=1600,cpu=10,mem=360G,node=1
+Show resource usage with e.g.:
+sacct -j 1789052 -o Elapsed,TotalCPU,UserCPU,SystemCPU,MaxRSS,ReqTRES%60,MaxDiskRead,MaxDiskWrite
+--------------------- Slurm Task Epilog ------------------------
