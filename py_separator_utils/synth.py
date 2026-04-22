@@ -161,6 +161,7 @@ def synth_update_graphs(
     graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
     iteration : int,
     mutex_to_exist_predicates : dict,
+    #mutex_to_exist_predicates may contain keys not currently present in the graph as predicates.
     stored_queries : Optional[dict] = None,
     verification_mode : bool = False,
     output_file_name : Optional[str] = None,
