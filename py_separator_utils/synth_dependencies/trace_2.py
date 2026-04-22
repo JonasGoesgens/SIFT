@@ -303,7 +303,7 @@ class Trace:
         state = self.state_trace[trace_position]
         if state not in self.parsed_state_dict:
             self.parsed_state_dict[state] = self.problem.parse_state_with_dicts(
-                copy.deepcopy(self.candidate_dict), state)
+                _clone_candidate_dict(self.candidate_dict), state)
         return self.parsed_state_dict[state]
 
     # -- Simple accessors --
@@ -805,6 +805,25 @@ def _filter_mapping_patterns(predicate_objects, action_objects, possible_mapping
         if (mapped_tuple in pred_set) == positive:
             result.add(mapping)
     return result
+
+
+def _clone_candidate_dict(cd):
+    """Fast clone of a candidate_dict shaped {arity:{pred:{mask:{partial:{obj:int}}}}}.
+
+    Faster than copy.deepcopy because it exploits the known five-level shape
+    and the fact that all keys (ints, str, tuples) and leaf values (ints) are
+    immutable, so only the containers need fresh dicts.
+    """
+    return {
+        ar: {
+            p: {
+                m: {pt: leaf.copy() for pt, leaf in mask_d.items()}
+                for m, mask_d in preds.items()
+            }
+            for p, preds in arity_d.items()
+        }
+        for ar, arity_d in cd.items()
+    }
 
 
 def _populate_mask_dict(candidate_dict, atoms_dict):
@@ -1557,7 +1576,7 @@ class GraphTrace(Trace):
         raw_pos = trace_position if trace_position < half else trace_position - half - 1
         state = self._raw_state_trace[raw_pos]
 
-        dicts = copy.deepcopy(self.candidate_dict)
+        dicts = _clone_candidate_dict(self.candidate_dict)
 
         if trace_position < half:
             # First half: closed world — only true groundings
