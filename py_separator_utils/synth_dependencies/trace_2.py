@@ -864,6 +864,101 @@ def _populate_mask_dict(candidate_dict, atoms_dict):
                     mask_dict[partial_tuple] = {identified_argument: 1}
 
 
+def _populate_mask_dict_open_world(candidate_dict, false_atoms_dict,
+                                   all_objects, dropped_preds):
+    """Populate candidate_dict as if atoms_dict were (universe \\ false_atoms_dict),
+    without materializing the universe.
+
+    Produces exactly what _populate_mask_dict(candidate_dict, universe - false) would,
+    but with cost O(|false_atoms| + sum over masks of |objects|^|I_positions|) instead
+    of O(|objects|^arity).
+
+    Derivation:
+        For a mask m with include positions I, wildcard positions O, query position Q:
+          mask_dict[partial(v_I)][q] = #{ v_O : (v_I, q, v_O) in universe \\ false_set }
+                                     = N**|O| - #{ v_O : (v_I, q, v_O) in false_set }
+        where N = |all_objects|. The total mass for a given v_I is N**|O| * N, so v_I
+        values whose false-count equals that are skipped entirely (no open-world atom).
+
+    Assumes candidate_dict leaves are empty dicts at call time (no merge with statics).
+    """
+    N = len(all_objects)
+    all_objs_list = list(all_objects)
+
+    # Precompute per-mask position splits — masks are shared across predicates of
+    # the same arity, so caching here avoids redoing the work per predicate.
+    mask_info = {}
+
+    for p_arity, preds in candidate_dict.items():
+        if p_arity == 0:
+            continue
+        full_arity_total = N ** p_arity  # completions per v_I (across Q and O)
+
+        for p_name, masks in preds.items():
+            if p_name in dropped_preds:
+                continue
+            F_p = false_atoms_dict.get(p_name, set())
+
+            for mask, mask_dict in masks.items():
+                info = mask_info.get(mask)
+                if info is None:
+                    I_positions = tuple(i for i, v in enumerate(mask) if v == 1)
+                    O_positions = tuple(i for i, v in enumerate(mask) if v == 0)
+                    Q_position = mask.index(-1)
+                    info = (I_positions, O_positions, Q_position)
+                    mask_info[mask] = info
+                I_positions, O_positions, Q_position = info
+
+                n_incl = len(I_positions)
+                n_wild = len(O_positions)
+                full_O = N ** n_wild       # v_O completions per (v_I, q)
+                full_A = full_O * N         # (q, v_O) completions per v_I
+
+                # Tally false atoms: counts[(v_I, q)] and vI_totals[v_I].
+                counts = {}
+                vI_totals = {}
+                for atom in F_p:
+                    v_I = tuple(atom[i] for i in I_positions)
+                    q = atom[Q_position]
+                    key = (v_I, q)
+                    counts[key] = counts.get(key, 0) + 1
+                    vI_totals[v_I] = vI_totals.get(v_I, 0) + 1
+
+                # Fast path: F_p empty → every v_I gets {q: full_O for all q}.
+                if not F_p:
+                    base = [None] * p_arity
+                    base[Q_position] = -1
+                    # Build shared leaf once — each v_I gets a fresh copy for
+                    # downstream mutation safety.
+                    leaf_template = {q: full_O for q in all_objs_list}
+                    for v_I in itertools.product(all_objs_list, repeat=n_incl):
+                        partial = list(base)
+                        for k, pos in enumerate(I_positions):
+                            partial[pos] = v_I[k]
+                        mask_dict[tuple(partial)] = leaf_template.copy()
+                    continue
+
+                # General path.
+                base = [None] * p_arity
+                base[Q_position] = -1
+                for v_I in itertools.product(all_objs_list, repeat=n_incl):
+                    total_false = vI_totals.get(v_I, 0)
+                    if total_false == full_A:
+                        continue  # no open-world atom for these I values
+                    partial = list(base)
+                    for k, pos in enumerate(I_positions):
+                        partial[pos] = v_I[k]
+                    if total_false == 0:
+                        leaf = {q: full_O for q in all_objs_list}
+                    else:
+                        leaf = {}
+                        for q in all_objs_list:
+                            c = full_O - counts.get((v_I, q), 0)
+                            if c > 0:
+                                leaf[q] = c
+                    mask_dict[tuple(partial)] = leaf
+
+
 def _build_state_precondition_from_atoms(atoms_dict, dropped_preds):
     """Build (state_dict, partial_dict) from a plain atoms dictionary.
 
@@ -1581,19 +1676,14 @@ class GraphTrace(Trace):
         if trace_position < half:
             # First half: closed world — only true groundings
             atoms = self._node_true_atoms.get(state, {})
+            _populate_mask_dict(dicts, atoms)
         else:
-            # Second half: open world — everything NOT in false = universe - false
-            atoms = self._get_open_world_atoms(state)
-            other_atoms = self._node_true_atoms.get(state, {})
-            # atoms['loc'] = other_atoms['loc']
-            for _c_pred_name in atoms:
-                # TODO this has to be done in a better way, this is just a temporary fix
-                if isinstance(_c_pred_name, str):
-                    if _c_pred_name in other_atoms:
-                        atoms[_c_pred_name] = other_atoms[_c_pred_name]
-                    else:
-                        atoms[_c_pred_name] = set()
-        _populate_mask_dict(dicts, atoms)
+            # Second half: open world — universe minus false. Populate directly
+            # from false_atoms without materializing the universe.
+            false_atoms = self._node_false_atoms.get(state, {})
+            _populate_mask_dict_open_world(
+                dicts, false_atoms, self._all_objects, self.dropped_preds,
+            )
         self.parsed_state_dict[trace_position] = dicts
         return dicts
 
