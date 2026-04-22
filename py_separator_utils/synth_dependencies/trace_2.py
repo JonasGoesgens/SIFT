@@ -865,7 +865,8 @@ def _populate_mask_dict(candidate_dict, atoms_dict):
 
 
 def _populate_mask_dict_open_world(candidate_dict, false_atoms_dict,
-                                   all_objects, dropped_preds):
+                                   all_objects, dropped_preds,
+                                   pred_filter=None):
     """Populate candidate_dict as if atoms_dict were (universe \\ false_atoms_dict),
     without materializing the universe.
 
@@ -896,6 +897,8 @@ def _populate_mask_dict_open_world(candidate_dict, false_atoms_dict,
 
         for p_name, masks in preds.items():
             if p_name in dropped_preds:
+                continue
+            if pred_filter is not None and p_name not in pred_filter:
                 continue
             F_p = false_atoms_dict.get(p_name, set())
 
@@ -1678,12 +1681,28 @@ class GraphTrace(Trace):
             atoms = self._node_true_atoms.get(state, {})
             _populate_mask_dict(dicts, atoms)
         else:
-            # Second half: open world — universe minus false. Populate directly
-            # from false_atoms without materializing the universe.
+            # Second half: hybrid.
+            # String-named predicates use closed-world (true atoms only).
+            # Non-string-named predicates use real open-world (universe \ false),
+            # populated directly from false_atoms without materializing the universe.
+            true_atoms = self._node_true_atoms.get(state, {})
             false_atoms = self._node_false_atoms.get(state, {})
-            _populate_mask_dict_open_world(
-                dicts, false_atoms, self._all_objects, self.dropped_preds,
-            )
+
+            string_closed = {
+                p: true_atoms.get(p, set())
+                for p in self.predicate_arity_dict
+                if isinstance(p, str)
+            }
+            _populate_mask_dict(dicts, string_closed)
+
+            open_preds = {
+                p for p in self.predicate_arity_dict if not isinstance(p, str)
+            }
+            if open_preds:
+                _populate_mask_dict_open_world(
+                    dicts, false_atoms, self._all_objects, self.dropped_preds,
+                    pred_filter=open_preds,
+                )
         self.parsed_state_dict[trace_position] = dicts
         return dicts
 
