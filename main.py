@@ -25,6 +25,7 @@ from graph_generator import bfs_state_space, dfs_state_space, rand_state_space
 from graph_generator import get_nx_graph_from_state_space
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 from itertools import permutations
+from py_separator_utils.exit_if_orphaned import start_orphan_guard
 
 def get_batch_run_parser():
     parser = argparse.ArgumentParser(
@@ -778,7 +779,10 @@ def process_instance(args: argparse.Namespace):
         ), args.static_relaxed_domain
     )
 
-    process_pool_args = {'max_workers' : args.processes}
+    process_pool_args = {
+        'max_workers' : args.processes,
+        'initializer' : start_orphan_guard
+    }
 
     recover_args_mode = False
     argument_mask_file = args.argument_mask
