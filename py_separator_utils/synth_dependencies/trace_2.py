@@ -845,42 +845,6 @@ def _populate_mask_dict(candidate_dict, atoms_dict):
                     mask_dict[partial_tuple] = {identified_argument: 1}
 
 
-def _subtract_mask_dict(candidate_dict, atoms_dict):
-    """Decrement mask counts for each grounding in atoms_dict.
-
-    Inverse of _populate_mask_dict: removes the contribution of each given
-    ground atom from a candidate_dict initialized with universe counts. Used
-    to derive open-world mask counts as (universe - known-false).
-    """
-    for p_name, groundings in atoms_dict.items():
-        for objs in groundings:
-            p_arity = len(objs)
-            if p_arity == 0:
-                continue
-            if p_arity not in candidate_dict or p_name not in candidate_dict[p_arity]:
-                continue
-            for mask, mask_dict in candidate_dict[p_arity][p_name].items():
-                partial_tuple = tuple(
-                    None if mask[i] == 0
-                    else -1 if mask[i] == -1
-                    else objs[i]
-                    for i in range(p_arity)
-                )
-                ident = objs[mask.index(-1)]
-                bucket = mask_dict.get(partial_tuple)
-                if bucket is None:
-                    continue
-                count = bucket.get(ident)
-                if count is None:
-                    continue
-                if count <= 1:
-                    del bucket[ident]
-                    if not bucket:
-                        del mask_dict[partial_tuple]
-                else:
-                    bucket[ident] = count - 1
-
-
 def _build_state_precondition_from_atoms(atoms_dict, dropped_preds):
     """Build (state_dict, partial_dict) from a plain atoms dictionary.
 
@@ -1489,10 +1453,6 @@ class GraphTrace(Trace):
         # Build mask-based pattern dictionaries
         self.candidate_dict = self.predicate_patterns()
 
-        # Precompute per-arity universe mask counts (shared across all preds
-        # and all nodes — open-world parse = this template minus false atoms)
-        self._precompute_universe_mask_counts()
-
         # Load type list
         if isinstance(type_list, list):
             self.types_list = type_list
@@ -1525,46 +1485,6 @@ class GraphTrace(Trace):
             if open_set:
                 open_atoms[pred] = open_set
         return open_atoms
-
-    def _precompute_universe_mask_counts(self):
-        """Compute per-arity mask counts over the full object universe.
-
-        For each arity present in candidate_dict, enumerates every tuple in
-        O^arity once and records its mask contributions as
-        {mask: {partial_tuple: {identified_obj: count}}}. The result depends
-        only on the object set and the mask shape, so it is shared across
-        all predicates of the same arity and reused at every node.
-
-        Open-world parse_state uses this as a template and subtracts only the
-        (typically small) set of known-false groundings per predicate.
-        """
-        def object_compare_key(obj):
-            return (0, obj) if isinstance(obj, int) else (1, obj)
-        sorted_objects = sorted(self._all_objects, key=object_compare_key)
-
-        self._universe_mask_counts = {}
-        for arity, preds in self.candidate_dict.items():
-            any_pred = next(iter(preds))
-            masks = list(preds[any_pred])
-            mask_minus_one = [m.index(-1) for m in masks]
-            per_mask = {m: {} for m in masks}
-
-            for objs in itertools.product(sorted_objects, repeat=arity):
-                for m_idx, mask in enumerate(masks):
-                    partial = tuple(
-                        None if mask[i] == 0
-                        else -1 if mask[i] == -1
-                        else objs[i]
-                        for i in range(arity)
-                    )
-                    ident = objs[mask_minus_one[m_idx]]
-                    bucket = per_mask[mask].get(partial)
-                    if bucket is None:
-                        per_mask[mask][partial] = {ident: 1}
-                    else:
-                        bucket[ident] = bucket.get(ident, 0) + 1
-
-            self._universe_mask_counts[arity] = per_mask
 
     def to_graphs(self) -> dict[int, nx.DiGraph]:
         """Reconstruct individual graphs from the trace, with current action arguments.
@@ -1628,12 +1548,7 @@ class GraphTrace(Trace):
 
     @override
     def parse_state(self, trace_position):
-        """Parse state with closed-world (first half) or open-world (second half).
-
-        Closed-world: start from empty mask dicts and populate with true atoms.
-        Open-world: start from the precomputed universe-mask template and
-        subtract known-false groundings per predicate (typically |false| << |O|^arity).
-        """
+        """Parse state with closed-world (first half) or open-world (second half)."""
         if trace_position in self.parsed_state_dict:
             return self.parsed_state_dict[trace_position]
 
@@ -1642,30 +1557,24 @@ class GraphTrace(Trace):
         raw_pos = trace_position if trace_position < half else trace_position - half - 1
         state = self._raw_state_trace[raw_pos]
 
-        if trace_position < half:
-            # First half: closed world — start blank, fill in true atoms.
-            dicts = {
-                arity: {pred: {m: {} for m in masks}
-                        for pred, masks in preds.items()}
-                for arity, preds in self.candidate_dict.items()
-            }
-            atoms = self._node_true_atoms.get(state, {})
-            _populate_mask_dict(dicts, atoms)
-        else:
-            # Second half: open world — clone universe template, subtract false atoms.
-            dicts = {
-                arity: {
-                    pred: {
-                        m: {pt: dict(ids) for pt, ids in self._universe_mask_counts[arity][m].items()}
-                        for m in masks
-                    }
-                    for pred, masks in preds.items()
-                }
-                for arity, preds in self.candidate_dict.items()
-            }
-            false_atoms = self._node_false_atoms.get(state, {})
-            _subtract_mask_dict(dicts, false_atoms)
+        dicts = copy.deepcopy(self.candidate_dict)
 
+        if trace_position < half:
+            # First half: closed world — only true groundings
+            atoms = self._node_true_atoms.get(state, {})
+        else:
+            # Second half: open world — everything NOT in false = universe - false
+            atoms = self._get_open_world_atoms(state)
+            other_atoms = self._node_true_atoms.get(state, {})
+            # atoms['loc'] = other_atoms['loc']
+            for _c_pred_name in atoms:
+                # TODO this has to be done in a better way, this is just a temporary fix
+                if isinstance(_c_pred_name, str):
+                    if _c_pred_name in other_atoms:
+                        atoms[_c_pred_name] = other_atoms[_c_pred_name]
+                    else:
+                        atoms[_c_pred_name] = set()
+        _populate_mask_dict(dicts, atoms)
         self.parsed_state_dict[trace_position] = dicts
         return dicts
 
