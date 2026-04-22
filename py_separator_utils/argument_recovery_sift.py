@@ -259,6 +259,8 @@ class Argument_Recovery_Sift:
             total = len(runs)
             done  = 0
             bar_len = 30
+            update_len = int(total/100 + 1)
+            update_pos = 0
 
             def _render():
                 filled = int(done / total * bar_len)
@@ -279,10 +281,14 @@ class Argument_Recovery_Sift:
                     #sys.stderr.flush()
                 finally:
                     done += 1
-                    sys.stdout.write(_render())
-                    sys.stdout.flush()
+                    if done >= update_pos:
+                        update_pos = update_pos + update_len
+                        sys.stdout.write(_render())
+                        sys.stdout.flush()
 
+            sys.stdout.write(_render())
             sys.stdout.write('\n')
+            sys.stdout.flush()
 
             #wait(runs.values(), return_when=ALL_COMPLETED)
             #for oi_feature, future in runs.items():
