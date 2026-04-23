@@ -65,7 +65,7 @@ class Progressbar:
         filled = int(self.done / self.total * self.bar_len)
         empty  = self.bar_len - filled
         percent = int(self.done / self.total * 100)
-        return f'\r{format_cur_time()} [{"#" * filled}{"-" * empty}] {percent:3d}% ({self.done}/{self.total})'
+        return f'\r{format_cur_time()}: [{"#" * filled}{"-" * empty}] {percent:3d}% ({self.done}/{self.total})'
 
     def print_current(self) -> None:
         sys.stdout.write(self._render())
