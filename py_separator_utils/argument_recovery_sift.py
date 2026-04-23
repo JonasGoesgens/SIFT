@@ -8,7 +8,6 @@ from py_separator_utils.synth import synth_update_graphs
 import copy
 import sys
 import logging
-import time
 import warnings
 from pathlib import Path
 from typing import Set, List, Tuple, Dict, Union, Iterable
@@ -302,20 +301,8 @@ class Argument_Recovery_Sift:
                     oi_feature, check_list
                 )
 
-            total = len(runs)
-            done  = 0
-            bar_len = 30
-            update_len = int(total/100 + 1)
-            update_pos = 0
-
-            def _render():
-                filled = int(done / total * bar_len)
-                empty  = bar_len - filled
-                percent = int(done / total * 100)
-                return f'\r[{"#" * filled}{"-" * empty}] {percent:3d}% ({done}/{total})'
-
-            sys.stdout.write(_render())
-            sys.stdout.flush()
+            progress = ut.Progressbar(len(runs))
+            progress.print_current()
 
             for future in as_completed(runs.values()):
                 try:
@@ -326,15 +313,9 @@ class Argument_Recovery_Sift:
                     sys.stderr.write(f'\nError processing {oi_feature}: {exc}\n')
                     #sys.stderr.flush()
                 finally:
-                    done += 1
-                    if done >= update_pos:
-                        update_pos = update_pos + update_len
-                        sys.stdout.write(_render())
-                        sys.stdout.flush()
+                    progress.increment_count()
 
-            sys.stdout.write(_render())
-            sys.stdout.write('\n')
-            sys.stdout.flush()
+            progress.print_final()
 
             #wait(runs.values(), return_when=ALL_COMPLETED)
             #for oi_feature, future in runs.items():
