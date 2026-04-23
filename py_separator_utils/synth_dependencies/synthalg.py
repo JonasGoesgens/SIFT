@@ -5,7 +5,8 @@ from py_separator_utils.exceptions import StratificationError
 
 def synth(trace, stored_queries, verification_mode, iteration, has_undefined, drop_predicates):
 
-    new_Trace = GraphTrace(trace,dict(),drop_predicates,list(),copy.deepcopy(stored_queries), verification_mode, has_undefined)
+    
+    new_Trace = GraphTrace(trace,dict(),drop_predicates,list(),unpack_stored_queries(stored_queries), verification_mode, has_undefined)
     # num_initial_args = sum([ar for action, ar in new_Trace.action_arity.items()])
 
     if not verification_mode:
@@ -27,9 +28,11 @@ def synth(trace, stored_queries, verification_mode, iteration, has_undefined, dr
         print_effects(effects)
         new_Trace.print_query_output()
 
+        print('STORRED_QUERIES',stored_queries)
         current_queries = new_Trace.get_queries()
+        print('CURRENT_QUERIES', current_queries)
         new_stored_queries = get_new_stored_queries(stored_queries, current_queries, iteration)
-
+        print('NEW_QUERRIES', new_stored_queries)
         return new_Trace.to_graphs(), was_there_somehting_added or combi_added, new_stored_queries
 
     else:
@@ -73,14 +76,16 @@ def synth(trace, stored_queries, verification_mode, iteration, has_undefined, dr
 
 
 def unpack_stored_queries(storred_q):
-
     if len(storred_q) == 0:
-        return storred_q
+        return dict()
     else:
         out = dict()
         for act in storred_q:
             out[act] = dict()
             for it in storred_q[act]:
+                print(it)
+                if storred_q[act][it] is None:
+                    continue
                 for pos, query in storred_q[act][it].items():
                     out[act][pos] = query
         return out
@@ -112,7 +117,13 @@ def get_already_covered_positions(stored):
 
     for _act in stored:
         try:
-            max_it = max([pos for iteration in stored[_act] for pos in stored[_act][iteration]], default=-1)
+            max_it = -1
+            for all_it in stored[_act]:
+                if stored[_act] is None:
+                    continue
+                for _pos in stored[_act][all_it]:
+                    if _pos > max_it:
+                        max_it = _pos
             covered_positions[_act] = max_it
         except TypeError:
             covered_positions[_act] = -1
