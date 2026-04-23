@@ -1419,6 +1419,7 @@ class GraphTrace(Trace):
                 graphs[_id] = _g
                 self.sift_meta_info[_id] = _sift_int
 
+        self._original_graphs = graphs
 
 
         # Parse node labels: {arity: {pred: (true_set, false_set)}}
