@@ -303,7 +303,7 @@ class Trace:
         state = self.state_trace[trace_position]
         if state not in self.parsed_state_dict:
             self.parsed_state_dict[state] = self.problem.parse_state_with_dicts(
-                copy.deepcopy(self.candidate_dict), state)
+                _clone_candidate_dict(self.candidate_dict), state)
         return self.parsed_state_dict[state]
 
     # -- Simple accessors --
@@ -807,6 +807,25 @@ def _filter_mapping_patterns(predicate_objects, action_objects, possible_mapping
     return result
 
 
+def _clone_candidate_dict(cd):
+    """Fast clone of a candidate_dict shaped {arity:{pred:{mask:{partial:{obj:int}}}}}.
+
+    Faster than copy.deepcopy because it exploits the known five-level shape
+    and the fact that all keys (ints, str, tuples) and leaf values (ints) are
+    immutable, so only the containers need fresh dicts.
+    """
+    return {
+        ar: {
+            p: {
+                m: {pt: leaf.copy() for pt, leaf in mask_d.items()}
+                for m, mask_d in preds.items()
+            }
+            for p, preds in arity_d.items()
+        }
+        for ar, arity_d in cd.items()
+    }
+
+
 def _populate_mask_dict(candidate_dict, atoms_dict):
     """Fill mask-based candidate_dict from a plain atoms dictionary.
 
@@ -843,6 +862,104 @@ def _populate_mask_dict(candidate_dict, atoms_dict):
                         mask_dict[partial_tuple][identified_argument] = 1
                 else:
                     mask_dict[partial_tuple] = {identified_argument: 1}
+
+
+def _populate_mask_dict_open_world(candidate_dict, false_atoms_dict,
+                                   all_objects, dropped_preds,
+                                   pred_filter=None):
+    """Populate candidate_dict as if atoms_dict were (universe \\ false_atoms_dict),
+    without materializing the universe.
+
+    Produces exactly what _populate_mask_dict(candidate_dict, universe - false) would,
+    but with cost O(|false_atoms| + sum over masks of |objects|^|I_positions|) instead
+    of O(|objects|^arity).
+
+    Derivation:
+        For a mask m with include positions I, wildcard positions O, query position Q:
+          mask_dict[partial(v_I)][q] = #{ v_O : (v_I, q, v_O) in universe \\ false_set }
+                                     = N**|O| - #{ v_O : (v_I, q, v_O) in false_set }
+        where N = |all_objects|. The total mass for a given v_I is N**|O| * N, so v_I
+        values whose false-count equals that are skipped entirely (no open-world atom).
+
+    Assumes candidate_dict leaves are empty dicts at call time (no merge with statics).
+    """
+    N = len(all_objects)
+    all_objs_list = list(all_objects)
+
+    # Precompute per-mask position splits — masks are shared across predicates of
+    # the same arity, so caching here avoids redoing the work per predicate.
+    mask_info = {}
+
+    for p_arity, preds in candidate_dict.items():
+        if p_arity == 0:
+            continue
+        full_arity_total = N ** p_arity  # completions per v_I (across Q and O)
+
+        for p_name, masks in preds.items():
+            if p_name in dropped_preds:
+                continue
+            if pred_filter is not None and p_name not in pred_filter:
+                continue
+            F_p = false_atoms_dict.get(p_name, set())
+
+            for mask, mask_dict in masks.items():
+                info = mask_info.get(mask)
+                if info is None:
+                    I_positions = tuple(i for i, v in enumerate(mask) if v == 1)
+                    O_positions = tuple(i for i, v in enumerate(mask) if v == 0)
+                    Q_position = mask.index(-1)
+                    info = (I_positions, O_positions, Q_position)
+                    mask_info[mask] = info
+                I_positions, O_positions, Q_position = info
+
+                n_incl = len(I_positions)
+                n_wild = len(O_positions)
+                full_O = N ** n_wild       # v_O completions per (v_I, q)
+                full_A = full_O * N         # (q, v_O) completions per v_I
+
+                # Tally false atoms: counts[(v_I, q)] and vI_totals[v_I].
+                counts = {}
+                vI_totals = {}
+                for atom in F_p:
+                    v_I = tuple(atom[i] for i in I_positions)
+                    q = atom[Q_position]
+                    key = (v_I, q)
+                    counts[key] = counts.get(key, 0) + 1
+                    vI_totals[v_I] = vI_totals.get(v_I, 0) + 1
+
+                # Fast path: F_p empty → every v_I gets {q: full_O for all q}.
+                if not F_p:
+                    base = [None] * p_arity
+                    base[Q_position] = -1
+                    # Build shared leaf once — each v_I gets a fresh copy for
+                    # downstream mutation safety.
+                    leaf_template = {q: full_O for q in all_objs_list}
+                    for v_I in itertools.product(all_objs_list, repeat=n_incl):
+                        partial = list(base)
+                        for k, pos in enumerate(I_positions):
+                            partial[pos] = v_I[k]
+                        mask_dict[tuple(partial)] = leaf_template.copy()
+                    continue
+
+                # General path.
+                base = [None] * p_arity
+                base[Q_position] = -1
+                for v_I in itertools.product(all_objs_list, repeat=n_incl):
+                    total_false = vI_totals.get(v_I, 0)
+                    if total_false == full_A:
+                        continue  # no open-world atom for these I values
+                    partial = list(base)
+                    for k, pos in enumerate(I_positions):
+                        partial[pos] = v_I[k]
+                    if total_false == 0:
+                        leaf = {q: full_O for q in all_objs_list}
+                    else:
+                        leaf = {}
+                        for q in all_objs_list:
+                            c = full_O - counts.get((v_I, q), 0)
+                            if c > 0:
+                                leaf[q] = c
+                    mask_dict[tuple(partial)] = leaf
 
 
 def _build_state_precondition_from_atoms(atoms_dict, dropped_preds):
@@ -1282,7 +1399,7 @@ class GraphTrace(Trace):
     """
 
     def __init__(self, graph: nx.DiGraph | dict[int, (nx.DiGraph, int)],
-                 dropped_args: dict, dropped_preds: set, type_list, current_queries: dict, validation: bool):
+                 dropped_args: dict, dropped_preds: set, type_list, current_queries: dict, validation: bool, has_undefined: dict):
         # Bypass Trace.__init__ entirely — we build from graph data
         self.problem = None
         self.dropped_args = dropped_args
@@ -1290,6 +1407,8 @@ class GraphTrace(Trace):
         self.validation = validation
 
         self.sift_meta_info = dict()
+
+        self.has_undefined = has_undefined
 
         # Normalize input: single graph → dict with key 0
         if isinstance(graph, nx.DiGraph):
@@ -1308,18 +1427,18 @@ class GraphTrace(Trace):
         self._node_false_atoms = {}  # {(gid, nid): {pred: set of tuples}}
         pred_arity_dict = {}
 
-        def _has_minus2(tup):
-            return any(arg == -2 or arg == '-2' for arg in tup)
+        #def _has_minus2(tup):
+        #    return any(arg == -2 or arg == '-2' for arg in tup)
 
         # Collect predicates that have any grounding containing -2 across all nodes
-        _preds_with_minus2 = set()
-        for gid, g in graphs.items():
-            for node in g.nodes():
-                raw = g.nodes[node].get('atoms', {})
-                for arity, preds in raw.items():
-                    for pred, (true_set, false_set) in preds.items():
-                        if any(_has_minus2(t) for t in true_set) or any(_has_minus2(t) for t in false_set):
-                            _preds_with_minus2.add(pred)
+        #_preds_with_minus2 = set()
+        #for gid, g in graphs.items():
+        #    for node in g.nodes():
+        #        raw = g.nodes[node].get('atoms', {})
+        #        for arity, preds in raw.items():
+        #            for pred, (true_set, false_set) in preds.items():
+        #                if any(_has_minus2(t) for t in true_set) or any(_has_minus2(t) for t in false_set):
+        #                    _preds_with_minus2.add(pred)
 
         for gid, g in graphs.items():
             for node in g.nodes():
@@ -1328,7 +1447,9 @@ class GraphTrace(Trace):
                 false_atoms = {}
                 for arity, preds in raw.items():
                     for pred, (true_set, false_set) in preds.items():
-                        if pred in _preds_with_minus2:
+                        if pred in has_undefined and has_undefined[pred]:
+                            continue
+                        elif pred in self.dropped_preds:
                             continue
                         true_atoms[pred] = set(true_set)
                         false_atoms[pred] = set(false_set)
@@ -1449,10 +1570,6 @@ class GraphTrace(Trace):
         # Build mask-based pattern dictionaries
         self.candidate_dict = self.predicate_patterns()
 
-        # Compute precondition mappings (uses open-world atoms)
-        self.grounding_preconditions_pos, self.grounding_preconditions_neg, \
-            self.mask_pre_pos, self.mask_pre_neg = self._compute_grounding_preconditions()
-
         # Load type list
         if isinstance(type_list, list):
             self.types_list = type_list
@@ -1557,24 +1674,35 @@ class GraphTrace(Trace):
         raw_pos = trace_position if trace_position < half else trace_position - half - 1
         state = self._raw_state_trace[raw_pos]
 
-        dicts = copy.deepcopy(self.candidate_dict)
+        dicts = _clone_candidate_dict(self.candidate_dict)
 
         if trace_position < half:
             # First half: closed world — only true groundings
             atoms = self._node_true_atoms.get(state, {})
+            _populate_mask_dict(dicts, atoms)
         else:
-            # Second half: open world — everything NOT in false = universe - false
-            atoms = self._get_open_world_atoms(state)
-            other_atoms = self._node_true_atoms.get(state, {})
-            # atoms['loc'] = other_atoms['loc']
-            for _c_pred_name in atoms:
-                # TODO this has to be done in a better way, this is just a temporary fix
-                if isinstance(_c_pred_name, str):
-                    if _c_pred_name in other_atoms:
-                        atoms[_c_pred_name] = other_atoms[_c_pred_name]
-                    else:
-                        atoms[_c_pred_name] = set()
-        _populate_mask_dict(dicts, atoms)
+            # Second half: hybrid.
+            # String-named predicates use closed-world (true atoms only).
+            # Non-string-named predicates use real open-world (universe \ false),
+            # populated directly from false_atoms without materializing the universe.
+            true_atoms = self._node_true_atoms.get(state, {})
+            false_atoms = self._node_false_atoms.get(state, {})
+
+            string_closed = {
+                p: true_atoms.get(p, set())
+                for p in self.predicate_arity_dict
+                if isinstance(p, str)
+            }
+            _populate_mask_dict(dicts, string_closed)
+
+            open_preds = {
+                p for p in self.predicate_arity_dict if not isinstance(p, str)
+            }
+            if open_preds:
+                _populate_mask_dict_open_world(
+                    dicts, false_atoms, self._all_objects, self.dropped_preds,
+                    pred_filter=open_preds,
+                )
         self.parsed_state_dict[trace_position] = dicts
         return dicts
 
@@ -1585,76 +1713,6 @@ class GraphTrace(Trace):
             pred: {pos: set() for pos in range(arity)}
             for pred, arity in self.predicate_arity_dict.items()
         }
-
-    @override
-    def _compute_grounding_preconditions(self):
-        """Compute precondition mappings using open-world atoms (true + unknown)."""
-        pos_pre = {}
-        neg_pre = {}
-        mask_pos = {}
-        mask_neg = {}
-
-        for action, a_arity in self.action_arity.items():
-            pos_pre[action] = {}
-            neg_pre[action] = {}
-            mask_pos[action] = {}
-            mask_neg[action] = {}
-
-            for predicate, p_arity in self.predicate_arity_dict.items():
-                if predicate in self.dropped_preds:
-                    continue
-                if p_arity > 0:
-                    all_perms = set(itertools.permutations(range(a_arity), r=p_arity))
-                    pos_pre[action][predicate] = set(all_perms)
-                    neg_pre[action][predicate] = set(all_perms)
-                else:
-                    pos_pre[action][predicate] = {tuple()}
-                    neg_pre[action][predicate] = {tuple()}
-                if p_arity >= 2:
-                    masked = _get_masked_patterns(a_arity, p_arity)
-                    mask_pos[action][predicate] = set(masked)
-                    mask_neg[action][predicate] = set(masked)
-
-        all_predicates = set(self.predicate_arity_dict.keys())
-        num_edges = len(self._edge_actions)
-
-        # Use open-world atoms for precondition filtering (keeps all possibly-valid ones)
-        for state_num in range(num_edges):
-            state = self._raw_state_trace[state_num]
-            open_atoms = self._get_open_world_atoms(state)
-            parsed_state, parsed_full_state = _build_state_precondition_from_atoms(
-                open_atoms, self.dropped_preds)
-            cur_action = self.action_name_list[state_num]
-            action_objs = self.action_object_list[state_num]
-
-            for predicate in all_predicates:
-                if predicate in self.dropped_preds:
-                    continue
-                if predicate not in parsed_state:
-                    pos_pre[cur_action][predicate] = set()
-                    mask_pos[cur_action][predicate] = set()
-                    continue
-                if pos_pre[cur_action][predicate]:
-                    pos_pre[cur_action][predicate] = _filter_mapping_patterns(
-                        parsed_state[predicate], action_objs,
-                        pos_pre[cur_action][predicate], positive=True)
-                if neg_pre[cur_action][predicate]:
-                    neg_pre[cur_action][predicate] = _filter_mapping_patterns(
-                        parsed_state[predicate], action_objs,
-                        neg_pre[cur_action][predicate], positive=False)
-                if predicate not in parsed_full_state:
-                    mask_pos[cur_action][predicate] = set()
-                    continue
-                if mask_pos[cur_action].get(predicate):
-                    mask_pos[cur_action][predicate] = self.get_masked_preconditions(
-                        parsed_full_state[predicate], action_objs,
-                        mask_pos[cur_action][predicate], positive=True)
-                if mask_neg[cur_action].get(predicate):
-                    mask_neg[cur_action][predicate] = self.get_masked_preconditions(
-                        parsed_full_state[predicate], action_objs,
-                        mask_neg[cur_action][predicate], positive=False)
-
-        return pos_pre, neg_pre, mask_pos, mask_neg
 
     @override
     def _extract_effects(self, action):

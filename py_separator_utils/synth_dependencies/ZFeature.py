@@ -23,7 +23,7 @@ class z_feature:
 
         # just a list of all predicates
         self.groundings_in_states = dict()
-        self.unique_groundings_in_states = dict()
+        #self.unique_groundings_in_states = dict()
         self.identified_dict = None
         self.unique_identified_dict = None
 
@@ -52,8 +52,8 @@ class z_feature:
                 self.was_unique = True
 
             self.groundings_in_states[state_index] = identified_objects
-            self.unique_groundings_in_states[state_index] = {obj for obj, num in true_groundings.items()
-                                                             if num == 1}
+            #self.unique_groundings_in_states[state_index] = {obj for obj, num in true_groundings.items()
+            #                                                 if num == 1}
 
         except KeyError:
             self.invalidate()

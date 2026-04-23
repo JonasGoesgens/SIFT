@@ -109,6 +109,7 @@ def find_equivalent_predicates(
     #        typing.Set[GroundingT]
     #    ]
     #]]
+    predicate_has_undefined = dict()
     predicate_conflict_adjacency_dict = dict()
     for instance_id, (graph, init) in graphs.items():
         for node, atoms in graph.nodes(data=pt.Atom_List_key):
@@ -116,12 +117,24 @@ def find_equivalent_predicates(
                 if arity not in predicate_conflict_adjacency_dict:
                     predicate_conflict_adjacency_dict[arity] = dict()
                 for predicate_1, (true_atoms_1, false_atoms_1) in arity_atoms_dict.items():
+                    predicate_has_undefined[predicate_1] = False
                     if predicate_1 not in predicate_conflict_adjacency_dict[arity]:
                         predicate_conflict_adjacency_dict[arity][predicate_1] = dict()
     for instance_id, (graph, init) in graphs.items():
         for node, atoms in graph.nodes(data=pt.Atom_List_key):
             for arity, arity_atoms_dict in atoms.items():
                 for predicate_1, (true_atoms_1, false_atoms_1) in arity_atoms_dict.items():
+                    
+                    if not predicate_has_undefined[predicate_1]:
+                        for atom in true_atoms_1:
+                            if any(elm == -2 for elm in atom):
+                                predicate_has_undefined[predicate_1] = True
+                    
+                        for atom in false_atoms_1:
+                            if any(elm == -2 for elm in atom):
+                                predicate_has_undefined[predicate_1] = True
+                    
+
                     for predicate_2 in predicate_conflict_adjacency_dict[arity].keys():
                         if predicate_2 not in arity_atoms_dict:
                             # p2 does not explain some state at all, but p1 does.
@@ -154,14 +167,40 @@ def find_equivalent_predicates(
     #Cases p1 p2 point at filled set -> p1 less or equal informative than p2
     #Cases p1 p2 not a key           -> p1 and p2 do not interact, different predicates (should no longer happen)
     #arity -> {p1 -> {p2 -> {set of mapping permutations}}}
-    return predicate_conflict_adjacency_dict
+    return predicate_conflict_adjacency_dict, predicate_has_undefined
+
+
+def get_redundant_predicates(conflict_dict) -> set:
+
+    predicates_to_drop = set()
+    for ar in conflict_dict:
+        cur_predicates = conflict_dict[ar].keys()
+        enumerated_predicates = {pred: pred_num for pred_num, pred in enumerate(cur_predicates)}
+        for (pred1, pred2) in itertools.combinations(cur_predicates, r=2):
+            try:
+                if len(conflict_dict[ar][pred1][pred2]) > 0 and len(conflict_dict[ar][pred2][pred1]) == 0:
+                    predicates_to_drop.add(pred1)
+                elif len(conflict_dict[ar][pred1][pred2]) == 0 and len(conflict_dict[ar][pred2][pred1]) > 0:
+                    predicates_to_drop.add(pred2)
+                elif len(conflict_dict[ar][pred1][pred2]) > 0 and len(conflict_dict[ar][pred2][pred1]) > 0:
+                    print('testdict', enumerated_predicates[pred1], enumerated_predicates[pred2],enumerated_predicates[pred1] < enumerated_predicates[pred2])
+                    if enumerated_predicates[pred1] < enumerated_predicates[pred2]:
+                        predicates_to_drop.add(pred2)
+                    else:
+                        predicates_to_drop.add(pred1)
+            except KeyError:
+                print('I get a lot of Key errors')
+                continue
+
+    return predicates_to_drop
 
 def synth_update_graphs(
     process_pool_args : dict,
     graphs : Dict[int, Tuple[pt.GraphT, pt.NodeT]],
     iteration : int,
     mutex_to_exist_predicates : dict,
-    #mutex_to_exist_predicates may contain keys not currently present in the graph as predicates.
+    # mutex_to_exist_predicates may contain keys not currently present in the graph as predicates.
+    # mutex_to_exist_predicates : dict, # key = mutex feature, val = existence/ None 
     stored_queries : Optional[dict] = None,
     verification_mode : bool = False,
     output_file_name : Optional[str] = None,
@@ -186,7 +225,21 @@ def synth_update_graphs(
 
     try:
         with redirect_stdout(StdoutForwarder(log)):
-            graphs, changed, argument_queries = alg.synth(graphs, stored_queries, verification_mode, iteration)
+            
+            has_undefined, drop_predicates = dict(), set()
+            if not verification_mode:
+                predicate_equiv, has_undefined = find_equivalent_predicates(graphs)
+                drop_predicates = get_redundant_predicates(predicate_equiv)
+
+                for mpred, xpred in mutex_to_exist_predicates.items():
+                    if not has_undefined[mpred]:
+                        drop_predicates.add(xpred)
+
+                print(f"--------------------- DROPPED PREDICATES {len(drop_predicates)}---------------------")
+                for pred in drop_predicates:
+                    print(pred)
+                print('------------------------------------------------------------------------------------')
+            graphs, changed, argument_queries = alg.synth(graphs, stored_queries, verification_mode, iteration, has_undefined, drop_predicates)
     except StratificationError:
         # It is not possible to reapply the stored queries.
         # Thus a quantified precondition got violated.

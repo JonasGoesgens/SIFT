@@ -3,9 +3,9 @@ from py_separator_utils.synth_dependencies.ActionAdds import AllActionCandidates
 from py_separator_utils.synth_dependencies.trace_2 import GraphTrace
 from py_separator_utils.exceptions import StratificationError
 
-def synth(trace, stored_queries, verification_mode, iteration):
+def synth(trace, stored_queries, verification_mode, iteration, has_undefined, drop_predicates):
 
-    new_Trace = GraphTrace(trace,dict(),set(),list(),copy.deepcopy(stored_queries), verification_mode)
+    new_Trace = GraphTrace(trace,dict(),drop_predicates,list(),copy.deepcopy(stored_queries), verification_mode, has_undefined)
     # num_initial_args = sum([ar for action, ar in new_Trace.action_arity.items()])
 
     if not verification_mode:
