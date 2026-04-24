@@ -952,20 +952,20 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
         for act in storred_q:
             synth_assignments[act] = dict()
             for it in storred_q[act]:
-                print(it)
+                #print(it)
                 if storred_q[act][it] is None:
                     continue
                 for pos, query in storred_q[act][it].items():
                     synth_assignments[act][pos] = query
-        """
-        for _iteration, synth_assignment in sorted(ar_sift.stored_queries.items()):
-            for action, assigns in synth_assignment.items():
-                if action not in synth_assignments:
-                    synth_assignments[action] = dict()
-                for arg, assign in assigns.get(_iteration, dict()).items():
-                    if assign is not None:
-                        synth_assignments[action][arg] = assign
-        """
+        #synth_assignment = ar_sift.stored_queries[max(ar_sift.stored_queries.keys())]
+        ##for _iteration, synth_assignment in sorted(ar_sift.stored_queries.items()):
+        #for action, assigns in synth_assignment.items():
+        #    if action not in synth_assignments:
+        #        synth_assignments[action] = dict()
+        #    for _iteration, it_assign in assigns:
+        #        for arg, assign in it_assign.items():
+        #            if assign is not None:
+        #                synth_assignments[action][arg] = assign
         meta_info['action_argument_query_assignments'] = synth_assignments
         meta_info['action_argument_multi_assignments'] = ar_sift.multi_arg_feature_assignment
         meta_info['all_action_argument_assignments'] = ar_sift.all_arg_feature_assignments
