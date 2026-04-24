@@ -952,7 +952,7 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
             for action, assigns in synth_assignment.items():
                 if action not in synth_assignments:
                     synth_assignments[action] = dict()
-                for arg, assign in assigns[_iteration].items():
+                for arg, assign in assigns.get(_iteration, dict()).items():
                     if assign is not None:
                         synth_assignments[action][arg] = assign
         meta_info['action_argument_query_assignments'] = synth_assignments
