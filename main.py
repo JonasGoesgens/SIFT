@@ -1071,8 +1071,14 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
                         data['action'] = new_labels
 
             print(f"{ut.format_cur_time()}: Verifing learned Domain", flush=True)
+            verfi_setup_num = 0
             for (neg_mode, graphs) in verification_cases:
+                verfi_setup_num += 1
+                print(f"{ut.format_cur_time()}: Verification setup {verfi_setup_num}/{len(verification_cases)}", flush=True)
+                verfi_inst_num = 0
                 for graph in graphs:
+                    verfi_inst_num += 1
+                    print(f"{ut.format_cur_time()}: Verification instance {verfi_inst_num}/{len(graphs)}", flush=True)
                     graph = [graph]
                     local_verifier = copy.deepcopy(verifier)
                     local_verifier.replace_graphs(graph)
