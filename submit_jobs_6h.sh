@@ -1,12 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=arg_rec_sift
+#SBATCH --job-name=logistics
 #SBATCH --output=output/stdout/job_%A_%a.out
 #SBATCH --error=output/stderr/job_%A_%a.err
 #SBATCH --array=0-24
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=160G
 #SBATCH --gpus=0
-#SBATCH --time=7-00:00:00
+#SBATCH --time=2-00:00:00
+#SBATCH --partition=rleap_cpu_modern
 
 # Benchmarks
 input_dir="./benchmark"
@@ -32,8 +33,8 @@ cat $temp_file
 apptainer run \
   --bind .:/sift \
   --bind /tmp:/tmp \
-  ../sift-container.sif \
-  /sift/main.py -br "$temp_file" -p 10
+  ../synthp.sif \
+  /sift/main.py -br "$temp_file" -p 5
 
 exit_status=$?
 

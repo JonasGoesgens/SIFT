@@ -232,7 +232,7 @@ def synth_update_graphs(
                 drop_predicates = get_redundant_predicates(predicate_equiv)
 
                 for mpred, xpred in mutex_to_exist_predicates.items():
-                    if not has_undefined[mpred]:
+                    if mpred in has_undefined and not has_undefined[mpred]:
                         drop_predicates.add(xpred)
 
                 print(f"--------------------- DROPPED PREDICATES {len(drop_predicates)}---------------------")
