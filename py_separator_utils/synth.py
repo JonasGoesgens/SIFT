@@ -227,8 +227,9 @@ def synth_update_graphs(
         with redirect_stdout(StdoutForwarder(log)):
             
             has_undefined, drop_predicates = dict(), set()
+            predicate_equiv, has_undefined = find_equivalent_predicates(graphs)
             if not verification_mode:
-                predicate_equiv, has_undefined = find_equivalent_predicates(graphs)
+                
                 drop_predicates = get_redundant_predicates(predicate_equiv)
 
                 for mpred, xpred in mutex_to_exist_predicates.items():
@@ -240,27 +241,33 @@ def synth_update_graphs(
                     print(pred)
                 print('------------------------------------------------------------------------------------')
             else:
-                white_list = set()
-                all_pred = set()
-                predicate_equiv, has_undefined = find_equivalent_predicates(graphs)
-                for arity, pred_arr in predicate_equiv.items():
-                    all_pred.update(pred_arr.keys())
-                for action, it_arg_qu in stored_queries:
-                    for arg, qu in it_arg_qu.get(iteration, dict()).items():
-                        for pat in qu:
-                            white_list.add(pat[0])
-                if any(
-                    has_undefined.get(pred, False)
-                    for pred in white_list
-                ):
-                    raise ExecutionError(
-                        iteration, "A query required for reconstruction had undefined args"
-                    )
-                drop_predicates = all_pred.difference(white_list)
+                needed_preds = set()
+                for act in stored_queries:
+                    for it in stored_queries[act]:
+                        if stored_queries[act][it] is None:
+                            continue
+                        for _, _query in stored_queries[act][it].items():
+                            if _query is None:
+                                continue
+                            for (_pred, _) in _query:
+                                needed_preds.add(_pred)
+            
+                for pred in has_undefined:
+                    if pred not in needed_preds:
+                        drop_predicates.add(pred)
+                    elif has_undefined[pred]:
+                        raise ExecutionError(
+                            iteration, "A query required for reconstruction had undefined args"
+                        )
             graphs, changed, argument_queries = alg.synth(graphs, stored_queries, verification_mode, iteration, has_undefined, drop_predicates)
     except StratificationError:
         # It is not possible to reapply the stored queries.
         # Thus a quantified precondition got violated.
+        # Forward exception to the learning algorithm.
+        raise
+    except ExecutionError:
+        # It is not possible to reapply the stored queries.
+        # A technical limitation was encountered.
         # Forward exception to the learning algorithm.
         raise
     except Exception as e:
