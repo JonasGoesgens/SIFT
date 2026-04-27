@@ -6,6 +6,7 @@ import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 import os
 import io
+import gc
 import sys
 import time
 from contextlib import redirect_stderr
@@ -976,6 +977,7 @@ def process_instance(args: argparse.Namespace):
             verifier.set_pre_pattern_disabling(False)
             #add empty list on purpose to speed up further deep copies.
             verifier.replace_graphs(list())
+            gc.collect()
 
             verification_cases = get_verification_instances(
                 domain_path,
@@ -1024,28 +1026,37 @@ def process_instance(args: argparse.Namespace):
                         if neg_mode:
                             #Something was expected to fail so this is correct.
                             print(f"{ut.format_cur_time()}: Expected stratification Exception on negative sample", flush=True)
+                            #This test passed already by thowing the exception continue with next.
                             continue
                         else:
                             verification_val += 1
                             print(f"{ut.format_cur_time()}: Unexpected stratification Exception on positive sample", flush=True)
+                            #This test failed already by thowing the exception continue with next.
                             continue
                     except Exception as e:
                         num_objects += len(local_verifier.sift_iterations[0].LOCM_types.obj_types)
                         verification_val += 1
                         print(f"{ut.format_cur_time()}: Unexpected Exception happened during Verification {e}", flush=True)
+                        #This test failed already by thowing the exception continue with next.
                         continue
-                    verifier_iteration = max(local_verifier.sift_iterations.keys())
-                    num_objects += len(local_verifier.sift_iterations[verifier_iteration].LOCM_types.obj_types)
-                    #All arguments should be correctly recovered so check normal sift features
-                    failure_servity = compare_features(
-                        features, local_features
-                    )
-                    if neg_mode and failure_servity < 2:
-                        print(f"{ut.format_cur_time()}: Verification negative Sample compatible with learned domain", flush=True)
-                        verification_val += 1
-                    elif not neg_mode and failure_servity > 0:
-                        print(f"{ut.format_cur_time()}: Verification positive Sample incompatible with learned domain", flush=True)
-                        verification_val += 1
+                    else:
+                        verifier_iteration = max(local_verifier.sift_iterations.keys())
+                        num_objects += len(local_verifier.sift_iterations[verifier_iteration].LOCM_types.obj_types)
+                        #All arguments should be correctly recovered so check normal sift features
+                        failure_servity = compare_features(
+                            features, local_features
+                        )
+                        if neg_mode and failure_servity < 2:
+                            #This test failed because nothing failed but should.
+                            print(f"{ut.format_cur_time()}: Verification negative Sample compatible with learned domain", flush=True)
+                            verification_val += 1
+                        elif not neg_mode and failure_servity > 0:
+                            #This test failed but should not.
+                            print(f"{ut.format_cur_time()}: Verification positive Sample incompatible with learned domain", flush=True)
+                            verification_val += 1
+                    finally:
+                        local_verifier = None
+                        gc.collect()
 
         meta_info['graph_size_verifi'] = graph_size
         meta_info['graph_number_verifi'] = graph_number
