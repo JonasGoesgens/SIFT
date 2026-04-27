@@ -239,6 +239,24 @@ def synth_update_graphs(
                 for pred in drop_predicates:
                     print(pred)
                 print('------------------------------------------------------------------------------------')
+            else:
+                white_list = set()
+                all_pred = set()
+                predicate_equiv, has_undefined = find_equivalent_predicates(graphs)
+                for arity, pred_arr in predicate_equiv.items():
+                    all_pred.update(pred_arr.keys())
+                for action, it_arg_qu in stored_queries:
+                    for arg, qu in it_arg_qu.get(iteration, dict()).items():
+                        for pat in qu:
+                            white_list.add(pat[0])
+                if any(
+                    has_undefined.get(pred, False)
+                    for pred in white_list
+                ):
+                    raise ExecutionError(
+                        iteration, "A query required for reconstruction had undefined args"
+                    )
+                drop_predicates = all_pred.difference(white_list)
             graphs, changed, argument_queries = alg.synth(graphs, stored_queries, verification_mode, iteration, has_undefined, drop_predicates)
     except StratificationError:
         # It is not possible to reapply the stored queries.
