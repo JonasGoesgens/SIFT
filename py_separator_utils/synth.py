@@ -227,8 +227,9 @@ def synth_update_graphs(
         with redirect_stdout(StdoutForwarder(log)):
             
             has_undefined, drop_predicates = dict(), set()
+            predicate_equiv, has_undefined = find_equivalent_predicates(graphs)
             if not verification_mode:
-                predicate_equiv, has_undefined = find_equivalent_predicates(graphs)
+                
                 drop_predicates = get_redundant_predicates(predicate_equiv)
 
                 for mpred, xpred in mutex_to_exist_predicates.items():
@@ -239,6 +240,22 @@ def synth_update_graphs(
                 for pred in drop_predicates:
                     print(pred)
                 print('------------------------------------------------------------------------------------')
+            else:
+                needed_preds = set()
+                for act in stored_queries:
+                    for it in stored_queries[act]:
+                        if stored_queries[act][it] is None:
+                            continue
+                        for _, _query in stored_queries[act][it].items():
+                            if _query is None:
+                                continue
+                            for (_pred, _) in _query:
+                                needed_preds.add(_pred)
+            
+                for pred in has_undefined:
+                    if pred not in needed_preds:
+                        drop_predicates.add(pred)
+
             graphs, changed, argument_queries = alg.synth(graphs, stored_queries, verification_mode, iteration, has_undefined, drop_predicates)
     except StratificationError:
         # It is not possible to reapply the stored queries.
