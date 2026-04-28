@@ -1235,6 +1235,8 @@ if __name__ == '__main__':
         os.makedirs(os.path.join(dir_path, "output", "statics", "clingo"), exist_ok=True)
         stats_table_out = ""
         for line_num, (runs, args) in enumerate(parsed_args):
+            if runs <= 0:
+                continue
             print(f"{ut.format_cur_time()}: Batchmode line {line_num}", flush=True)
             successful_runs = 0
             sum_admissible_features = 0
