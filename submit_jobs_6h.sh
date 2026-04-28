@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=arg_rec_sift
+#SBATCH --job-name=synth_plus_logistics
 #SBATCH --output=output/stdout/job_%A_%a.out
 #SBATCH --error=output/stderr/job_%A_%a.err
 #SBATCH --array=0-24
 #SBATCH --cpus-per-task=10
-#SBATCH --mem=160G
+#SBATCH --mem=180G
 #SBATCH --gpus=0
 #SBATCH --time=7-00:00:00
 
