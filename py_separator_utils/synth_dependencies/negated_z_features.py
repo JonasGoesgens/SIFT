@@ -37,7 +37,7 @@ class NegatedZFeature:
 
         # just a list of all predicates
         self.groundings_in_states = dict()
-        self.unique_groundings_in_states = dict()
+        # self.unique_groundings_in_states = dict()
         self.identified_dict = None
         self.unique_identified_dict = None
 

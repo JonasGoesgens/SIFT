@@ -1,4 +1,4 @@
-(define (problem gripper-3-3-4)
+(define (problem gripper-3-4-3)
 (:domain gripper-strips)
 (:objects  left middle right ball1 ball2 ball3 rooma roomb roomc roomd)
 (:init

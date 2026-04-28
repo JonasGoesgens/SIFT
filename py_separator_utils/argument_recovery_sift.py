@@ -8,7 +8,6 @@ from py_separator_utils.synth import synth_update_graphs
 import copy
 import sys
 import logging
-import time
 import warnings
 from pathlib import Path
 from typing import Set, List, Tuple, Dict, Union, Iterable
@@ -38,6 +37,7 @@ class Argument_Recovery_Sift:
         self.use_full_synth : bool = use_full_synth
         self.pre_pattern_disabling : bool = True
         self.output_file_name : str = output_file_name
+        self.mutex_to_exist_predicates : dict = dict()
 
     def get_arc_rec_logger(self) -> logging.Logger:
         """
@@ -280,6 +280,7 @@ class Argument_Recovery_Sift:
         print(f"{ut.format_cur_time()}: Argument Recovery iteration {iteration}: Testing {len(self.order_id_features[iteration])} mutex features", flush=True)
         with ProcessPoolExecutor(**process_pool_args) as process_pool:
             runs = dict()
+            lookup_dict = dict()
             for oi_feature in self.order_id_features[iteration]:
                 if oi_feature.is_invalid():
                     continue
@@ -294,17 +295,35 @@ class Argument_Recovery_Sift:
                         #unless they got more prec patterns
                         continue
                 check_list = self._get_graph_list_for_feature(oi_feature, iteration)
+                lookup_dict[oi_feature] = oi_feature
                 runs[oi_feature] = process_pool.submit(
                     self.__class__._check_feature,
                     oi_feature, check_list
                 )
-            wait(runs.values(), return_when=ALL_COMPLETED)
-            for oi_feature, future in runs.items():
+
+            progress = ut.Progressbar(len(runs))
+            progress.print_current()
+
+            for future in as_completed(runs.values()):
                 try:
                     checked_oi_feature = future.result()
+                    oi_feature = lookup_dict[checked_oi_feature]
                     oi_feature.overwrite_feature(checked_oi_feature)
-                except Exception as e:
-                    sys.stderr.write(f"Error processing {oi_feature}: {e}")
+                except Exception as exc:
+                    sys.stderr.write(f'\nError processing {oi_feature}: {exc}\n')
+                    #sys.stderr.flush()
+                finally:
+                    progress.increment_count()
+
+            progress.print_final()
+
+            #wait(runs.values(), return_when=ALL_COMPLETED)
+            #for oi_feature, future in runs.items():
+            #    try:
+            #        checked_oi_feature = future.result()
+            #        oi_feature.overwrite_feature(checked_oi_feature)
+            #    except Exception as e:
+            #        sys.stderr.write(f"Error processing {oi_feature}: {e}")
 
         self.admissible_order_id_features[iteration] = set()
         for feature in self.order_id_features[iteration]:
@@ -480,9 +499,15 @@ class Argument_Recovery_Sift:
                 stored_queries = copy.deepcopy(previous_queries)
 
             if self.use_full_synth:
+                for oi_feature in self.admissible_order_id_features[iteration - 1]:
+                    if oi_feature.has_static_existence():
+                        self.mutex_to_exist_predicates[oi_feature.get_identifier()] = None
+                    else:
+                        self.mutex_to_exist_predicates[oi_feature.get_identifier()] = oi_feature.existence_feature.get_identifier()
                 new_graphs, synth_changed_graph, stored_queries = synth_update_graphs(
                     process_pool_args,
-                    new_graphs, iteration - 1, stored_queries, verification_mode,
+                    new_graphs, iteration - 1, self.mutex_to_exist_predicates,
+                    stored_queries, verification_mode,
                     output_file_name=self.output_file_name
                 )
                 input_changed = input_changed or synth_changed_graph

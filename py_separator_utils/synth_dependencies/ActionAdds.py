@@ -12,17 +12,35 @@ from py_separator_utils.synth_dependencies.negated_z_features import NegatedZFea
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import as_completed, wait
 
-def parallel_function(current_set, current_dict, num_possible_adds,addition_dicts):
+
+_GLOBAL_DEAD_PATTERN = None
+
+def parallel_function(current_set, current_dict, num_possible_adds, addition_dicts, layer_set=None):
 
     max_current = max(current_set)
     unique_output = dict()
     possible_output = dict()
+    
+    cset_t = tuple(current_set)   # normalize: allow list inputs
+    k = len(cset_t)
+
+    if len(current_set) == 2 and any(_pos in _GLOBAL_DEAD_PATTERN for _pos in cset_t):
+        return unique_output, possible_output
 
     for addset in range(max_current + 1, num_possible_adds):
 
-        if addset in current_set:
+        if addset in current_set or addset in _GLOBAL_DEAD_PATTERN:
             continue
-
+        
+        if layer_set is not None:
+            pruned = False
+            for i in range(k):
+                sibling = cset_t[:i] + cset_t[i + 1:] + (addset,)
+                if sibling not in layer_set:
+                    pruned = True
+                    break
+            if pruned:
+                continue
         # we can do this in a ordered way since each of the patterns need to eleminte at least one
         # solution that no other pattern does, else this pattern is obsolete
         combi_dict = dict()
@@ -31,6 +49,8 @@ def parallel_function(current_set, current_dict, num_possible_adds,addition_dict
 
         unique_counter, occurence_counter = 0, 0
 
+        improved_b = False
+        
         for key in add_dict:
 
             all_sets = [current_dict[key], add_dict[key]]
@@ -45,8 +65,14 @@ def parallel_function(current_set, current_dict, num_possible_adds,addition_dict
 
             if len(inter) < len(current_dict[key]):
                 improved = True
+            
+            if len(inter) < len(add_dict[key]):
+                improved_b = True
 
         if possible_things and improved:
+            
+            #if len(current_set) == 1 and improved:
+            #    print(f"Actually valid combinations {current_set} with {addset}")
 
             new_tuple = [x for x in current_set]
             new_tuple.append(addset)
@@ -55,6 +81,16 @@ def parallel_function(current_set, current_dict, num_possible_adds,addition_dict
                 unique_output[tuple(new_tuple)] = combi_dict
             else:
                 possible_output[tuple(new_tuple)] = combi_dict
+        
+        if possible_things:
+            if len(current_set) == 1:
+                if not improved_b and not improved:
+                    print(f"These patterns are equivalent: {current_set} and {addset}")
+                    _GLOBAL_DEAD_PATTERN.add(addset)
+
+        #if len(current_set) == 1 and not improved:
+        #    print(f"this happend here for set {current_set} and add set {addset}")
+        #    _GLOBAL_DEAD_PATTERN.add(addset)
 
     return unique_output, possible_output
 
@@ -387,14 +423,16 @@ class ActionCandidates:
     # combines all non-unique and active patterns, to see whether the combination is unique
     def check_combis_internal(self, trace: Trace, action_name, add_args):
 
+        global _GLOBAL_DEAD_PATTERN
+        _GLOBAL_DEAD_PATTERN = set()
+
         already_contained_input = dict()
 
         argument_was_added = False
 
         non_unique = [z_feat for z_feat in self.z_features if not z_feat.is_unique() and z_feat.is_active()]
 
-        added_tuples = []
-        current_sets = [[i] for i in range(len(non_unique))]
+        current_sets = [(i,) for i in range(len(non_unique))]
         additions = [i for i in range(len(non_unique))]
         all_combi_dicts = {tuple([pos]): non_unique[pos].get_identified_arguments() for pos in range(len(non_unique))}
         addition_dicts = {pos: non_unique[pos].get_identified_arguments() for pos in range(len(non_unique))}
@@ -404,13 +442,16 @@ class ActionCandidates:
             print(len(current_sets), len(non_unique))
 
             next_sets = []
+            next_all_combi_dicts = dict()
+            layer_set = frozenset(current_sets)
 
             for cset in current_sets:
                 u_res, p_res = parallel_function(
                                         cset,
                                         all_combi_dicts[tuple(cset)],
                                         len(non_unique),
-                                        addition_dicts
+                                        addition_dicts,
+                                        layer_set
                                         )
 
                 for c_tuple, c_dict in u_res.items():
@@ -431,9 +472,6 @@ class ActionCandidates:
                         if len(already_contained_positions) > 0:
                             already_contained_input[frozenset([non_unique[pos].get_predicate_pattern() for pos in c_tuple])] = already_contained_positions
 
-
-                    added_tuples.append(set(c_tuple))
-
                     if combi_added_thingy:
                         print('THERE WAS AN ARGUMENT ADDED BY AN COMBINATION!')
                         argument_was_added = True
@@ -445,8 +483,13 @@ class ActionCandidates:
 
                 for p_tuple, p_dict in p_res.items():
                     next_sets.append(copy.deepcopy(p_tuple))
-                    all_combi_dicts[p_tuple] = p_dict
+                    next_all_combi_dicts[p_tuple] = p_dict
 
+            print("------------ DEAD PATTERNS -----------------")
+            print(f"There are {len(_GLOBAL_DEAD_PATTERN)} dead patterns which are {_GLOBAL_DEAD_PATTERN}")
+            print("--------------------------------------------")
+
+            all_combi_dicts = next_all_combi_dicts
             current_sets = copy.deepcopy(next_sets)
         if add_args:
             return argument_was_added

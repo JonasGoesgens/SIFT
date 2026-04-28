@@ -120,6 +120,11 @@ class Graph_Holder:
         cls, graph : pt.GraphT, initial_state : pt.NodeT, grounding_key : pt.GroundingKeyT
     ) -> Tuple[pt.GraphT, pt.NodeT]:
         new_graph = copy.deepcopy(graph)
+        if len(grounding_key) <= 1:
+            for _, attr in new_graph.nodes(data=True):
+                # delete extra info about predicates not needed by subgraphs
+                # and corrupted anyway by merging them.
+                attr.pop('atoms', None)
         for node in list(new_graph.nodes()):
             if not new_graph.has_node(node):
                 continue

@@ -1,6 +1,7 @@
 import typing
 import itertools
 import time
+import sys
 import py_separator_utils.py_types as pt
 class UniqueIDAllocator:
     def __init__(self):
@@ -51,3 +52,33 @@ def tuple_get(tup, index, default=None):
         return tup[index]
     except IndexError:
         return default
+
+class Progressbar:
+    def __init__(self, total : int, max_updates : int = 100):
+        self.total = total
+        self.done  = 0
+        self.bar_len = 30
+        self.update_len = int(total/max_updates + 1)
+        self.update_pos = 0
+
+    def _render(self) -> None:
+        filled = int(self.done / self.total * self.bar_len)
+        empty  = self.bar_len - filled
+        percent = int(self.done / self.total * 100)
+        return f'\r{format_cur_time()}: [{"#" * filled}{"-" * empty}] {percent:3d}% ({self.done}/{self.total})'
+
+    def print_current(self) -> None:
+        sys.stdout.write(self._render())
+        sys.stdout.flush()
+
+    def increment_count(self, amount : int = 1) -> None:
+        self.done += 1
+        if self.done >= self.update_pos:
+            self.update_pos += self.update_len
+            sys.stdout.write(self._render())
+            sys.stdout.flush()
+
+    def print_final(self) -> None:
+        sys.stdout.write(self._render())
+        sys.stdout.write('\n')
+        sys.stdout.flush()

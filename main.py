@@ -6,6 +6,7 @@ import py_separator_utils.py_types as pt
 import py_separator_utils.utils as ut
 import os
 import io
+import gc
 import sys
 import time
 from contextlib import redirect_stderr
@@ -26,6 +27,7 @@ from graph_generator import bfs_state_space, dfs_state_space, rand_state_space
 from graph_generator import get_nx_graph_from_state_space
 from concurrent.futures import ProcessPoolExecutor, ALL_COMPLETED, as_completed, wait
 from itertools import permutations
+from py_separator_utils.exit_if_orphaned import start_orphan_guard
 
 def get_batch_run_parser():
     parser = argparse.ArgumentParser(
@@ -813,7 +815,10 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
         ), args.static_relaxed_domain
     )
 
-    process_pool_args = {'max_workers' : args.processes}
+    process_pool_args = {
+        'max_workers' : args.processes,
+        'initializer' : start_orphan_guard
+    }
 
     recover_args_mode = False
     argument_mask_file = args.argument_mask
@@ -944,13 +949,24 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
         meta_info['admissible_oi_features'] = len(oi_features)
         meta_info['action_argument_assignments'] = ar_sift.arg_feature_assignments
         synth_assignments = dict()
-        for _iteration, synth_assignment in sorted(ar_sift.stored_queries.items()):
-            for action, assigns in synth_assignment.items():
-                if action not in synth_assignments:
-                    synth_assignments[action] = dict()
-                for arg, assign in assigns[_iteration].items():
-                    if assign is not None:
-                        synth_assignments[action][arg] = assign
+        storred_q = ar_sift.stored_queries[max([_query_it for _query_it in ar_sift.stored_queries])]
+        for act in storred_q:
+            synth_assignments[act] = dict()
+            for it in storred_q[act]:
+                #print(it)
+                if storred_q[act][it] is None:
+                    continue
+                for pos, query in storred_q[act][it].items():
+                    synth_assignments[act][pos] = query
+        #synth_assignment = ar_sift.stored_queries[max(ar_sift.stored_queries.keys())]
+        ##for _iteration, synth_assignment in sorted(ar_sift.stored_queries.items()):
+        #for action, assigns in synth_assignment.items():
+        #    if action not in synth_assignments:
+        #        synth_assignments[action] = dict()
+        #    for _iteration, it_assign in assigns:
+        #        for arg, assign in it_assign.items():
+        #            if assign is not None:
+        #                synth_assignments[action][arg] = assign
         meta_info['action_argument_query_assignments'] = synth_assignments
         meta_info['action_argument_multi_assignments'] = ar_sift.multi_arg_feature_assignment
         meta_info['all_action_argument_assignments'] = ar_sift.all_arg_feature_assignments
@@ -1030,6 +1046,7 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
             verifier.set_pre_pattern_disabling(False)
             #add empty list on purpose to speed up further deep copies.
             verifier.replace_graphs(list())
+            gc.collect()
 
             verification_cases = get_verification_instances(
                 domain_path,
@@ -1056,8 +1073,14 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
                         data['action'] = new_labels
 
             print(f"{ut.format_cur_time()}: Verifing learned Domain", flush=True)
+            verfi_setup_num = 0
             for (neg_mode, graphs) in verification_cases:
+                verfi_setup_num += 1
+                print(f"{ut.format_cur_time()}: Verification setup {verfi_setup_num}/{len(verification_cases)}", flush=True)
+                verfi_inst_num = 0
                 for graph in graphs:
+                    verfi_inst_num += 1
+                    print(f"{ut.format_cur_time()}: Verification instance {verfi_inst_num}/{len(graphs)}", flush=True)
                     graph = [graph]
                     local_verifier = copy.deepcopy(verifier)
                     local_verifier.replace_graphs(graph)
@@ -1073,28 +1096,37 @@ def process_instance(args: argparse.Namespace, output_file: str = "test"):
                         if neg_mode:
                             #Something was expected to fail so this is correct.
                             print(f"{ut.format_cur_time()}: Expected stratification Exception on negative sample", flush=True)
+                            #This test passed already by thowing the exception continue with next.
                             continue
                         else:
                             verification_val += 1
                             print(f"{ut.format_cur_time()}: Unexpected stratification Exception on positive sample", flush=True)
+                            #This test failed already by thowing the exception continue with next.
                             continue
                     except Exception as e:
                         num_objects += len(local_verifier.sift_iterations[0].LOCM_types.obj_types)
                         verification_val += 1
                         print(f"{ut.format_cur_time()}: Unexpected Exception happened during Verification {e}", flush=True)
+                        #This test failed already by thowing the exception continue with next.
                         continue
-                    verifier_iteration = max(local_verifier.sift_iterations.keys())
-                    num_objects += len(local_verifier.sift_iterations[verifier_iteration].LOCM_types.obj_types)
-                    #All arguments should be correctly recovered so check normal sift features
-                    failure_servity = compare_features(
-                        features, local_features
-                    )
-                    if neg_mode and failure_servity < 2:
-                        print(f"{ut.format_cur_time()}: Verification negative Sample compatible with learned domain", flush=True)
-                        verification_val += 1
-                    elif not neg_mode and failure_servity > 0:
-                        print(f"{ut.format_cur_time()}: Verification positive Sample incompatible with learned domain", flush=True)
-                        verification_val += 1
+                    else:
+                        verifier_iteration = max(local_verifier.sift_iterations.keys())
+                        num_objects += len(local_verifier.sift_iterations[verifier_iteration].LOCM_types.obj_types)
+                        #All arguments should be correctly recovered so check normal sift features
+                        failure_servity = compare_features(
+                            features, local_features
+                        )
+                        if neg_mode and failure_servity < 2:
+                            #This test failed because nothing failed but should.
+                            print(f"{ut.format_cur_time()}: Verification negative Sample compatible with learned domain", flush=True)
+                            verification_val += 1
+                        elif not neg_mode and failure_servity > 0:
+                            #This test failed but should not.
+                            print(f"{ut.format_cur_time()}: Verification positive Sample incompatible with learned domain", flush=True)
+                            verification_val += 1
+                    finally:
+                        local_verifier = None
+                        gc.collect()
 
         meta_info['graph_size_verifi'] = graph_size
         meta_info['graph_number_verifi'] = graph_number
