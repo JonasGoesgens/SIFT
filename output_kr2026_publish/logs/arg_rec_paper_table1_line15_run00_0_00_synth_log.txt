@@ -1,0 +1,816 @@
+2026-04-27 16:39:39 DEBUG    Synth-Logger initialized → /work/rleap1/jonas.goesgens/domainlearner/sift/output/logs/arg_rec_paper_table1_line15_run00_0_00_synth_log.txt
+2026-04-27 16:39:39 DEBUG    --------------------- DROPPED PREDICATES 3---------------------
+2026-04-27 16:39:39 DEBUG    frozenset({('load', (0,)), ('unload', (0,))})
+2026-04-27 16:39:39 DEBUG    None
+2026-04-27 16:39:39 DEBUG    (frozenset({('drive', (0, 1)), ('fly', (0, 1))}), frozenset({('fly', (0,)), ('drive', (0,))}))
+2026-04-27 16:39:39 DEBUG    ------------------------------------------------------------------------------------
+2026-04-27 16:39:51 DEBUG    There was an arguments added for 'drive' with query: {('loc', (2, -1))}!
+2026-04-27 16:39:51 DEBUG    There was an arguments added for 'fly' with query: {('loc', (2, -1))}!
+2026-04-27 16:39:51 DEBUG    There was an arguments added for 'fly' with query: {('loc', (1, -1))}!
+2026-04-27 16:39:51 DEBUG    There was an arguments added for 'load' with query: {('loc', (2, -1))}!
+2026-04-27 16:39:51 DEBUG    8
+2026-04-27 16:39:51 DEBUG    8
+2026-04-27 16:39:51 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:39:51 DEBUG    There are 0 dead patterns which are set()
+2026-04-27 16:39:51 DEBUG    --------------------------------------------
+2026-04-27 16:39:51 DEBUG    4
+2026-04-27 16:39:51 DEBUG    8
+2026-04-27 16:39:51 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:39:51 DEBUG    There are 0 dead patterns which are set()
+2026-04-27 16:39:51 DEBUG    --------------------------------------------
+2026-04-27 16:39:51 DEBUG    8
+2026-04-27 16:39:51 DEBUG    8
+2026-04-27 16:39:51 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:39:51 DEBUG    There are 0 dead patterns which are set()
+2026-04-27 16:39:51 DEBUG    --------------------------------------------
+2026-04-27 16:39:51 DEBUG    4
+2026-04-27 16:39:51 DEBUG    8
+2026-04-27 16:39:51 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:39:51 DEBUG    There are 0 dead patterns which are set()
+2026-04-27 16:39:51 DEBUG    --------------------------------------------
+2026-04-27 16:39:51 DEBUG    6
+2026-04-27 16:39:51 DEBUG    6
+2026-04-27 16:39:51 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:39:51 DEBUG    There are 0 dead patterns which are set()
+2026-04-27 16:39:51 DEBUG    --------------------------------------------
+2026-04-27 16:39:51 DEBUG    2
+2026-04-27 16:39:51 DEBUG    6
+2026-04-27 16:39:51 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:39:51 DEBUG    There are 0 dead patterns which are set()
+2026-04-27 16:39:51 DEBUG    --------------------------------------------
+2026-04-27 16:39:51 DEBUG    10
+2026-04-27 16:39:51 DEBUG    10
+2026-04-27 16:39:51 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:39:51 DEBUG    There are 0 dead patterns which are set()
+2026-04-27 16:39:51 DEBUG    --------------------------------------------
+2026-04-27 16:39:51 DEBUG    4
+2026-04-27 16:39:51 DEBUG    10
+2026-04-27 16:39:51 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:39:51 DEBUG    There are 0 dead patterns which are set()
+2026-04-27 16:39:51 DEBUG    --------------------------------------------
+2026-04-27 16:39:51 DEBUG    NEW ARGUMENTS ADDED:
+2026-04-27 16:39:51 DEBUG    True
+2026-04-27 16:39:51 DEBUG    Positive Effects:
+2026-04-27 16:39:51 DEBUG    drive(0, 2) on (frozenset({('drive', (0, 1))}), frozenset({('drive', (0,))}))
+2026-04-27 16:39:51 DEBUG    fly(0, 2) on (frozenset({('fly', (0, 1))}), frozenset({('fly', (0,))}))
+2026-04-27 16:39:51 DEBUG    unload(0, 1) on (frozenset({('load', (0, 1))}), frozenset({('unload', (0,))}))
+2026-04-27 16:39:51 DEBUG    
+ Negative Effects:
+2026-04-27 16:39:51 DEBUG    drive(0, 1) on (frozenset({('drive', (0, 1))}), frozenset({('drive', (0,))}))
+2026-04-27 16:39:51 DEBUG    fly(0, 1) on (frozenset({('fly', (0, 1))}), frozenset({('fly', (0,))}))
+2026-04-27 16:39:51 DEBUG    load(0, 1) on (frozenset({('load', (0, 1))}), frozenset({('unload', (0,))}))
+2026-04-27 16:39:51 DEBUG    The 0. argument of the action drive refers to the query None
+2026-04-27 16:39:51 DEBUG    The 1. argument of the action drive refers to the query None
+2026-04-27 16:39:51 DEBUG    The 2. argument of the action drive refers to the query None
+2026-04-27 16:39:51 DEBUG    The 3. argument of the action drive refers to the query {('loc', (2, -1))}
+2026-04-27 16:39:51 DEBUG    The 0. argument of the action fly refers to the query None
+2026-04-27 16:39:51 DEBUG    The 1. argument of the action fly refers to the query None
+2026-04-27 16:39:51 DEBUG    The 2. argument of the action fly refers to the query None
+2026-04-27 16:39:51 DEBUG    The 3. argument of the action fly refers to the query {('loc', (2, -1))}
+2026-04-27 16:39:51 DEBUG    The 4. argument of the action fly refers to the query {('loc', (1, -1))}
+2026-04-27 16:39:51 DEBUG    The 0. argument of the action load refers to the query None
+2026-04-27 16:39:51 DEBUG    The 1. argument of the action load refers to the query None
+2026-04-27 16:39:51 DEBUG    The 2. argument of the action load refers to the query None
+2026-04-27 16:39:51 DEBUG    The 3. argument of the action load refers to the query {('loc', (2, -1))}
+2026-04-27 16:39:51 DEBUG    The 0. argument of the action unload refers to the query None
+2026-04-27 16:39:51 DEBUG    The 1. argument of the action unload refers to the query None
+2026-04-27 16:39:51 DEBUG    STORRED_QUERIES
+2026-04-27 16:39:51 DEBUG    {}
+2026-04-27 16:39:51 DEBUG    CURRENT_QUERIES
+2026-04-27 16:39:51 DEBUG    {'drive': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 'fly': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}, 4: {('loc', (1, -1))}}, 'load': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 'unload': {0: None, 1: None}}
+2026-04-27 16:39:51 DEBUG    NEW_QUERRIES
+2026-04-27 16:39:51 DEBUG    {'drive': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}}, 'fly': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}, 4: {('loc', (1, -1))}}}, 'load': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}}, 'unload': {0: {0: None, 1: None}}}
+2026-04-27 16:42:57 DEBUG    --------------------- DROPPED PREDICATES 11---------------------
+2026-04-27 16:42:57 DEBUG    (frozenset({('fly', (0, 1))}), frozenset({('fly', (0,))}))
+2026-04-27 16:42:57 DEBUG    (frozenset({('drive', (0, 3, 1))}), frozenset({('drive', (0, 3))}))
+2026-04-27 16:42:57 DEBUG    (frozenset({('drive', (0, 1)), ('fly', (0, 1))}), frozenset({('fly', (0,)), ('drive', (0,))}))
+2026-04-27 16:42:57 DEBUG    frozenset({('drive', (0, 1)), ('drive', (0, 2))})
+2026-04-27 16:42:57 DEBUG    (frozenset({('load', (0, 1))}), frozenset({('unload', (0,))}))
+2026-04-27 16:42:57 DEBUG    (frozenset({('drive', (0, 1, 3))}), frozenset({('drive', (0, 2))}))
+2026-04-27 16:42:57 DEBUG    None
+2026-04-27 16:42:57 DEBUG    frozenset({('fly', (0, 2)), ('fly', (0, 1))})
+2026-04-27 16:42:57 DEBUG    (frozenset({('drive', (0, 1))}), frozenset({('drive', (0,))}))
+2026-04-27 16:42:57 DEBUG    frozenset({('load', (0,)), ('unload', (0,))})
+2026-04-27 16:42:57 DEBUG    (frozenset({('fly', (0, 1, 4))}), frozenset({('fly', (0, 2))}))
+2026-04-27 16:42:57 DEBUG    ------------------------------------------------------------------------------------
+2026-04-27 16:42:57 DEBUG    0
+2026-04-27 16:42:57 DEBUG    0
+2026-04-27 16:42:57 DEBUG    0
+2026-04-27 16:42:57 DEBUG    0
+2026-04-27 16:45:30 DEBUG    There was an arguments added for 'unload' with query: {('loc', (2, -1))}!
+2026-04-27 16:45:30 DEBUG    33
+2026-04-27 16:45:30 DEBUG    33
+2026-04-27 16:45:30 DEBUG    These patterns are equivalent: (4,) and 31
+2026-04-27 16:45:30 DEBUG    These patterns are equivalent: (6,) and 7
+2026-04-27 16:45:31 DEBUG    These patterns are equivalent: (6,) and 16
+2026-04-27 16:45:31 DEBUG    These patterns are equivalent: (6,) and 26
+2026-04-27 16:45:31 DEBUG    These patterns are equivalent: (6,) and 28
+2026-04-27 16:45:40 DEBUG    These patterns are equivalent: (11,) and 21
+2026-04-27 16:45:41 DEBUG    These patterns are equivalent: (13,) and 25
+2026-04-27 16:45:41 DEBUG    These patterns are equivalent: (14,) and 27
+2026-04-27 16:45:41 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:41 DEBUG    There are 8 dead patterns which are {7, 16, 21, 25, 26, 27, 28, 31}
+2026-04-27 16:45:41 DEBUG    --------------------------------------------
+2026-04-27 16:45:41 DEBUG    42
+2026-04-27 16:45:41 DEBUG    33
+2026-04-27 16:45:42 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:42 DEBUG    There are 8 dead patterns which are {7, 16, 21, 25, 26, 27, 28, 31}
+2026-04-27 16:45:42 DEBUG    --------------------------------------------
+2026-04-27 16:45:42 DEBUG    11
+2026-04-27 16:45:42 DEBUG    33
+2026-04-27 16:45:42 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:42 DEBUG    There are 8 dead patterns which are {7, 16, 21, 25, 26, 27, 28, 31}
+2026-04-27 16:45:42 DEBUG    --------------------------------------------
+2026-04-27 16:45:42 DEBUG    2
+2026-04-27 16:45:42 DEBUG    33
+2026-04-27 16:45:42 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:42 DEBUG    There are 8 dead patterns which are {7, 16, 21, 25, 26, 27, 28, 31}
+2026-04-27 16:45:42 DEBUG    --------------------------------------------
+2026-04-27 16:45:42 DEBUG    42
+2026-04-27 16:45:42 DEBUG    42
+2026-04-27 16:45:42 DEBUG    These patterns are equivalent: (4,) and 9
+2026-04-27 16:45:42 DEBUG    These patterns are equivalent: (5,) and 8
+2026-04-27 16:45:42 DEBUG    These patterns are equivalent: (5,) and 31
+2026-04-27 16:45:42 DEBUG    These patterns are equivalent: (5,) and 37
+2026-04-27 16:45:42 DEBUG    These patterns are equivalent: (6,) and 7
+2026-04-27 16:45:42 DEBUG    These patterns are equivalent: (6,) and 12
+2026-04-27 16:45:42 DEBUG    These patterns are equivalent: (11,) and 30
+2026-04-27 16:45:43 DEBUG    These patterns are equivalent: (14,) and 39
+2026-04-27 16:45:43 DEBUG    These patterns are equivalent: (17,) and 24
+2026-04-27 16:45:43 DEBUG    These patterns are equivalent: (18,) and 25
+2026-04-27 16:45:43 DEBUG    These patterns are equivalent: (19,) and 26
+2026-04-27 16:45:43 DEBUG    These patterns are equivalent: (20,) and 27
+2026-04-27 16:45:43 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:43 DEBUG    There are 12 dead patterns which are {37, 7, 8, 9, 39, 12, 24, 25, 26, 27, 30, 31}
+2026-04-27 16:45:43 DEBUG    --------------------------------------------
+2026-04-27 16:45:43 DEBUG    57
+2026-04-27 16:45:43 DEBUG    42
+2026-04-27 16:45:52 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:52 DEBUG    There are 12 dead patterns which are {37, 7, 8, 9, 39, 12, 24, 25, 26, 27, 30, 31}
+2026-04-27 16:45:52 DEBUG    --------------------------------------------
+2026-04-27 16:45:53 DEBUG    23
+2026-04-27 16:45:53 DEBUG    42
+2026-04-27 16:45:53 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:53 DEBUG    There are 12 dead patterns which are {37, 7, 8, 9, 39, 12, 24, 25, 26, 27, 30, 31}
+2026-04-27 16:45:53 DEBUG    --------------------------------------------
+2026-04-27 16:45:53 DEBUG    1
+2026-04-27 16:45:53 DEBUG    42
+2026-04-27 16:45:53 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:53 DEBUG    There are 12 dead patterns which are {37, 7, 8, 9, 39, 12, 24, 25, 26, 27, 30, 31}
+2026-04-27 16:45:53 DEBUG    --------------------------------------------
+2026-04-27 16:45:53 DEBUG    19
+2026-04-27 16:45:53 DEBUG    19
+2026-04-27 16:45:53 DEBUG    These patterns are equivalent: (4,) and 17
+2026-04-27 16:45:53 DEBUG    These patterns are equivalent: (7,) and 12
+2026-04-27 16:45:53 DEBUG    These patterns are equivalent: (8,) and 13
+2026-04-27 16:45:53 DEBUG    These patterns are equivalent: (9,) and 14
+2026-04-27 16:45:53 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:53 DEBUG    There are 4 dead patterns which are {17, 12, 13, 14}
+2026-04-27 16:45:53 DEBUG    --------------------------------------------
+2026-04-27 16:45:53 DEBUG    15
+2026-04-27 16:45:53 DEBUG    19
+2026-04-27 16:45:53 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:53 DEBUG    There are 4 dead patterns which are {17, 12, 13, 14}
+2026-04-27 16:45:53 DEBUG    --------------------------------------------
+2026-04-27 16:45:53 DEBUG    4
+2026-04-27 16:45:53 DEBUG    19
+2026-04-27 16:45:53 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:53 DEBUG    There are 4 dead patterns which are {17, 12, 13, 14}
+2026-04-27 16:45:53 DEBUG    --------------------------------------------
+2026-04-27 16:45:53 DEBUG    18
+2026-04-27 16:45:53 DEBUG    18
+2026-04-27 16:45:53 DEBUG    These patterns are equivalent: (7,) and 16
+2026-04-27 16:45:53 DEBUG    These patterns are equivalent: (9,) and 12
+2026-04-27 16:45:53 DEBUG    These patterns are equivalent: (10,) and 13
+2026-04-27 16:45:53 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:53 DEBUG    There are 3 dead patterns which are {16, 12, 13}
+2026-04-27 16:45:53 DEBUG    --------------------------------------------
+2026-04-27 16:45:53 DEBUG    9
+2026-04-27 16:45:53 DEBUG    18
+2026-04-27 16:45:53 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:45:53 DEBUG    There are 3 dead patterns which are {16, 12, 13}
+2026-04-27 16:45:53 DEBUG    --------------------------------------------
+2026-04-27 16:45:53 DEBUG    NEW ARGUMENTS ADDED:
+2026-04-27 16:45:53 DEBUG    True
+2026-04-27 16:45:53 DEBUG    Positive Effects:
+2026-04-27 16:45:53 DEBUG    drive(0, 2, 3) on frozenset({('drive', (0, 1, 3)), ('drive', (0, 2, 3))})
+2026-04-27 16:45:53 DEBUG    drive(0, 1, 3) on (frozenset({('drive', (0, 2, 3))}), frozenset({('drive', (0, 1))}))
+2026-04-27 16:45:53 DEBUG    fly(0, 1, 4) on (frozenset({('fly', (0, 2, 3))}), frozenset({('fly', (0, 1))}))
+2026-04-27 16:45:53 DEBUG    fly(0, 2, 3) on frozenset({('fly', (0, 1, 4)), ('fly', (0, 2, 3))})
+2026-04-27 16:45:53 DEBUG    unload(1, 0) on frozenset({('load', (1, 0)), ('unload', (1, 0))})
+2026-04-27 16:45:53 DEBUG    
+ Negative Effects:
+2026-04-27 16:45:53 DEBUG    drive(0, 1, 3) on frozenset({('drive', (0, 1, 3)), ('drive', (0, 2, 3))})
+2026-04-27 16:45:53 DEBUG    drive(0, 2, 3) on (frozenset({('drive', (0, 2, 3))}), frozenset({('drive', (0, 1))}))
+2026-04-27 16:45:53 DEBUG    fly(0, 2, 3) on (frozenset({('fly', (0, 2, 3))}), frozenset({('fly', (0, 1))}))
+2026-04-27 16:45:53 DEBUG    fly(0, 1, 4) on frozenset({('fly', (0, 1, 4)), ('fly', (0, 2, 3))})
+2026-04-27 16:45:53 DEBUG    load(1, 0) on frozenset({('load', (1, 0)), ('unload', (1, 0))})
+2026-04-27 16:45:53 DEBUG    The 0. argument of the action drive refers to the query None
+2026-04-27 16:45:53 DEBUG    The 1. argument of the action drive refers to the query None
+2026-04-27 16:45:53 DEBUG    The 2. argument of the action drive refers to the query None
+2026-04-27 16:45:53 DEBUG    The 3. argument of the action drive refers to the query {('loc', (2, -1))}
+2026-04-27 16:45:53 DEBUG    The 0. argument of the action fly refers to the query None
+2026-04-27 16:45:53 DEBUG    The 1. argument of the action fly refers to the query None
+2026-04-27 16:45:53 DEBUG    The 2. argument of the action fly refers to the query None
+2026-04-27 16:45:53 DEBUG    The 3. argument of the action fly refers to the query {('loc', (2, -1))}
+2026-04-27 16:45:53 DEBUG    The 4. argument of the action fly refers to the query {('loc', (1, -1))}
+2026-04-27 16:45:53 DEBUG    The 0. argument of the action load refers to the query None
+2026-04-27 16:45:53 DEBUG    The 1. argument of the action load refers to the query None
+2026-04-27 16:45:53 DEBUG    The 2. argument of the action load refers to the query None
+2026-04-27 16:45:53 DEBUG    The 3. argument of the action load refers to the query {('loc', (2, -1))}
+2026-04-27 16:45:53 DEBUG    The 0. argument of the action unload refers to the query None
+2026-04-27 16:45:53 DEBUG    The 1. argument of the action unload refers to the query None
+2026-04-27 16:45:53 DEBUG    The 2. argument of the action unload refers to the query None
+2026-04-27 16:45:53 DEBUG    The 3. argument of the action unload refers to the query {('loc', (2, -1))}
+2026-04-27 16:45:53 DEBUG    STORRED_QUERIES
+2026-04-27 16:45:53 DEBUG    {'drive': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}}, 'fly': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}, 4: {('loc', (1, -1))}}}, 'load': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}}, 'unload': {0: {0: None, 1: None}}}
+2026-04-27 16:45:53 DEBUG    CURRENT_QUERIES
+2026-04-27 16:45:53 DEBUG    {'drive': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 'fly': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}, 4: {('loc', (1, -1))}}, 'load': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 'unload': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}}
+2026-04-27 16:45:53 DEBUG    NEW_QUERRIES
+2026-04-27 16:45:53 DEBUG    {'drive': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 1: {}}, 'fly': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}, 4: {('loc', (1, -1))}}, 1: {}}, 'load': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 1: {}}, 'unload': {0: {0: None, 1: None}, 1: {2: None, 3: {('loc', (2, -1))}}}}
+2026-04-27 16:51:00 DEBUG    --------------------- DROPPED PREDICATES 12---------------------
+2026-04-27 16:51:00 DEBUG    (frozenset({('drive', (0, 3, 1))}), frozenset({('drive', (0, 3))}))
+2026-04-27 16:51:00 DEBUG    frozenset({('drive', (0, 1)), ('drive', (0, 2))})
+2026-04-27 16:51:00 DEBUG    frozenset({('load', (2, 0)), ('unload', (2, 0))})
+2026-04-27 16:51:00 DEBUG    frozenset({('load', (0, 3)), ('unload', (0, 3))})
+2026-04-27 16:51:00 DEBUG    (frozenset({('unload', (0, 3, 2))}), frozenset({('load', (0, 3))}))
+2026-04-27 16:51:00 DEBUG    None
+2026-04-27 16:51:00 DEBUG    (frozenset({('load', (0, 1)), ('unload', (0, 2))}), frozenset({('load', (0,)), ('unload', (0,))}))
+2026-04-27 16:51:00 DEBUG    (frozenset({('load', (0, 1)), ('unload', (0, 3))}), frozenset({('load', (0,)), ('unload', (0,))}))
+2026-04-27 16:51:00 DEBUG    frozenset({('fly', (0, 2)), ('fly', (0, 1))})
+2026-04-27 16:51:00 DEBUG    (frozenset({('unload', (0, 2))}), frozenset({('load', (0,))}))
+2026-04-27 16:51:00 DEBUG    (frozenset({('unload', (2, 0, 3))}), frozenset({('load', (2, 0))}))
+2026-04-27 16:51:00 DEBUG    frozenset({('load', (0,)), ('unload', (0,))})
+2026-04-27 16:51:00 DEBUG    ------------------------------------------------------------------------------------
+2026-04-27 16:51:00 DEBUG    0
+2026-04-27 16:51:00 DEBUG    1
+2026-04-27 16:51:00 DEBUG    0
+2026-04-27 16:51:00 DEBUG    1
+2026-04-27 16:51:00 DEBUG    0
+2026-04-27 16:51:00 DEBUG    1
+2026-04-27 16:51:00 DEBUG    0
+2026-04-27 16:51:00 DEBUG    1
+2026-04-27 16:54:48 DEBUG    36
+2026-04-27 16:54:48 DEBUG    36
+2026-04-27 16:55:03 DEBUG    These patterns are equivalent: (3,) and 4
+2026-04-27 16:55:03 DEBUG    These patterns are equivalent: (3,) and 13
+2026-04-27 16:55:03 DEBUG    These patterns are equivalent: (3,) and 26
+2026-04-27 16:55:03 DEBUG    These patterns are equivalent: (3,) and 28
+2026-04-27 16:55:04 DEBUG    These patterns are equivalent: (8,) and 21
+2026-04-27 16:55:04 DEBUG    These patterns are equivalent: (10,) and 25
+2026-04-27 16:55:04 DEBUG    These patterns are equivalent: (11,) and 27
+2026-04-27 16:55:04 DEBUG    These patterns are equivalent: (16,) and 31
+2026-04-27 16:55:05 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:05 DEBUG    There are 8 dead patterns which are {4, 13, 21, 25, 26, 27, 28, 31}
+2026-04-27 16:55:05 DEBUG    --------------------------------------------
+2026-04-27 16:55:05 DEBUG    47
+2026-04-27 16:55:05 DEBUG    36
+2026-04-27 16:55:05 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:05 DEBUG    There are 8 dead patterns which are {4, 13, 21, 25, 26, 27, 28, 31}
+2026-04-27 16:55:05 DEBUG    --------------------------------------------
+2026-04-27 16:55:05 DEBUG    11
+2026-04-27 16:55:05 DEBUG    36
+2026-04-27 16:55:05 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:05 DEBUG    There are 8 dead patterns which are {4, 13, 21, 25, 26, 27, 28, 31}
+2026-04-27 16:55:05 DEBUG    --------------------------------------------
+2026-04-27 16:55:05 DEBUG    2
+2026-04-27 16:55:05 DEBUG    36
+2026-04-27 16:55:05 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:05 DEBUG    There are 8 dead patterns which are {4, 13, 21, 25, 26, 27, 28, 31}
+2026-04-27 16:55:05 DEBUG    --------------------------------------------
+2026-04-27 16:55:05 DEBUG    45
+2026-04-27 16:55:05 DEBUG    45
+2026-04-27 16:55:06 DEBUG    These patterns are equivalent: (5,) and 24
+2026-04-27 16:55:06 DEBUG    These patterns are equivalent: (6,) and 25
+2026-04-27 16:55:06 DEBUG    These patterns are equivalent: (7,) and 26
+2026-04-27 16:55:06 DEBUG    These patterns are equivalent: (8,) and 27
+2026-04-27 16:55:06 DEBUG    These patterns are equivalent: (11,) and 37
+2026-04-27 16:55:06 DEBUG    These patterns are equivalent: (12,) and 18
+2026-04-27 16:55:06 DEBUG    These patterns are equivalent: (12,) and 31
+2026-04-27 16:55:06 DEBUG    These patterns are equivalent: (12,) and 34
+2026-04-27 16:55:20 DEBUG    These patterns are equivalent: (20,) and 40
+2026-04-27 16:55:20 DEBUG    These patterns are equivalent: (30,) and 35
+2026-04-27 16:55:20 DEBUG    These patterns are equivalent: (32,) and 33
+2026-04-27 16:55:20 DEBUG    These patterns are equivalent: (32,) and 38
+2026-04-27 16:55:20 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:20 DEBUG    There are 12 dead patterns which are {33, 34, 35, 37, 38, 40, 18, 24, 25, 26, 27, 31}
+2026-04-27 16:55:20 DEBUG    --------------------------------------------
+2026-04-27 16:55:20 DEBUG    61
+2026-04-27 16:55:20 DEBUG    45
+2026-04-27 16:55:21 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:21 DEBUG    There are 12 dead patterns which are {33, 34, 35, 37, 38, 40, 18, 24, 25, 26, 27, 31}
+2026-04-27 16:55:21 DEBUG    --------------------------------------------
+2026-04-27 16:55:21 DEBUG    23
+2026-04-27 16:55:21 DEBUG    45
+2026-04-27 16:55:21 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:21 DEBUG    There are 12 dead patterns which are {33, 34, 35, 37, 38, 40, 18, 24, 25, 26, 27, 31}
+2026-04-27 16:55:21 DEBUG    --------------------------------------------
+2026-04-27 16:55:21 DEBUG    1
+2026-04-27 16:55:21 DEBUG    45
+2026-04-27 16:55:21 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:21 DEBUG    There are 12 dead patterns which are {33, 34, 35, 37, 38, 40, 18, 24, 25, 26, 27, 31}
+2026-04-27 16:55:21 DEBUG    --------------------------------------------
+2026-04-27 16:55:21 DEBUG    40
+2026-04-27 16:55:21 DEBUG    40
+2026-04-27 16:55:21 DEBUG    These patterns are equivalent: (3,) and 34
+2026-04-27 16:55:21 DEBUG    These patterns are equivalent: (4,) and 30
+2026-04-27 16:55:21 DEBUG    These patterns are equivalent: (8,) and 16
+2026-04-27 16:55:21 DEBUG    These patterns are equivalent: (9,) and 17
+2026-04-27 16:55:21 DEBUG    These patterns are equivalent: (10,) and 18
+2026-04-27 16:55:21 DEBUG    These patterns are equivalent: (13,) and 21
+2026-04-27 16:55:21 DEBUG    These patterns are equivalent: (23,) and 24
+2026-04-27 16:55:21 DEBUG    These patterns are equivalent: (23,) and 26
+2026-04-27 16:55:21 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:21 DEBUG    There are 8 dead patterns which are {34, 16, 17, 18, 21, 24, 26, 30}
+2026-04-27 16:55:21 DEBUG    --------------------------------------------
+2026-04-27 16:55:21 DEBUG    57
+2026-04-27 16:55:21 DEBUG    40
+2026-04-27 16:55:21 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:21 DEBUG    There are 8 dead patterns which are {34, 16, 17, 18, 21, 24, 26, 30}
+2026-04-27 16:55:21 DEBUG    --------------------------------------------
+2026-04-27 16:55:21 DEBUG    17
+2026-04-27 16:55:21 DEBUG    40
+2026-04-27 16:55:21 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:21 DEBUG    There are 8 dead patterns which are {34, 16, 17, 18, 21, 24, 26, 30}
+2026-04-27 16:55:21 DEBUG    --------------------------------------------
+2026-04-27 16:55:21 DEBUG    2
+2026-04-27 16:55:21 DEBUG    40
+2026-04-27 16:55:21 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:21 DEBUG    There are 8 dead patterns which are {34, 16, 17, 18, 21, 24, 26, 30}
+2026-04-27 16:55:21 DEBUG    --------------------------------------------
+2026-04-27 16:55:21 DEBUG    35
+2026-04-27 16:55:21 DEBUG    35
+2026-04-27 16:55:22 DEBUG    These patterns are equivalent: (8,) and 16
+2026-04-27 16:55:22 DEBUG    These patterns are equivalent: (9,) and 17
+2026-04-27 16:55:22 DEBUG    These patterns are equivalent: (10,) and 18
+2026-04-27 16:55:22 DEBUG    These patterns are equivalent: (13,) and 21
+2026-04-27 16:55:22 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:22 DEBUG    There are 4 dead patterns which are {16, 17, 18, 21}
+2026-04-27 16:55:22 DEBUG    --------------------------------------------
+2026-04-27 16:55:22 DEBUG    49
+2026-04-27 16:55:22 DEBUG    35
+2026-04-27 16:55:22 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:22 DEBUG    There are 4 dead patterns which are {16, 17, 18, 21}
+2026-04-27 16:55:22 DEBUG    --------------------------------------------
+2026-04-27 16:55:22 DEBUG    20
+2026-04-27 16:55:22 DEBUG    35
+2026-04-27 16:55:22 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:22 DEBUG    There are 4 dead patterns which are {16, 17, 18, 21}
+2026-04-27 16:55:22 DEBUG    --------------------------------------------
+2026-04-27 16:55:22 DEBUG    2
+2026-04-27 16:55:22 DEBUG    35
+2026-04-27 16:55:22 DEBUG    ------------ DEAD PATTERNS -----------------
+2026-04-27 16:55:22 DEBUG    There are 4 dead patterns which are {16, 17, 18, 21}
+2026-04-27 16:55:22 DEBUG    --------------------------------------------
+2026-04-27 16:55:22 DEBUG    NEW ARGUMENTS ADDED:
+2026-04-27 16:55:22 DEBUG    False
+2026-04-27 16:55:23 DEBUG    Positive Effects:
+2026-04-27 16:55:23 DEBUG    drive(0, 2, 3) on frozenset({('drive', (0, 1, 3)), ('drive', (0, 2, 3))})
+2026-04-27 16:55:23 DEBUG    drive(0, 1, 3) on (frozenset({('drive', (0, 2, 3))}), frozenset({('drive', (0, 1))}))
+2026-04-27 16:55:23 DEBUG    fly(0, 1, 4) on (frozenset({('fly', (0, 2, 3))}), frozenset({('fly', (0, 1))}))
+2026-04-27 16:55:23 DEBUG    fly(0, 2, 3) on frozenset({('fly', (0, 1, 4)), ('fly', (0, 2, 3))})
+2026-04-27 16:55:23 DEBUG    load(2, 0, 3) on frozenset({('load', (2, 0, 3)), ('unload', (2, 0, 3))})
+2026-04-27 16:55:23 DEBUG    load(0, 3) on (frozenset({('unload', (0, 3))}), frozenset({('load', (0,))}))
+2026-04-27 16:55:23 DEBUG    unload(2, 0, 3) on (frozenset({('load', (2, 0, 3))}), frozenset({('unload', (2, 0))}))
+2026-04-27 16:55:23 DEBUG    unload(1, 0) on frozenset({('load', (1, 0)), ('unload', (1, 0))})
+2026-04-27 16:55:23 DEBUG    
+ Negative Effects:
+2026-04-27 16:55:23 DEBUG    drive(0, 1, 3) on frozenset({('drive', (0, 1, 3)), ('drive', (0, 2, 3))})
+2026-04-27 16:55:23 DEBUG    drive(0, 2, 3) on (frozenset({('drive', (0, 2, 3))}), frozenset({('drive', (0, 1))}))
+2026-04-27 16:55:23 DEBUG    fly(0, 2, 3) on (frozenset({('fly', (0, 2, 3))}), frozenset({('fly', (0, 1))}))
+2026-04-27 16:55:23 DEBUG    fly(0, 1, 4) on frozenset({('fly', (0, 1, 4)), ('fly', (0, 2, 3))})
+2026-04-27 16:55:23 DEBUG    load(2, 0, 3) on (frozenset({('load', (2, 0, 3))}), frozenset({('unload', (2, 0))}))
+2026-04-27 16:55:23 DEBUG    load(1, 0) on frozenset({('load', (1, 0)), ('unload', (1, 0))})
+2026-04-27 16:55:23 DEBUG    unload(2, 0, 3) on frozenset({('load', (2, 0, 3)), ('unload', (2, 0, 3))})
+2026-04-27 16:55:23 DEBUG    unload(0, 3) on (frozenset({('unload', (0, 3))}), frozenset({('load', (0,))}))
+2026-04-27 16:55:23 DEBUG    The 0. argument of the action drive refers to the query None
+2026-04-27 16:55:23 DEBUG    The 1. argument of the action drive refers to the query None
+2026-04-27 16:55:23 DEBUG    The 2. argument of the action drive refers to the query None
+2026-04-27 16:55:23 DEBUG    The 3. argument of the action drive refers to the query {('loc', (2, -1))}
+2026-04-27 16:55:23 DEBUG    The 0. argument of the action fly refers to the query None
+2026-04-27 16:55:23 DEBUG    The 1. argument of the action fly refers to the query None
+2026-04-27 16:55:23 DEBUG    The 2. argument of the action fly refers to the query None
+2026-04-27 16:55:23 DEBUG    The 3. argument of the action fly refers to the query {('loc', (2, -1))}
+2026-04-27 16:55:23 DEBUG    The 4. argument of the action fly refers to the query {('loc', (1, -1))}
+2026-04-27 16:55:23 DEBUG    The 0. argument of the action load refers to the query None
+2026-04-27 16:55:23 DEBUG    The 1. argument of the action load refers to the query None
+2026-04-27 16:55:23 DEBUG    The 2. argument of the action load refers to the query None
+2026-04-27 16:55:23 DEBUG    The 3. argument of the action load refers to the query {('loc', (2, -1))}
+2026-04-27 16:55:23 DEBUG    The 0. argument of the action unload refers to the query None
+2026-04-27 16:55:23 DEBUG    The 1. argument of the action unload refers to the query None
+2026-04-27 16:55:23 DEBUG    The 2. argument of the action unload refers to the query None
+2026-04-27 16:55:23 DEBUG    The 3. argument of the action unload refers to the query {('loc', (2, -1))}
+2026-04-27 16:55:23 DEBUG    STORRED_QUERIES
+2026-04-27 16:55:23 DEBUG    {'drive': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 1: {}}, 'fly': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}, 4: {('loc', (1, -1))}}, 1: {}}, 'load': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 1: {}}, 'unload': {0: {0: None, 1: None}, 1: {2: None, 3: {('loc', (2, -1))}}}}
+2026-04-27 16:55:23 DEBUG    CURRENT_QUERIES
+2026-04-27 16:55:23 DEBUG    {'drive': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 'fly': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}, 4: {('loc', (1, -1))}}, 'load': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 'unload': {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}}
+2026-04-27 16:55:23 DEBUG    NEW_QUERRIES
+2026-04-27 16:55:23 DEBUG    {'drive': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 1: {}, 2: {}}, 'fly': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}, 4: {('loc', (1, -1))}}, 1: {}, 2: {}}, 'load': {0: {0: None, 1: None, 2: None, 3: {('loc', (2, -1))}}, 1: {}, 2: {}}, 'unload': {0: {0: None, 1: None}, 1: {2: None, 3: {('loc', (2, -1))}}, 2: {}}}
+2026-04-27 17:20:59 DEBUG    0
+2026-04-27 17:20:59 DEBUG    0
+2026-04-27 17:20:59 DEBUG    0
+2026-04-27 17:20:59 DEBUG    0
+2026-04-27 17:21:00 DEBUG    ('loc', (2, -1))
+2026-04-27 17:21:00 DEBUG    ('loc', (2, -1))
+2026-04-27 17:21:00 DEBUG    ('loc', (1, -1))
+2026-04-27 17:21:00 DEBUG    ('loc', (2, -1))
+2026-04-27 17:22:41 DEBUG    0
+2026-04-27 17:22:41 DEBUG    1
+2026-04-27 17:22:41 DEBUG    0
+2026-04-27 17:22:41 DEBUG    1
+2026-04-27 17:22:41 DEBUG    0
+2026-04-27 17:22:41 DEBUG    1
+2026-04-27 17:22:41 DEBUG    0
+2026-04-27 17:22:41 DEBUG    1
+2026-04-27 17:22:42 DEBUG    ('loc', (2, -1))
+2026-04-27 17:45:13 DEBUG    0
+2026-04-27 17:45:13 DEBUG    0
+2026-04-27 17:45:13 DEBUG    0
+2026-04-27 17:45:13 DEBUG    0
+2026-04-27 17:45:14 DEBUG    ('loc', (2, -1))
+2026-04-27 17:45:14 DEBUG    ('loc', (2, -1))
+2026-04-27 17:45:14 DEBUG    ('loc', (1, -1))
+2026-04-27 17:45:14 DEBUG    ('loc', (2, -1))
+2026-04-27 17:47:24 DEBUG    0
+2026-04-27 17:47:24 DEBUG    1
+2026-04-27 17:47:24 DEBUG    0
+2026-04-27 17:47:24 DEBUG    1
+2026-04-27 17:47:24 DEBUG    0
+2026-04-27 17:47:24 DEBUG    1
+2026-04-27 17:47:24 DEBUG    0
+2026-04-27 17:47:24 DEBUG    1
+2026-04-27 17:47:24 DEBUG    ('loc', (2, -1))
+2026-04-27 18:10:35 DEBUG    0
+2026-04-27 18:10:35 DEBUG    0
+2026-04-27 18:10:35 DEBUG    0
+2026-04-27 18:10:35 DEBUG    0
+2026-04-27 18:10:35 DEBUG    ('loc', (2, -1))
+2026-04-27 18:10:35 DEBUG    ('loc', (2, -1))
+2026-04-27 18:10:35 DEBUG    ('loc', (1, -1))
+2026-04-27 18:10:35 DEBUG    ('loc', (2, -1))
+2026-04-27 18:12:51 DEBUG    0
+2026-04-27 18:12:51 DEBUG    1
+2026-04-27 18:12:51 DEBUG    0
+2026-04-27 18:12:51 DEBUG    1
+2026-04-27 18:12:51 DEBUG    0
+2026-04-27 18:12:51 DEBUG    1
+2026-04-27 18:12:51 DEBUG    0
+2026-04-27 18:12:51 DEBUG    1
+2026-04-27 18:12:51 DEBUG    ('loc', (2, -1))
+2026-04-27 18:37:20 DEBUG    0
+2026-04-27 18:37:20 DEBUG    0
+2026-04-27 18:37:20 DEBUG    0
+2026-04-27 18:37:20 DEBUG    0
+2026-04-27 18:37:21 DEBUG    ('loc', (2, -1))
+2026-04-27 18:37:21 DEBUG    ('loc', (2, -1))
+2026-04-27 18:37:21 DEBUG    ('loc', (1, -1))
+2026-04-27 18:37:21 DEBUG    ('loc', (2, -1))
+2026-04-27 18:39:36 DEBUG    0
+2026-04-27 18:39:36 DEBUG    1
+2026-04-27 18:39:36 DEBUG    0
+2026-04-27 18:39:36 DEBUG    1
+2026-04-27 18:39:36 DEBUG    0
+2026-04-27 18:39:36 DEBUG    1
+2026-04-27 18:39:36 DEBUG    0
+2026-04-27 18:39:36 DEBUG    1
+2026-04-27 18:39:36 DEBUG    ('loc', (2, -1))
+2026-04-27 19:02:50 DEBUG    0
+2026-04-27 19:02:50 DEBUG    0
+2026-04-27 19:02:50 DEBUG    0
+2026-04-27 19:02:50 DEBUG    0
+2026-04-27 19:02:50 DEBUG    ('loc', (2, -1))
+2026-04-27 19:02:50 DEBUG    ('loc', (2, -1))
+2026-04-27 19:02:50 DEBUG    ('loc', (1, -1))
+2026-04-27 19:02:50 DEBUG    ('loc', (2, -1))
+2026-04-27 19:05:08 DEBUG    0
+2026-04-27 19:05:08 DEBUG    1
+2026-04-27 19:05:08 DEBUG    0
+2026-04-27 19:05:08 DEBUG    1
+2026-04-27 19:05:08 DEBUG    0
+2026-04-27 19:05:08 DEBUG    1
+2026-04-27 19:05:08 DEBUG    0
+2026-04-27 19:05:08 DEBUG    1
+2026-04-27 19:05:08 DEBUG    ('loc', (2, -1))
+2026-04-27 19:28:40 DEBUG    0
+2026-04-27 19:28:40 DEBUG    0
+2026-04-27 19:28:40 DEBUG    0
+2026-04-27 19:28:40 DEBUG    0
+2026-04-27 19:28:40 DEBUG    ('loc', (2, -1))
+2026-04-27 19:28:40 DEBUG    ('loc', (2, -1))
+2026-04-27 19:28:40 DEBUG    ('loc', (1, -1))
+2026-04-27 19:28:40 DEBUG    ('loc', (2, -1))
+2026-04-27 19:31:01 DEBUG    0
+2026-04-27 19:31:01 DEBUG    1
+2026-04-27 19:31:01 DEBUG    0
+2026-04-27 19:31:01 DEBUG    1
+2026-04-27 19:31:01 DEBUG    0
+2026-04-27 19:31:01 DEBUG    1
+2026-04-27 19:31:01 DEBUG    0
+2026-04-27 19:31:01 DEBUG    1
+2026-04-27 19:31:01 DEBUG    ('loc', (2, -1))
+2026-04-27 19:54:07 DEBUG    0
+2026-04-27 19:54:07 DEBUG    0
+2026-04-27 19:54:07 DEBUG    0
+2026-04-27 19:54:07 DEBUG    0
+2026-04-27 19:54:07 DEBUG    ('loc', (2, -1))
+2026-04-27 19:54:07 DEBUG    ('loc', (2, -1))
+2026-04-27 19:54:07 DEBUG    ('loc', (1, -1))
+2026-04-27 19:54:07 DEBUG    ('loc', (2, -1))
+2026-04-27 19:56:26 DEBUG    0
+2026-04-27 19:56:26 DEBUG    1
+2026-04-27 19:56:26 DEBUG    0
+2026-04-27 19:56:26 DEBUG    1
+2026-04-27 19:56:26 DEBUG    0
+2026-04-27 19:56:26 DEBUG    1
+2026-04-27 19:56:26 DEBUG    0
+2026-04-27 19:56:26 DEBUG    1
+2026-04-27 19:56:26 DEBUG    ('loc', (2, -1))
+2026-04-27 20:19:26 DEBUG    0
+2026-04-27 20:19:26 DEBUG    0
+2026-04-27 20:19:26 DEBUG    0
+2026-04-27 20:19:26 DEBUG    0
+2026-04-27 20:19:26 DEBUG    ('loc', (2, -1))
+2026-04-27 20:19:26 DEBUG    ('loc', (2, -1))
+2026-04-27 20:19:26 DEBUG    ('loc', (1, -1))
+2026-04-27 20:19:26 DEBUG    ('loc', (2, -1))
+2026-04-27 20:21:45 DEBUG    0
+2026-04-27 20:21:45 DEBUG    1
+2026-04-27 20:21:45 DEBUG    0
+2026-04-27 20:21:45 DEBUG    1
+2026-04-27 20:21:45 DEBUG    0
+2026-04-27 20:21:45 DEBUG    1
+2026-04-27 20:21:45 DEBUG    0
+2026-04-27 20:21:45 DEBUG    1
+2026-04-27 20:21:45 DEBUG    ('loc', (2, -1))
+2026-04-27 20:44:32 DEBUG    0
+2026-04-27 20:44:32 DEBUG    0
+2026-04-27 20:44:32 DEBUG    0
+2026-04-27 20:44:32 DEBUG    0
+2026-04-27 20:44:32 DEBUG    ('loc', (2, -1))
+2026-04-27 20:44:32 DEBUG    ('loc', (2, -1))
+2026-04-27 20:44:32 DEBUG    ('loc', (1, -1))
+2026-04-27 20:44:32 DEBUG    ('loc', (2, -1))
+2026-04-27 20:46:53 DEBUG    0
+2026-04-27 20:46:53 DEBUG    1
+2026-04-27 20:46:53 DEBUG    0
+2026-04-27 20:46:53 DEBUG    1
+2026-04-27 20:46:53 DEBUG    0
+2026-04-27 20:46:53 DEBUG    1
+2026-04-27 20:46:53 DEBUG    0
+2026-04-27 20:46:53 DEBUG    1
+2026-04-27 20:46:54 DEBUG    ('loc', (2, -1))
+2026-04-27 21:10:06 DEBUG    0
+2026-04-27 21:10:06 DEBUG    0
+2026-04-27 21:10:06 DEBUG    0
+2026-04-27 21:10:06 DEBUG    0
+2026-04-27 21:10:06 DEBUG    ('loc', (2, -1))
+2026-04-27 21:10:06 DEBUG    ('loc', (2, -1))
+2026-04-27 21:10:06 DEBUG    ('loc', (1, -1))
+2026-04-27 21:10:06 DEBUG    ('loc', (2, -1))
+2026-04-27 21:12:22 DEBUG    0
+2026-04-27 21:12:22 DEBUG    1
+2026-04-27 21:12:22 DEBUG    0
+2026-04-27 21:12:22 DEBUG    1
+2026-04-27 21:12:22 DEBUG    0
+2026-04-27 21:12:22 DEBUG    1
+2026-04-27 21:12:22 DEBUG    0
+2026-04-27 21:12:22 DEBUG    1
+2026-04-27 21:12:22 DEBUG    ('loc', (2, -1))
+2026-04-27 21:36:03 DEBUG    0
+2026-04-27 21:36:03 DEBUG    0
+2026-04-27 21:36:03 DEBUG    0
+2026-04-27 21:36:03 DEBUG    0
+2026-04-27 21:36:03 DEBUG    ('loc', (2, -1))
+2026-04-27 21:36:03 DEBUG    ('loc', (2, -1))
+2026-04-27 21:36:03 DEBUG    ('loc', (1, -1))
+2026-04-27 21:36:03 DEBUG    ('loc', (2, -1))
+2026-04-27 21:38:21 DEBUG    0
+2026-04-27 21:38:21 DEBUG    1
+2026-04-27 21:38:21 DEBUG    0
+2026-04-27 21:38:21 DEBUG    1
+2026-04-27 21:38:21 DEBUG    0
+2026-04-27 21:38:21 DEBUG    1
+2026-04-27 21:38:21 DEBUG    0
+2026-04-27 21:38:21 DEBUG    1
+2026-04-27 21:38:21 DEBUG    ('loc', (2, -1))
+2026-04-27 22:01:59 DEBUG    0
+2026-04-27 22:01:59 DEBUG    0
+2026-04-27 22:01:59 DEBUG    0
+2026-04-27 22:01:59 DEBUG    0
+2026-04-27 22:01:59 DEBUG    ('loc', (2, -1))
+2026-04-27 22:01:59 DEBUG    ('loc', (2, -1))
+2026-04-27 22:01:59 DEBUG    ('loc', (1, -1))
+2026-04-27 22:01:59 DEBUG    ('loc', (2, -1))
+2026-04-27 22:04:19 DEBUG    0
+2026-04-27 22:04:19 DEBUG    1
+2026-04-27 22:04:19 DEBUG    0
+2026-04-27 22:04:19 DEBUG    1
+2026-04-27 22:04:19 DEBUG    0
+2026-04-27 22:04:19 DEBUG    1
+2026-04-27 22:04:19 DEBUG    0
+2026-04-27 22:04:19 DEBUG    1
+2026-04-27 22:04:19 DEBUG    ('loc', (2, -1))
+2026-04-27 22:28:07 DEBUG    0
+2026-04-27 22:28:07 DEBUG    0
+2026-04-27 22:28:07 DEBUG    0
+2026-04-27 22:28:07 DEBUG    0
+2026-04-27 22:28:07 DEBUG    ('loc', (2, -1))
+2026-04-27 22:28:07 DEBUG    ('loc', (2, -1))
+2026-04-27 22:28:07 DEBUG    ('loc', (1, -1))
+2026-04-27 22:28:07 DEBUG    ('loc', (2, -1))
+2026-04-27 22:30:29 DEBUG    0
+2026-04-27 22:30:29 DEBUG    1
+2026-04-27 22:30:29 DEBUG    0
+2026-04-27 22:30:29 DEBUG    1
+2026-04-27 22:30:29 DEBUG    0
+2026-04-27 22:30:29 DEBUG    1
+2026-04-27 22:30:29 DEBUG    0
+2026-04-27 22:30:29 DEBUG    1
+2026-04-27 22:30:29 DEBUG    ('loc', (2, -1))
+2026-04-27 22:54:19 DEBUG    0
+2026-04-27 22:54:19 DEBUG    0
+2026-04-27 22:54:19 DEBUG    0
+2026-04-27 22:54:19 DEBUG    0
+2026-04-27 22:54:19 DEBUG    ('loc', (2, -1))
+2026-04-27 22:54:19 DEBUG    ('loc', (2, -1))
+2026-04-27 22:54:19 DEBUG    ('loc', (1, -1))
+2026-04-27 22:54:19 DEBUG    ('loc', (2, -1))
+2026-04-27 22:56:36 DEBUG    0
+2026-04-27 22:56:36 DEBUG    1
+2026-04-27 22:56:36 DEBUG    0
+2026-04-27 22:56:36 DEBUG    1
+2026-04-27 22:56:36 DEBUG    0
+2026-04-27 22:56:36 DEBUG    1
+2026-04-27 22:56:36 DEBUG    0
+2026-04-27 22:56:36 DEBUG    1
+2026-04-27 22:56:36 DEBUG    ('loc', (2, -1))
+2026-04-27 23:20:00 DEBUG    0
+2026-04-27 23:20:00 DEBUG    0
+2026-04-27 23:20:00 DEBUG    0
+2026-04-27 23:20:00 DEBUG    0
+2026-04-27 23:20:00 DEBUG    ('loc', (2, -1))
+2026-04-27 23:20:00 DEBUG    ('loc', (2, -1))
+2026-04-27 23:20:00 DEBUG    ('loc', (1, -1))
+2026-04-27 23:20:00 DEBUG    ('loc', (2, -1))
+2026-04-27 23:22:18 DEBUG    0
+2026-04-27 23:22:18 DEBUG    1
+2026-04-27 23:22:18 DEBUG    0
+2026-04-27 23:22:18 DEBUG    1
+2026-04-27 23:22:18 DEBUG    0
+2026-04-27 23:22:18 DEBUG    1
+2026-04-27 23:22:18 DEBUG    0
+2026-04-27 23:22:18 DEBUG    1
+2026-04-27 23:22:19 DEBUG    ('loc', (2, -1))
+2026-04-27 23:46:01 DEBUG    0
+2026-04-27 23:46:01 DEBUG    0
+2026-04-27 23:46:01 DEBUG    0
+2026-04-27 23:46:01 DEBUG    0
+2026-04-27 23:46:02 DEBUG    ('loc', (2, -1))
+2026-04-27 23:46:02 DEBUG    ('loc', (2, -1))
+2026-04-27 23:46:02 DEBUG    ('loc', (1, -1))
+2026-04-27 23:46:02 DEBUG    ('loc', (2, -1))
+2026-04-27 23:48:23 DEBUG    0
+2026-04-27 23:48:23 DEBUG    1
+2026-04-27 23:48:23 DEBUG    0
+2026-04-27 23:48:23 DEBUG    1
+2026-04-27 23:48:23 DEBUG    0
+2026-04-27 23:48:23 DEBUG    1
+2026-04-27 23:48:23 DEBUG    0
+2026-04-27 23:48:23 DEBUG    1
+2026-04-27 23:48:23 DEBUG    ('loc', (2, -1))
+2026-04-28 00:12:56 DEBUG    0
+2026-04-28 00:12:56 DEBUG    0
+2026-04-28 00:12:56 DEBUG    0
+2026-04-28 00:12:56 DEBUG    0
+2026-04-28 00:12:56 DEBUG    ('loc', (2, -1))
+2026-04-28 00:12:56 DEBUG    ('loc', (2, -1))
+2026-04-28 00:12:56 DEBUG    ('loc', (1, -1))
+2026-04-28 00:12:56 DEBUG    ('loc', (2, -1))
+2026-04-28 00:15:16 DEBUG    0
+2026-04-28 00:15:16 DEBUG    1
+2026-04-28 00:15:16 DEBUG    0
+2026-04-28 00:15:16 DEBUG    1
+2026-04-28 00:15:16 DEBUG    0
+2026-04-28 00:15:16 DEBUG    1
+2026-04-28 00:15:16 DEBUG    0
+2026-04-28 00:15:16 DEBUG    1
+2026-04-28 00:15:16 DEBUG    ('loc', (2, -1))
+2026-04-28 00:38:47 DEBUG    0
+2026-04-28 00:38:47 DEBUG    0
+2026-04-28 00:38:47 DEBUG    0
+2026-04-28 00:38:47 DEBUG    0
+2026-04-28 00:38:47 DEBUG    ('loc', (2, -1))
+2026-04-28 00:38:47 DEBUG    ('loc', (2, -1))
+2026-04-28 00:38:47 DEBUG    ('loc', (1, -1))
+2026-04-28 00:38:47 DEBUG    ('loc', (2, -1))
+2026-04-28 00:41:09 DEBUG    0
+2026-04-28 00:41:09 DEBUG    1
+2026-04-28 00:41:09 DEBUG    0
+2026-04-28 00:41:09 DEBUG    1
+2026-04-28 00:41:09 DEBUG    0
+2026-04-28 00:41:09 DEBUG    1
+2026-04-28 00:41:09 DEBUG    0
+2026-04-28 00:41:09 DEBUG    1
+2026-04-28 00:41:10 DEBUG    ('loc', (2, -1))
+2026-04-28 01:05:04 DEBUG    0
+2026-04-28 01:05:04 DEBUG    0
+2026-04-28 01:05:04 DEBUG    0
+2026-04-28 01:05:04 DEBUG    0
+2026-04-28 01:05:04 DEBUG    ('loc', (2, -1))
+2026-04-28 01:05:04 DEBUG    ('loc', (2, -1))
+2026-04-28 01:05:04 DEBUG    ('loc', (1, -1))
+2026-04-28 01:05:04 DEBUG    ('loc', (2, -1))
+2026-04-28 01:07:23 DEBUG    0
+2026-04-28 01:07:23 DEBUG    1
+2026-04-28 01:07:23 DEBUG    0
+2026-04-28 01:07:23 DEBUG    1
+2026-04-28 01:07:23 DEBUG    0
+2026-04-28 01:07:23 DEBUG    1
+2026-04-28 01:07:23 DEBUG    0
+2026-04-28 01:07:23 DEBUG    1
+2026-04-28 01:07:23 DEBUG    ('loc', (2, -1))
+2026-04-28 01:30:40 DEBUG    0
+2026-04-28 01:30:40 DEBUG    0
+2026-04-28 01:30:40 DEBUG    0
+2026-04-28 01:30:40 DEBUG    0
+2026-04-28 01:30:40 DEBUG    ('loc', (2, -1))
+2026-04-28 01:30:40 DEBUG    ('loc', (2, -1))
+2026-04-28 01:30:40 DEBUG    ('loc', (1, -1))
+2026-04-28 01:30:40 DEBUG    ('loc', (2, -1))
+2026-04-28 01:33:01 DEBUG    0
+2026-04-28 01:33:01 DEBUG    1
+2026-04-28 01:33:01 DEBUG    0
+2026-04-28 01:33:01 DEBUG    1
+2026-04-28 01:33:01 DEBUG    0
+2026-04-28 01:33:01 DEBUG    1
+2026-04-28 01:33:01 DEBUG    0
+2026-04-28 01:33:01 DEBUG    1
+2026-04-28 01:33:01 DEBUG    ('loc', (2, -1))
+2026-04-28 01:56:14 DEBUG    0
+2026-04-28 01:56:14 DEBUG    0
+2026-04-28 01:56:14 DEBUG    0
+2026-04-28 01:56:14 DEBUG    0
+2026-04-28 01:56:14 DEBUG    ('loc', (2, -1))
+2026-04-28 01:56:14 DEBUG    ('loc', (2, -1))
+2026-04-28 01:56:14 DEBUG    ('loc', (1, -1))
+2026-04-28 01:56:14 DEBUG    ('loc', (2, -1))
+2026-04-28 01:58:38 DEBUG    0
+2026-04-28 01:58:38 DEBUG    1
+2026-04-28 01:58:38 DEBUG    0
+2026-04-28 01:58:38 DEBUG    1
+2026-04-28 01:58:38 DEBUG    0
+2026-04-28 01:58:38 DEBUG    1
+2026-04-28 01:58:38 DEBUG    0
+2026-04-28 01:58:38 DEBUG    1
+2026-04-28 01:58:38 DEBUG    ('loc', (2, -1))
+2026-04-28 02:22:20 DEBUG    0
+2026-04-28 02:22:20 DEBUG    0
+2026-04-28 02:22:20 DEBUG    0
+2026-04-28 02:22:20 DEBUG    0
+2026-04-28 02:22:20 DEBUG    ('loc', (2, -1))
+2026-04-28 02:22:20 DEBUG    ('loc', (2, -1))
+2026-04-28 02:22:20 DEBUG    ('loc', (1, -1))
+2026-04-28 02:22:20 DEBUG    ('loc', (2, -1))
+2026-04-28 02:24:43 DEBUG    0
+2026-04-28 02:24:43 DEBUG    1
+2026-04-28 02:24:43 DEBUG    0
+2026-04-28 02:24:43 DEBUG    1
+2026-04-28 02:24:43 DEBUG    0
+2026-04-28 02:24:43 DEBUG    1
+2026-04-28 02:24:43 DEBUG    0
+2026-04-28 02:24:43 DEBUG    1
+2026-04-28 02:24:44 DEBUG    ('loc', (2, -1))
+2026-04-28 02:48:05 DEBUG    0
+2026-04-28 02:48:05 DEBUG    0
+2026-04-28 02:48:05 DEBUG    0
+2026-04-28 02:48:05 DEBUG    0
+2026-04-28 02:48:05 DEBUG    ('loc', (2, -1))
+2026-04-28 02:48:05 DEBUG    ('loc', (2, -1))
+2026-04-28 02:48:05 DEBUG    ('loc', (1, -1))
+2026-04-28 02:48:05 DEBUG    ('loc', (2, -1))
+2026-04-28 02:50:26 DEBUG    0
+2026-04-28 02:50:26 DEBUG    1
+2026-04-28 02:50:26 DEBUG    0
+2026-04-28 02:50:26 DEBUG    1
+2026-04-28 02:50:26 DEBUG    0
+2026-04-28 02:50:26 DEBUG    1
+2026-04-28 02:50:26 DEBUG    0
+2026-04-28 02:50:26 DEBUG    1
+2026-04-28 02:50:26 DEBUG    ('loc', (2, -1))
+2026-04-28 03:14:09 DEBUG    0
+2026-04-28 03:14:09 DEBUG    0
+2026-04-28 03:14:09 DEBUG    0
+2026-04-28 03:14:09 DEBUG    0
+2026-04-28 03:14:09 DEBUG    ('loc', (2, -1))
+2026-04-28 03:14:09 DEBUG    ('loc', (2, -1))
+2026-04-28 03:14:09 DEBUG    ('loc', (1, -1))
+2026-04-28 03:14:09 DEBUG    ('loc', (2, -1))
+2026-04-28 03:16:35 DEBUG    0
+2026-04-28 03:16:35 DEBUG    1
+2026-04-28 03:16:35 DEBUG    0
+2026-04-28 03:16:35 DEBUG    1
+2026-04-28 03:16:35 DEBUG    0
+2026-04-28 03:16:35 DEBUG    1
+2026-04-28 03:16:35 DEBUG    0
+2026-04-28 03:16:35 DEBUG    1
+2026-04-28 03:16:35 DEBUG    ('loc', (2, -1))
