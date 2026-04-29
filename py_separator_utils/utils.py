@@ -55,10 +55,10 @@ def tuple_get(tup, index, default=None):
 
 class Progressbar:
     def __init__(self, total : int, max_updates : int = 100):
-        self.total = total
+        self.total = max(total, 1)
         self.done  = 0
         self.bar_len = 30
-        self.update_len = int(total/max_updates + 1)
+        self.update_len = int(total/max(max_updates, 1) + 1)
         self.update_pos = 0
 
     def _render(self) -> None:
