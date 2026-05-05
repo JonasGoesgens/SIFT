@@ -1,0 +1,58 @@
+--------------------- Slurm Task Prolog ------------------------
+Job ID: 2281745
+Job name: synth
+Host: cn-111
+Date: Mo 27. Apr 18:36:44 CEST 2026
+User: niklas.jansen
+Slurm account: rleap
+Slurm partition: rleap_cpu
+Work dir: 
+------------------
+Node usage:
+JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+2281743_0 rleap_cpu    synth niklas.j  R       0:00      1 cn-111
+2281743_1 rleap_cpu    synth niklas.j  R       0:00      1 cn-111
+2281743_2 rleap_cpu    synth niklas.j  R       0:00      1 cn-111
+2281743_3 rleap_cpu    synth niklas.j  R       0:00      1 cn-111
+------------------
+Show launch script with:
+sacct -B -j 
+------------------
+--------------------- Slurm Task Prolog ------------------------
+Mon Apr 27 18:36:44 CEST 2026
+[13, 7, 17, 0, 4, '23.79 s', 1000, 35, '365.08 s', 1600, 45]
+Process started at: Mon Apr 27 18:36:44 CEST 2026
+Process ended at: Mon Apr 27 18:42:50 CEST 2026
+Runtime: 366 Seconds.
+Resource usage:
+	Command being timed: "python3.12 /graph-separator/test.py -si -d pddl_files/logistics/logistics.pddl -i pddl_files/logistics/logistics-t1-plus.pddl -v pddl_files/logistics/logistics-t2.pddl -s 1000 -vs 20000 -n slogistics --run 1"
+	User time (seconds): 364.73
+	System time (seconds): 0.74
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 6:05.94
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 374948
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 155
+	Minor (reclaiming a frame) page faults: 290888
+	Voluntary context switches: 3499
+	Involuntary context switches: 657
+	Swaps: 0
+	File system inputs: 248
+	File system outputs: 240
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+--------------------- Slurm Task Epilog ------------------------
+Job ID: 2281745
+Time: Mo 27. Apr 18:42:50 CEST 2026
+Elapsed Time: 00:06:06
+Billing per second for TRES: billing=200,cpu=2,mem=40G,node=1
+Show resource usage with e.g.:
+sacct -j 2281745 -o Elapsed,TotalCPU,UserCPU,SystemCPU,MaxRSS,ReqTRES%60,MaxDiskRead,MaxDiskWrite
+--------------------- Slurm Task Epilog ------------------------

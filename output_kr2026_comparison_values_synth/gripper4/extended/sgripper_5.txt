@@ -1,0 +1,2532 @@
+{'gripper', 'room', 'ball'}
+{'gripper': {4, 5, 6}, 'room': {1, 11, 12, 7}, 'ball': {0, 2, 3, 8, 9, 10}}
+{'pick': {('free', (2,)), ('at', (0, 1)), ('gripper', (2,)), ('room', (1,)), ('at-robby', (1,)), ('ball', (0,))}, 'drop': {('carry', (0, 2)), ('gripper', (2,)), ('room', (1,)), ('at-robby', (1,)), ('ball', (0,))}, 'move': {('not-eq', (0, 1)), ('at-robby', (0,)), ('room', (0,)), ('room', (1,))}}
+{('ball', (-1,)), ('gripper', (-1,)), ('at', (None, -1)), ('at', (-1, None)), ('room', (-1,)), ('free', (-1,)), ('at', (0, -1)), ('at', (-1, 1)), ('at-robby', (-1,))}
+{('ball', (-1,)), ('gripper', (-1,)), ('carry', (-1, 2)), ('at-robby', (-1,)), ('carry', (0, -1)), ('carry', (None, -1)), ('room', (-1,)), ('carry', (-1, None))}
+{('not-eq', (None, -1)), ('not-eq', (-1, None)), ('not-eq', (-1, 1)), ('room', (-1,)), ('at-robby', (-1,)), ('not-eq', (0, -1))}
+7 7
+4 7
+1 7
+5 5
+2 5
+3 3
+2 3
+{'pick': {('at', (0, -1)): {1}, ('at-robby', (-1,)): {1}}, 'drop': {('carry', (-1, 2)): {0}, ('at-robby', (-1,)): {1}, ('carry', (0, -1)): {2}}, 'move': {('at-robby', (-1,)): {0}}}
+contained_args frozenset({0}) ('at', (0, -1))
+contained_args frozenset() ('at-robby', (-1,))
+For action pick there are at least 2 arguments needs, which can be [(0, 2)]
+contained_args frozenset({2}) ('carry', (-1, 2))
+contained_args frozenset() ('at-robby', (-1,))
+contained_args frozenset({0}) ('carry', (0, -1))
+For action drop there are at least 1 arguments needs, which can be [(2,), (0,)]
+contained_args frozenset() ('at-robby', (-1,))
+For action move there are at least 1 arguments needs, which can be [(1,)]
+{'pick': 2, 'drop': 1, 'move': 1}
+{'gripper', 'room', 'ball'}
+{'gripper': {4, 5, 6}, 'room': {1, 11, 12, 7}, 'ball': {0, 2, 3, 8, 9, 10}}
+dropped Args {'pick': {1}, 'drop': {0, 1}, 'move': {0}}
+possible preconditions {'pick': {'ball': {(0,)}, 'gripper': {(1,)}, 'at': set(), 'carry': set(), 'room': set(), 'at-robby': set(), 'free': {(1,)}, 'eq': set()}, 'move': {'ball': set(), 'gripper': set(), 'at': set(), 'carry': set(), 'room': {(0,)}, 'at-robby': set(), 'free': set(), 'eq': set()}, 'drop': {'ball': set(), 'gripper': {(0,)}, 'at': set(), 'carry': set(), 'room': set(), 'at-robby': set(), 'free': set(), 'eq': set()}}
+This is the 1. iteration
+23 23
+15 23
+15 15
+17 15
+8 15
+19 19
+14 19
+This is the 2. iteration
+30 30
+36 30
+1 30
+21 21
+36 21
+31 21
+31 31
+41 31
+3 31
+Positive Effects: 
+
+pick(0, 2) on at
+pick(1,) on free
+drop(1, 0) on carry
+move(1,) on at-robby
+
+ Negative Effects: 
+
+pick(0, 1) on carry
+drop(1, 2) on at
+drop(0,) on free
+move(0,) on at-robby
+
+THERE ARE NO MISSING ARGUMENTS
+There are no additional arguments
+{'pick': 3, 'move': 2, 'drop': 3}
+The 0. argument of the action pick refers to the query None
+The 1. argument of the action pick refers to the query None
+The 2. argument of the action pick refers to the query {('at', (0, -1))}
+The 0. argument of the action move refers to the query None
+The 1. argument of the action move refers to the query {('at-robby', (-1,))}
+The 0. argument of the action drop refers to the query None
+The 1. argument of the action drop refers to the query {('carry', (-1, 0))}
+The 2. argument of the action drop refers to the query {('at-robby', (-1,))}
+
+-----------------------------
+
+%%%%%%   Adding Querries   %%%%
+pick 0
+pick 1
+pick 2
+move 0
+move 1
+drop 0
+drop 1
+drop 2
+
+ %%%%%% Unique quries %%%%%%
+pick (2, frozenset({('at', (0, -1))}))
+pick (2, frozenset({('eq', (-1, 2))}))
+pick (2, frozenset({('at-robby', (-1,))}))
+pick (2, frozenset({('eq', (2, -1))}))
+move (0, frozenset({('eq', (-1, 0))}))
+move (0, frozenset({('eq', (0, -1))}))
+move (1, frozenset({('at-robby', (-1,))}))
+move (1, frozenset({('eq', (-1, 1))}))
+move (1, frozenset({('eq', (1, -1))}))
+drop (2, frozenset({('eq', (-1, 2))}))
+drop (0, frozenset({('carry', (1, -1))}))
+drop (2, frozenset({('eq', (2, -1))}))
+drop (2, frozenset({('at-robby', (-1,))}))
+drop (1, frozenset({('carry', (-1, 0))}))
+
+-----------------------------
+
+{'gripper', 'room', 'ball'}
+{'gripper': {4, 5, 6}, 'room': {1, 12, 13, 7}, 'ball': {0, 2, 3, 8, 9, 10, 11}}
+current_action:  move
+state, object_tuple : 206 (12,)
+raise5
+state, object_tuple : 136 (7,)
+raise5
+state, object_tuple : 2 (12,)
+raise5
+state, object_tuple : 35 (12,)
+raise5
+state, object_tuple : 146 (1,)
+raise5
+state, object_tuple : 281 (12,)
+raise5
+state, object_tuple : 263 (7,)
+raise5
+state, object_tuple : 122 (1,)
+raise5
+state, object_tuple : 64 (7,)
+raise5
+state, object_tuple : 200 (12,)
+raise5
+state, object_tuple : 112 (12,)
+raise5
+state, object_tuple : 2 (12,)
+raise5
+state, object_tuple : 209 (1,)
+raise5
+state, object_tuple : 184 (1,)
+raise5
+state, object_tuple : 64 (7,)
+raise5
+state, object_tuple : 43 (1,)
+raise5
+state, object_tuple : 34 (1,)
+raise5
+state, object_tuple : 166 (1,)
+raise5
+state, object_tuple : 88 (1,)
+raise5
+state, object_tuple : 24 (1,)
+raise5
+state, object_tuple : 10 (7,)
+raise5
+state, object_tuple : 84 (7,)
+raise5
+state, object_tuple : 99 (13,)
+raise5
+state, object_tuple : 153 (13,)
+raise5
+state, object_tuple : 97 (7,)
+raise5
+state, object_tuple : 230 (7,)
+raise5
+state, object_tuple : 146 (1,)
+raise5
+state, object_tuple : 187 (7,)
+raise5
+state, object_tuple : 288 (13,)
+raise5
+state, object_tuple : 71 (7,)
+raise5
+state, object_tuple : 171 (13,)
+raise5
+state, object_tuple : 116 (1,)
+raise5
+state, object_tuple : 161 (1,)
+raise5
+state, object_tuple : 110 (1,)
+raise5
+state, object_tuple : 283 (1,)
+raise5
+state, object_tuple : 27 (13,)
+raise5
+state, object_tuple : 298 (1,)
+raise5
+state, object_tuple : 256 (12,)
+raise5
+state, object_tuple : 44 (12,)
+raise5
+state, object_tuple : 183 (13,)
+raise5
+state, object_tuple : 291 (1,)
+raise5
+state, object_tuple : 294 (1,)
+raise5
+state, object_tuple : 124 (12,)
+raise5
+state, object_tuple : 25 (1,)
+raise5
+state, object_tuple : 248 (12,)
+raise5
+state, object_tuple : 233 (12,)
+raise5
+state, object_tuple : 267 (13,)
+raise5
+state, object_tuple : 233 (12,)
+raise5
+state, object_tuple : 104 (7,)
+raise5
+state, object_tuple : 179 (1,)
+raise5
+state, object_tuple : 91 (1,)
+raise5
+state, object_tuple : 47 (7,)
+raise5
+state, object_tuple : 208 (1,)
+raise5
+state, object_tuple : 291 (1,)
+raise5
+state, object_tuple : 151 (1,)
+raise5
+state, object_tuple : 110 (1,)
+raise5
+state, object_tuple : 249 (13,)
+raise5
+state, object_tuple : 165 (7,)
+raise5
+state, object_tuple : 137 (12,)
+raise5
+state, object_tuple : 110 (1,)
+raise5
+state, object_tuple : 204 (13,)
+raise5
+state, object_tuple : 103 (1,)
+raise5
+state, object_tuple : 160 (7,)
+raise5
+state, object_tuple : 52 (1,)
+raise5
+state, object_tuple : 254 (7,)
+raise5
+state, object_tuple : 62 (12,)
+raise5
+state, object_tuple : 196 (13,)
+raise5
+state, object_tuple : 163 (13,)
+raise5
+state, object_tuple : 109 (1,)
+raise5
+state, object_tuple : 98 (12,)
+raise5
+state, object_tuple : 37 (7,)
+raise5
+state, object_tuple : 114 (1,)
+raise5
+state, object_tuple : 58 (7,)
+raise5
+state, object_tuple : 263 (7,)
+raise5
+state, object_tuple : 198 (7,)
+raise5
+state, object_tuple : 291 (1,)
+raise5
+state, object_tuple : 278 (1,)
+raise5
+state, object_tuple : 2 (12,)
+raise5
+state, object_tuple : 67 (1,)
+raise5
+state, object_tuple : 290 (1,)
+raise5
+state, object_tuple : 121 (1,)
+raise5
+state, object_tuple : 2 (12,)
+raise5
+state, object_tuple : 214 (1,)
+raise5
+state, object_tuple : 47 (7,)
+raise5
+state, object_tuple : 171 (13,)
+raise5
+state, object_tuple : 127 (1,)
+raise5
+state, object_tuple : 236 (12,)
+raise5
+state, object_tuple : 297 (13,)
+raise5
+state, object_tuple : 236 (12,)
+raise5
+state, object_tuple : 249 (13,)
+raise5
+state, object_tuple : 254 (7,)
+raise5
+state, object_tuple : 40 (7,)
+raise5
+state, object_tuple : 16 (1,)
+raise5
+state, object_tuple : 280 (1,)
+raise5
+state, object_tuple : 124 (12,)
+raise5
+state, object_tuple : 183 (13,)
+raise5
+state, object_tuple : 118 (7,)
+raise5
+state, object_tuple : 119 (12,)
+raise5
+state, object_tuple : 216 (13,)
+raise5
+state, object_tuple : 297 (13,)
+raise5
+state, object_tuple : 233 (12,)
+raise5
+state, object_tuple : 169 (1,)
+raise5
+state, object_tuple : 65 (7,)
+raise5
+state, object_tuple : 173 (12,)
+raise5
+state, object_tuple : 233 (12,)
+raise5
+state, object_tuple : 300 (13,)
+raise5
+state, object_tuple : 300 (13,)
+raise5
+state, object_tuple : 67 (1,)
+raise5
+state, object_tuple : 196 (13,)
+raise5
+state, object_tuple : 254 (7,)
+raise5
+state, object_tuple : 145 (1,)
+raise5
+state, object_tuple : 203 (12,)
+raise5
+state, object_tuple : 156 (1,)
+raise5
+state, object_tuple : 282 (13,)
+raise5
+state, object_tuple : 240 (13,)
+raise5
+state, object_tuple : 232 (1,)
+raise5
+state, object_tuple : 284 (12,)
+raise5
+state, object_tuple : 263 (7,)
+raise5
+state, object_tuple : 168 (13,)
+raise5
+state, object_tuple : 98 (12,)
+raise5
+state, object_tuple : 175 (1,)
+raise5
+state, object_tuple : 28 (7,)
+raise5
+state, object_tuple : 102 (1,)
+raise5
+state, object_tuple : 174 (13,)
+raise5
+state, object_tuple : 281 (12,)
+raise5
+state, object_tuple : 148 (1,)
+raise5
+state, object_tuple : 58 (7,)
+raise5
+state, object_tuple : 53 (12,)
+raise5
+state, object_tuple : 258 (7,)
+raise5
+state, object_tuple : 173 (12,)
+raise5
+state, object_tuple : 180 (1,)
+raise5
+state, object_tuple : 204 (13,)
+raise5
+state, object_tuple : 17 (1,)
+raise5
+state, object_tuple : 290 (1,)
+raise5
+state, object_tuple : 295 (1,)
+raise5
+state, object_tuple : 81 (13,)
+raise5
+state, object_tuple : 198 (7,)
+raise5
+state, object_tuple : 16 (1,)
+raise5
+state, object_tuple : 150 (13,)
+raise5
+state, object_tuple : 278 (1,)
+raise5
+state, object_tuple : 290 (1,)
+raise5
+state, object_tuple : 274 (1,)
+raise5
+state, object_tuple : 169 (1,)
+raise5
+state, object_tuple : 52 (1,)
+raise5
+state, object_tuple : 248 (12,)
+raise5
+state, object_tuple : 80 (12,)
+raise5
+state, object_tuple : 39 (7,)
+raise5
+state, object_tuple : 278 (1,)
+raise5
+state, object_tuple : 189 (1,)
+raise5
+state, object_tuple : 5 (7,)
+raise5
+state, object_tuple : 19 (1,)
+raise5
+state, object_tuple : 78 (7,)
+raise5
+state, object_tuple : 215 (12,)
+raise5
+state, object_tuple : 216 (13,)
+raise5
+state, object_tuple : 258 (7,)
+raise5
+state, object_tuple : 218 (12,)
+raise5
+state, object_tuple : 225 (7,)
+raise5
+state, object_tuple : 150 (13,)
+raise5
+state, object_tuple : 175 (1,)
+raise5
+state, object_tuple : 299 (12,)
+raise5
+state, object_tuple : 249 (13,)
+raise5
+state, object_tuple : 202 (1,)
+raise5
+state, object_tuple : 138 (13,)
+raise5
+state, object_tuple : 138 (13,)
+raise5
+state, object_tuple : 172 (1,)
+raise5
+state, object_tuple : 101 (1,)
+raise5
+state, object_tuple : 111 (7,)
+raise5
+state, object_tuple : 17 (1,)
+raise5
+state, object_tuple : 3 (13,)
+raise5
+state, object_tuple : 190 (12,)
+raise5
+state, object_tuple : 221 (7,)
+raise5
+state, object_tuple : 277 (1,)
+raise5
+state, object_tuple : 122 (1,)
+raise5
+state, object_tuple : 112 (12,)
+raise5
+state, object_tuple : 291 (1,)
+raise5
+state, object_tuple : 198 (7,)
+raise5
+state, object_tuple : 21 (1,)
+raise5
+state, object_tuple : 255 (1,)
+raise5
+state, object_tuple : 155 (7,)
+raise5
+state, object_tuple : 199 (1,)
+raise5
+state, object_tuple : 162 (12,)
+raise5
+state, object_tuple : 152 (12,)
+raise5
+state, object_tuple : 278 (1,)
+raise5
+state, object_tuple : 98 (12,)
+raise5
+state, object_tuple : 22 (1,)
+raise5
+state, object_tuple : 147 (1,)
+raise5
+state, object_tuple : 84 (7,)
+raise5
+state, object_tuple : 79 (1,)
+raise5
+state, object_tuple : 200 (12,)
+raise5
+state, object_tuple : 265 (1,)
+raise5
+state, object_tuple : 75 (13,)
+raise5
+state, object_tuple : 222 (1,)
+raise5
+state, object_tuple : 153 (13,)
+raise5
+state, object_tuple : 101 (1,)
+raise5
+state, object_tuple : 281 (12,)
+raise5
+state, object_tuple : 38 (7,)
+raise5
+state, object_tuple : 289 (1,)
+raise5
+state, object_tuple : 147 (1,)
+raise5
+state, object_tuple : 120 (13,)
+raise5
+state, object_tuple : 73 (1,)
+raise5
+current_action:  pick
+state, object_tuple : 23 (11, 4)
+New Effects {0: {'at': {(11, 1)}, 'free': {(4,)}}, 1: {'carry': {(11, 4)}}}
+state, object_tuple : 156 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 107 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 1 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 9 (0, 4)
+New Effects {0: {'at': {(0, 7)}, 'free': {(4,)}}, 1: {'carry': {(0, 4)}}}
+state, object_tuple : 57 (2, 6)
+New Effects {0: {'at': {(2, 7)}, 'free': {(6,)}}, 1: {'carry': {(2, 6)}}}
+state, object_tuple : 242 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 25 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 109 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 210 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 50 (10, 5)
+New Effects {0: {'at': {(10, 7)}, 'free': {(5,)}}, 1: {'carry': {(10, 5)}}}
+state, object_tuple : 46 (2, 6)
+New Effects {0: {'at': {(2, 7)}, 'free': {(6,)}}, 1: {'carry': {(2, 6)}}}
+state, object_tuple : 56 (0, 6)
+New Effects {0: {'at': {(0, 7)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 103 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 66 (3, 4)
+New Effects {0: {'at': {(3, 7)}, 'free': {(4,)}}, 1: {'carry': {(3, 4)}}}
+state, object_tuple : 208 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 208 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 147 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 65 (2, 4)
+New Effects {0: {'at': {(2, 7)}, 'free': {(4,)}}, 1: {'carry': {(2, 4)}}}
+state, object_tuple : 292 (11, 4)
+New Effects {0: {'at': {(11, 1)}, 'free': {(4,)}}, 1: {'carry': {(11, 4)}}}
+state, object_tuple : 6 (0, 6)
+New Effects {0: {'at': {(0, 7)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 274 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 178 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 260 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 118 (2, 6)
+New Effects {0: {'at': {(2, 7)}, 'free': {(6,)}}, 1: {'carry': {(2, 6)}}}
+state, object_tuple : 10 (0, 6)
+New Effects {0: {'at': {(0, 7)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 146 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 278 (11, 4)
+New Effects {0: {'at': {(11, 1)}, 'free': {(4,)}}, 1: {'carry': {(11, 4)}}}
+state, object_tuple : 0 (2, 5)
+New Effects {0: {'at': {(2, 7)}, 'free': {(5,)}}, 1: {'carry': {(2, 5)}}}
+state, object_tuple : 279 (9, 4)
+New Effects {0: {'at': {(9, 1)}, 'free': {(4,)}}, 1: {'carry': {(9, 4)}}}
+state, object_tuple : 85 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 172 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 180 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 286 (11, 4)
+New Effects {0: {'at': {(11, 1)}, 'free': {(4,)}}, 1: {'carry': {(11, 4)}}}
+state, object_tuple : 277 (11, 4)
+New Effects {0: {'at': {(11, 1)}, 'free': {(4,)}}, 1: {'carry': {(11, 4)}}}
+state, object_tuple : 39 (0, 6)
+New Effects {0: {'at': {(0, 7)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 51 (0, 5)
+New Effects {0: {'at': {(0, 7)}, 'free': {(5,)}}, 1: {'carry': {(0, 5)}}}
+state, object_tuple : 289 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 271 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 19 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 294 (9, 4)
+New Effects {0: {'at': {(9, 1)}, 'free': {(4,)}}, 1: {'carry': {(9, 4)}}}
+state, object_tuple : 249 (10, 6)
+New Effects {0: {'at': {(10, 13)}, 'free': {(6,)}}, 1: {'carry': {(10, 6)}}}
+state, object_tuple : 133 (0, 5)
+New Effects {0: {'at': {(0, 7)}, 'free': {(5,)}}, 1: {'carry': {(0, 5)}}}
+state, object_tuple : 242 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 212 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 161 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 276 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 13 (3, 5)
+New Effects {0: {'at': {(3, 7)}, 'free': {(5,)}}, 1: {'carry': {(3, 5)}}}
+state, object_tuple : 189 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 33 (3, 5)
+New Effects {0: {'at': {(3, 7)}, 'free': {(5,)}}, 1: {'carry': {(3, 5)}}}
+state, object_tuple : 241 (8, 4)
+New Effects {0: {'at': {(8, 1)}, 'free': {(4,)}}, 1: {'carry': {(8, 4)}}}
+state, object_tuple : 290 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 15 (3, 5)
+New Effects {0: {'at': {(3, 7)}, 'free': {(5,)}}, 1: {'carry': {(3, 5)}}}
+state, object_tuple : 65 (2, 4)
+New Effects {0: {'at': {(2, 7)}, 'free': {(4,)}}, 1: {'carry': {(2, 4)}}}
+state, object_tuple : 205 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 46 (2, 6)
+New Effects {0: {'at': {(2, 7)}, 'free': {(6,)}}, 1: {'carry': {(2, 6)}}}
+state, object_tuple : 274 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 292 (9, 4)
+New Effects {0: {'at': {(9, 1)}, 'free': {(4,)}}, 1: {'carry': {(9, 4)}}}
+state, object_tuple : 166 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 268 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 100 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 146 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 9 (3, 4)
+New Effects {0: {'at': {(3, 7)}, 'free': {(4,)}}, 1: {'carry': {(3, 4)}}}
+state, object_tuple : 182 (2, 6)
+New Effects {0: {'at': {(2, 12)}, 'free': {(6,)}}, 1: {'carry': {(2, 6)}}}
+state, object_tuple : 101 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 249 (10, 5)
+New Effects {0: {'at': {(10, 13)}, 'free': {(5,)}}, 1: {'carry': {(10, 5)}}}
+state, object_tuple : 122 (9, 4)
+New Effects {0: {'at': {(9, 1)}, 'free': {(4,)}}, 1: {'carry': {(9, 4)}}}
+state, object_tuple : 283 (8, 4)
+New Effects {0: {'at': {(8, 1)}, 'free': {(4,)}}, 1: {'carry': {(8, 4)}}}
+state, object_tuple : 294 (8, 4)
+New Effects {0: {'at': {(8, 1)}, 'free': {(4,)}}, 1: {'carry': {(8, 4)}}}
+state, object_tuple : 166 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 279 (8, 4)
+New Effects {0: {'at': {(8, 1)}, 'free': {(4,)}}, 1: {'carry': {(8, 4)}}}
+state, object_tuple : 20 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 146 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 172 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 25 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 291 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 275 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 10 (10, 4)
+New Effects {0: {'at': {(10, 7)}, 'free': {(4,)}}, 1: {'carry': {(10, 4)}}}
+state, object_tuple : 118 (10, 6)
+New Effects {0: {'at': {(10, 7)}, 'free': {(6,)}}, 1: {'carry': {(10, 6)}}}
+state, object_tuple : 178 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 277 (9, 4)
+New Effects {0: {'at': {(9, 1)}, 'free': {(4,)}}, 1: {'carry': {(9, 4)}}}
+state, object_tuple : 1 (11, 4)
+New Effects {0: {'at': {(11, 1)}, 'free': {(4,)}}, 1: {'carry': {(11, 4)}}}
+state, object_tuple : 20 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 16 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 255 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 4 (3, 5)
+New Effects {0: {'at': {(3, 7)}, 'free': {(5,)}}, 1: {'carry': {(3, 5)}}}
+state, object_tuple : 142 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 47 (0, 6)
+New Effects {0: {'at': {(0, 7)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 56 (0, 6)
+New Effects {0: {'at': {(0, 7)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 60 (2, 5)
+New Effects {0: {'at': {(2, 7)}, 'free': {(5,)}}, 1: {'carry': {(2, 5)}}}
+state, object_tuple : 48 (0, 6)
+New Effects {0: {'at': {(0, 7)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 177 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 166 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 265 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 9 (0, 4)
+New Effects {0: {'at': {(0, 7)}, 'free': {(4,)}}, 1: {'carry': {(0, 4)}}}
+state, object_tuple : 255 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 59 (3, 5)
+New Effects {0: {'at': {(3, 7)}, 'free': {(5,)}}, 1: {'carry': {(3, 5)}}}
+state, object_tuple : 72 (3, 4)
+New Effects {0: {'at': {(3, 7)}, 'free': {(4,)}}, 1: {'carry': {(3, 4)}}}
+state, object_tuple : 72 (3, 4)
+New Effects {0: {'at': {(3, 7)}, 'free': {(4,)}}, 1: {'carry': {(3, 4)}}}
+state, object_tuple : 0 (3, 4)
+New Effects {0: {'at': {(3, 7)}, 'free': {(4,)}}, 1: {'carry': {(3, 4)}}}
+state, object_tuple : 283 (8, 4)
+New Effects {0: {'at': {(8, 1)}, 'free': {(4,)}}, 1: {'carry': {(8, 4)}}}
+state, object_tuple : 31 (10, 5)
+New Effects {0: {'at': {(10, 7)}, 'free': {(5,)}}, 1: {'carry': {(10, 5)}}}
+state, object_tuple : 208 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 143 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 247 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 13 (0, 4)
+New Effects {0: {'at': {(0, 7)}, 'free': {(4,)}}, 1: {'carry': {(0, 4)}}}
+state, object_tuple : 139 (0, 4)
+New Effects {0: {'at': {(0, 7)}, 'free': {(4,)}}, 1: {'carry': {(0, 4)}}}
+state, object_tuple : 148 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 1 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 260 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 212 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 149 (0, 5)
+New Effects {0: {'at': {(0, 12)}, 'free': {(5,)}}, 1: {'carry': {(0, 5)}}}
+state, object_tuple : 32 (2, 5)
+New Effects {0: {'at': {(2, 7)}, 'free': {(5,)}}, 1: {'carry': {(2, 5)}}}
+state, object_tuple : 91 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 10 (2, 6)
+New Effects {0: {'at': {(2, 7)}, 'free': {(6,)}}, 1: {'carry': {(2, 6)}}}
+state, object_tuple : 4 (3, 6)
+New Effects {0: {'at': {(3, 7)}, 'free': {(6,)}}, 1: {'carry': {(3, 6)}}}
+state, object_tuple : 88 (11, 4)
+New Effects {0: {'at': {(11, 1)}, 'free': {(4,)}}, 1: {'carry': {(11, 4)}}}
+state, object_tuple : 136 (10, 5)
+New Effects {0: {'at': {(10, 7)}, 'free': {(5,)}}, 1: {'carry': {(10, 5)}}}
+state, object_tuple : 118 (0, 4)
+New Effects {0: {'at': {(0, 7)}, 'free': {(4,)}}, 1: {'carry': {(0, 4)}}}
+state, object_tuple : 172 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 66 (3, 4)
+New Effects {0: {'at': {(3, 7)}, 'free': {(4,)}}, 1: {'carry': {(3, 4)}}}
+state, object_tuple : 175 (2, 6)
+New Effects {0: {'at': {(2, 1)}, 'free': {(6,)}}, 1: {'carry': {(2, 6)}}}
+state, object_tuple : 255 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 46 (10, 6)
+New Effects {0: {'at': {(10, 7)}, 'free': {(6,)}}, 1: {'carry': {(10, 6)}}}
+state, object_tuple : 177 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 100 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 209 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 116 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 280 (8, 4)
+New Effects {0: {'at': {(8, 1)}, 'free': {(4,)}}, 1: {'carry': {(8, 4)}}}
+state, object_tuple : 58 (3, 5)
+New Effects {0: {'at': {(3, 7)}, 'free': {(5,)}}, 1: {'carry': {(3, 5)}}}
+state, object_tuple : 151 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 149 (0, 6)
+New Effects {0: {'at': {(0, 12)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 14 (2, 5)
+New Effects {0: {'at': {(2, 7)}, 'free': {(5,)}}, 1: {'carry': {(2, 5)}}}
+state, object_tuple : 16 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 126 (11, 4)
+New Effects {0: {'at': {(11, 1)}, 'free': {(4,)}}, 1: {'carry': {(11, 4)}}}
+state, object_tuple : 18 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 271 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 156 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 117 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 18 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 73 (8, 4)
+New Effects {0: {'at': {(8, 1)}, 'free': {(4,)}}, 1: {'carry': {(8, 4)}}}
+state, object_tuple : 64 (3, 4)
+New Effects {0: {'at': {(3, 7)}, 'free': {(4,)}}, 1: {'carry': {(3, 4)}}}
+state, object_tuple : 216 (3, 6)
+New Effects {0: {'at': {(3, 13)}, 'free': {(6,)}}, 1: {'carry': {(3, 6)}}}
+state, object_tuple : 110 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 246 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 58 (2, 5)
+New Effects {0: {'at': {(2, 7)}, 'free': {(5,)}}, 1: {'carry': {(2, 5)}}}
+state, object_tuple : 209 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 235 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 205 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 40 (10, 5)
+New Effects {0: {'at': {(10, 7)}, 'free': {(5,)}}, 1: {'carry': {(10, 5)}}}
+state, object_tuple : 210 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 180 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 238 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 184 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 97 (3, 5)
+New Effects {0: {'at': {(3, 7)}, 'free': {(5,)}}, 1: {'carry': {(3, 5)}}}
+state, object_tuple : 268 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 79 (8, 4)
+New Effects {0: {'at': {(8, 1)}, 'free': {(4,)}}, 1: {'carry': {(8, 4)}}}
+state, object_tuple : 91 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 175 (2, 4)
+New Effects {0: {'at': {(2, 1)}, 'free': {(4,)}}, 1: {'carry': {(2, 4)}}}
+state, object_tuple : 298 (8, 4)
+New Effects {0: {'at': {(8, 1)}, 'free': {(4,)}}, 1: {'carry': {(8, 4)}}}
+state, object_tuple : 82 (2, 4)
+New Effects {0: {'at': {(2, 7)}, 'free': {(4,)}}, 1: {'carry': {(2, 4)}}}
+state, object_tuple : 100 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 42 (0, 5)
+New Effects {0: {'at': {(0, 7)}, 'free': {(5,)}}, 1: {'carry': {(0, 5)}}}
+state, object_tuple : 41 (0, 5)
+New Effects {0: {'at': {(0, 7)}, 'free': {(5,)}}, 1: {'carry': {(0, 5)}}}
+state, object_tuple : 55 (3, 6)
+New Effects {0: {'at': {(3, 7)}, 'free': {(6,)}}, 1: {'carry': {(3, 6)}}}
+state, object_tuple : 24 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 235 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 276 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 276 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 67 (8, 6)
+New Effects {0: {'at': {(8, 1)}, 'free': {(6,)}}, 1: {'carry': {(8, 6)}}}
+state, object_tuple : 64 (10, 4)
+New Effects {0: {'at': {(10, 7)}, 'free': {(4,)}}, 1: {'carry': {(10, 4)}}}
+state, object_tuple : 29 (10, 6)
+New Effects {0: {'at': {(10, 7)}, 'free': {(6,)}}, 1: {'carry': {(10, 6)}}}
+state, object_tuple : 16 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 244 (9, 6)
+New Effects {0: {'at': {(9, 1)}, 'free': {(6,)}}, 1: {'carry': {(9, 6)}}}
+state, object_tuple : 149 (0, 4)
+New Effects {0: {'at': {(0, 12)}, 'free': {(4,)}}, 1: {'carry': {(0, 4)}}}
+state, object_tuple : 199 (9, 5)
+New Effects {0: {'at': {(9, 1)}, 'free': {(5,)}}, 1: {'carry': {(9, 5)}}}
+state, object_tuple : 265 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 64 (3, 4)
+New Effects {0: {'at': {(3, 7)}, 'free': {(4,)}}, 1: {'carry': {(3, 4)}}}
+state, object_tuple : 14 (0, 4)
+New Effects {0: {'at': {(0, 7)}, 'free': {(4,)}}, 1: {'carry': {(0, 4)}}}
+state, object_tuple : 38 (0, 6)
+New Effects {0: {'at': {(0, 7)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 60 (2, 5)
+New Effects {0: {'at': {(2, 7)}, 'free': {(5,)}}, 1: {'carry': {(2, 5)}}}
+state, object_tuple : 83 (0, 4)
+New Effects {0: {'at': {(0, 7)}, 'free': {(4,)}}, 1: {'carry': {(0, 4)}}}
+state, object_tuple : 4 (10, 6)
+New Effects {0: {'at': {(10, 7)}, 'free': {(6,)}}, 1: {'carry': {(10, 6)}}}
+state, object_tuple : 10 (0, 6)
+New Effects {0: {'at': {(0, 7)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 61 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 41 (10, 5)
+New Effects {0: {'at': {(10, 7)}, 'free': {(5,)}}, 1: {'carry': {(10, 5)}}}
+state, object_tuple : 94 (11, 5)
+New Effects {0: {'at': {(11, 1)}, 'free': {(5,)}}, 1: {'carry': {(11, 5)}}}
+state, object_tuple : 52 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 77 (10, 4)
+New Effects {0: {'at': {(10, 7)}, 'free': {(4,)}}, 1: {'carry': {(10, 4)}}}
+state, object_tuple : 38 (0, 6)
+New Effects {0: {'at': {(0, 7)}, 'free': {(6,)}}, 1: {'carry': {(0, 6)}}}
+state, object_tuple : 214 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 128 (10, 4)
+New Effects {0: {'at': {(10, 7)}, 'free': {(4,)}}, 1: {'carry': {(10, 4)}}}
+state, object_tuple : 32 (10, 5)
+New Effects {0: {'at': {(10, 7)}, 'free': {(5,)}}, 1: {'carry': {(10, 5)}}}
+state, object_tuple : 57 (2, 6)
+New Effects {0: {'at': {(2, 7)}, 'free': {(6,)}}, 1: {'carry': {(2, 6)}}}
+state, object_tuple : 21 (8, 4)
+New Effects {0: {'at': {(8, 1)}, 'free': {(4,)}}, 1: {'carry': {(8, 4)}}}
+state, object_tuple : 4 (3, 5)
+New Effects {0: {'at': {(3, 7)}, 'free': {(5,)}}, 1: {'carry': {(3, 5)}}}
+state, object_tuple : 250 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+state, object_tuple : 247 (8, 5)
+New Effects {0: {'at': {(8, 1)}, 'free': {(5,)}}, 1: {'carry': {(8, 5)}}}
+state, object_tuple : 8 (10, 6)
+New Effects {0: {'at': {(10, 7)}, 'free': {(6,)}}, 1: {'carry': {(10, 6)}}}
+state, object_tuple : 194 (11, 6)
+New Effects {0: {'at': {(11, 1)}, 'free': {(6,)}}, 1: {'carry': {(11, 6)}}}
+current_action:  drop
+state, object_tuple : 33 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 7)}, 'free': {(6,)}}}
+state, object_tuple : 289 (4,)
+New Effects {0: {'carry': {(8, 4)}}, 1: {'at': {(8, 1)}, 'free': {(4,)}}}
+state, object_tuple : 159 (6,)
+New Effects {0: {'carry': {(2, 6)}}, 1: {'at': {(2, 7)}, 'free': {(6,)}}}
+state, object_tuple : 253 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 7)}, 'free': {(5,)}}}
+state, object_tuple : 101 (4,)
+New Effects {0: {'carry': {(8, 4)}}, 1: {'at': {(8, 1)}, 'free': {(4,)}}}
+state, object_tuple : 239 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 12)}, 'free': {(6,)}}}
+state, object_tuple : 37 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 7)}, 'free': {(4,)}}}
+state, object_tuple : 148 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 1)}, 'free': {(4,)}}}
+state, object_tuple : 55 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 7)}, 'free': {(5,)}}}
+state, object_tuple : 135 (6,)
+New Effects {0: {'carry': {(8, 6)}}, 1: {'at': {(8, 13)}, 'free': {(6,)}}}
+state, object_tuple : 43 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 1)}, 'free': {(4,)}}}
+state, object_tuple : 210 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 1)}, 'free': {(4,)}}}
+state, object_tuple : 42 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 7)}, 'free': {(6,)}}}
+state, object_tuple : 84 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 7)}, 'free': {(6,)}}}
+state, object_tuple : 99 (4,)
+New Effects {0: {'carry': {(8, 4)}}, 1: {'at': {(8, 13)}, 'free': {(4,)}}}
+state, object_tuple : 5 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 7)}, 'free': {(4,)}}}
+state, object_tuple : 121 (5,)
+New Effects {0: {'carry': {(8, 5)}}, 1: {'at': {(8, 1)}, 'free': {(5,)}}}
+state, object_tuple : 31 (6,)
+New Effects {0: {'carry': {(2, 6)}}, 1: {'at': {(2, 7)}, 'free': {(6,)}}}
+state, object_tuple : 88 (6,)
+New Effects {0: {'carry': {(2, 6)}}, 1: {'at': {(2, 1)}, 'free': {(6,)}}}
+state, object_tuple : 54 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 13)}, 'free': {(4,)}}}
+state, object_tuple : 102 (4,)
+New Effects {0: {'carry': {(8, 4)}}, 1: {'at': {(8, 1)}, 'free': {(4,)}}}
+state, object_tuple : 203 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 12)}, 'free': {(6,)}}}
+state, object_tuple : 17 (4,)
+New Effects {0: {'carry': {(9, 4)}}, 1: {'at': {(9, 1)}, 'free': {(4,)}}}
+state, object_tuple : 226 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 7)}, 'free': {(6,)}}}
+state, object_tuple : 256 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 12)}, 'free': {(4,)}}}
+state, object_tuple : 250 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 1)}, 'free': {(5,)}}}
+state, object_tuple : 189 (5,)
+New Effects {0: {'carry': {(3, 5)}}, 1: {'at': {(3, 1)}, 'free': {(5,)}}}
+state, object_tuple : 283 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 1)}, 'free': {(6,)}}}
+state, object_tuple : 97 (4,)
+New Effects {0: {'carry': {(8, 4)}}, 1: {'at': {(8, 7)}, 'free': {(4,)}}}
+state, object_tuple : 95 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 12)}, 'free': {(6,)}}}
+state, object_tuple : 198 (5,)
+New Effects {0: {'carry': {(10, 5)}}, 1: {'at': {(10, 7)}, 'free': {(5,)}}}
+state, object_tuple : 17 (4,)
+New Effects {0: {'carry': {(9, 4)}}, 1: {'at': {(9, 1)}, 'free': {(4,)}}}
+state, object_tuple : 57 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 7)}, 'free': {(4,)}}}
+state, object_tuple : 236 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 12)}, 'free': {(4,)}}}
+state, object_tuple : 31 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 7)}, 'free': {(4,)}}}
+state, object_tuple : 242 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 1)}, 'free': {(4,)}}}
+state, object_tuple : 132 (6,)
+New Effects {0: {'carry': {(9, 6)}}, 1: {'at': {(9, 1)}, 'free': {(6,)}}}
+state, object_tuple : 196 (5,)
+New Effects {0: {'carry': {(10, 5)}}, 1: {'at': {(10, 13)}, 'free': {(5,)}}}
+state, object_tuple : 122 (5,)
+New Effects {0: {'carry': {(8, 5)}}, 1: {'at': {(8, 1)}, 'free': {(5,)}}}
+state, object_tuple : 95 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 12)}, 'free': {(6,)}}}
+state, object_tuple : 133 (6,)
+New Effects {0: {'carry': {(8, 6)}}, 1: {'at': {(8, 7)}, 'free': {(6,)}}}
+state, object_tuple : 107 (5,)
+New Effects {0: {'carry': {(8, 5)}}, 1: {'at': {(8, 1)}, 'free': {(5,)}}}
+state, object_tuple : 132 (5,)
+New Effects {0: {'carry': {(11, 5)}}, 1: {'at': {(11, 1)}, 'free': {(5,)}}}
+state, object_tuple : 185 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 12)}, 'free': {(4,)}}}
+state, object_tuple : 6 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 7)}, 'free': {(4,)}}}
+state, object_tuple : 84 (5,)
+New Effects {0: {'carry': {(10, 5)}}, 1: {'at': {(10, 7)}, 'free': {(5,)}}}
+state, object_tuple : 113 (4,)
+New Effects {0: {'carry': {(11, 4)}}, 1: {'at': {(11, 13)}, 'free': {(4,)}}}
+state, object_tuple : 180 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 1)}, 'free': {(4,)}}}
+state, object_tuple : 92 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 12)}, 'free': {(6,)}}}
+state, object_tuple : 218 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 12)}, 'free': {(4,)}}}
+state, object_tuple : 300 (5,)
+New Effects {0: {'carry': {(2, 5)}}, 1: {'at': {(2, 13)}, 'free': {(5,)}}}
+state, object_tuple : 81 (5,)
+New Effects {0: {'carry': {(10, 5)}}, 1: {'at': {(10, 13)}, 'free': {(5,)}}}
+state, object_tuple : 243 (5,)
+New Effects {0: {'carry': {(9, 5)}}, 1: {'at': {(9, 1)}, 'free': {(5,)}}}
+state, object_tuple : 264 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 7)}, 'free': {(4,)}}}
+state, object_tuple : 263 (6,)
+New Effects {0: {'carry': {(0, 6)}}, 1: {'at': {(0, 7)}, 'free': {(6,)}}}
+state, object_tuple : 96 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 13)}, 'free': {(6,)}}}
+state, object_tuple : 202 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 1)}, 'free': {(6,)}}}
+state, object_tuple : 282 (6,)
+New Effects {0: {'carry': {(2, 6)}}, 1: {'at': {(2, 13)}, 'free': {(6,)}}}
+state, object_tuple : 120 (5,)
+New Effects {0: {'carry': {(8, 5)}}, 1: {'at': {(8, 13)}, 'free': {(5,)}}}
+state, object_tuple : 271 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 1)}, 'free': {(4,)}}}
+state, object_tuple : 233 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 12)}, 'free': {(4,)}}}
+state, object_tuple : 222 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 1)}, 'free': {(4,)}}}
+state, object_tuple : 77 (5,)
+New Effects {0: {'carry': {(3, 5)}}, 1: {'at': {(3, 7)}, 'free': {(5,)}}}
+state, object_tuple : 172 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 1)}, 'free': {(4,)}}}
+state, object_tuple : 41 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 7)}, 'free': {(4,)}}}
+state, object_tuple : 82 (5,)
+New Effects {0: {'carry': {(10, 5)}}, 1: {'at': {(10, 7)}, 'free': {(5,)}}}
+state, object_tuple : 28 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 7)}, 'free': {(4,)}}}
+state, object_tuple : 189 (5,)
+New Effects {0: {'carry': {(3, 5)}}, 1: {'at': {(3, 1)}, 'free': {(5,)}}}
+state, object_tuple : 253 (6,)
+New Effects {0: {'carry': {(2, 6)}}, 1: {'at': {(2, 7)}, 'free': {(6,)}}}
+state, object_tuple : 200 (6,)
+New Effects {0: {'carry': {(0, 6)}}, 1: {'at': {(0, 12)}, 'free': {(6,)}}}
+state, object_tuple : 118 (5,)
+New Effects {0: {'carry': {(8, 5)}}, 1: {'at': {(8, 7)}, 'free': {(5,)}}}
+state, object_tuple : 154 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 7)}, 'free': {(4,)}}}
+state, object_tuple : 222 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 1)}, 'free': {(4,)}}}
+state, object_tuple : 196 (5,)
+New Effects {0: {'carry': {(10, 5)}}, 1: {'at': {(10, 13)}, 'free': {(5,)}}}
+state, object_tuple : 67 (5,)
+New Effects {0: {'carry': {(2, 5)}}, 1: {'at': {(2, 1)}, 'free': {(5,)}}}
+state, object_tuple : 7 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 7)}, 'free': {(4,)}}}
+state, object_tuple : 239 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 12)}, 'free': {(6,)}}}
+state, object_tuple : 84 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 7)}, 'free': {(6,)}}}
+state, object_tuple : 117 (6,)
+New Effects {0: {'carry': {(9, 6)}}, 1: {'at': {(9, 1)}, 'free': {(6,)}}}
+state, object_tuple : 17 (4,)
+New Effects {0: {'carry': {(9, 4)}}, 1: {'at': {(9, 1)}, 'free': {(4,)}}}
+state, object_tuple : 91 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 1)}, 'free': {(6,)}}}
+state, object_tuple : 227 (5,)
+New Effects {0: {'carry': {(10, 5)}}, 1: {'at': {(10, 1)}, 'free': {(5,)}}}
+state, object_tuple : 272 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 12)}, 'free': {(6,)}}}
+state, object_tuple : 16 (4,)
+New Effects {0: {'carry': {(8, 4)}}, 1: {'at': {(8, 1)}, 'free': {(4,)}}}
+state, object_tuple : 197 (6,)
+New Effects {0: {'carry': {(0, 6)}}, 1: {'at': {(0, 7)}, 'free': {(6,)}}}
+state, object_tuple : 22 (6,)
+New Effects {0: {'carry': {(8, 6)}}, 1: {'at': {(8, 1)}, 'free': {(6,)}}}
+state, object_tuple : 210 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 1)}, 'free': {(4,)}}}
+state, object_tuple : 260 (5,)
+New Effects {0: {'carry': {(3, 5)}}, 1: {'at': {(3, 1)}, 'free': {(5,)}}}
+state, object_tuple : 13 (6,)
+New Effects {0: {'carry': {(2, 6)}}, 1: {'at': {(2, 7)}, 'free': {(6,)}}}
+state, object_tuple : 129 (5,)
+New Effects {0: {'carry': {(11, 5)}}, 1: {'at': {(11, 12)}, 'free': {(5,)}}}
+state, object_tuple : 185 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 12)}, 'free': {(4,)}}}
+state, object_tuple : 23 (6,)
+New Effects {0: {'carry': {(9, 6)}}, 1: {'at': {(9, 1)}, 'free': {(6,)}}}
+state, object_tuple : 12 (6,)
+New Effects {0: {'carry': {(0, 6)}}, 1: {'at': {(0, 7)}, 'free': {(6,)}}}
+state, object_tuple : 186 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 13)}, 'free': {(5,)}}}
+state, object_tuple : 292 (6,)
+New Effects {0: {'carry': {(8, 6)}}, 1: {'at': {(8, 1)}, 'free': {(6,)}}}
+state, object_tuple : 124 (5,)
+New Effects {0: {'carry': {(9, 5)}}, 1: {'at': {(9, 12)}, 'free': {(5,)}}}
+state, object_tuple : 56 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 7)}, 'free': {(4,)}}}
+state, object_tuple : 218 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 12)}, 'free': {(4,)}}}
+state, object_tuple : 237 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 13)}, 'free': {(4,)}}}
+state, object_tuple : 266 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 12)}, 'free': {(4,)}}}
+state, object_tuple : 225 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 7)}, 'free': {(4,)}}}
+state, object_tuple : 139 (6,)
+New Effects {0: {'carry': {(11, 6)}}, 1: {'at': {(11, 7)}, 'free': {(6,)}}}
+state, object_tuple : 235 (6,)
+New Effects {0: {'carry': {(2, 6)}}, 1: {'at': {(2, 1)}, 'free': {(6,)}}}
+state, object_tuple : 37 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 7)}, 'free': {(4,)}}}
+state, object_tuple : 25 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 1)}, 'free': {(4,)}}}
+state, object_tuple : 42 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 7)}, 'free': {(6,)}}}
+state, object_tuple : 255 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 1)}, 'free': {(4,)}}}
+state, object_tuple : 240 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 13)}, 'free': {(4,)}}}
+state, object_tuple : 246 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 1)}, 'free': {(4,)}}}
+state, object_tuple : 50 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 7)}, 'free': {(4,)}}}
+state, object_tuple : 218 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 12)}, 'free': {(5,)}}}
+state, object_tuple : 184 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 1)}, 'free': {(4,)}}}
+state, object_tuple : 66 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 7)}, 'free': {(6,)}}}
+state, object_tuple : 86 (6,)
+New Effects {0: {'carry': {(0, 6)}}, 1: {'at': {(0, 12)}, 'free': {(6,)}}}
+state, object_tuple : 259 (5,)
+New Effects {0: {'carry': {(2, 5)}}, 1: {'at': {(2, 7)}, 'free': {(5,)}}}
+state, object_tuple : 279 (6,)
+New Effects {0: {'carry': {(11, 6)}}, 1: {'at': {(11, 1)}, 'free': {(6,)}}}
+state, object_tuple : 62 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 12)}, 'free': {(5,)}}}
+state, object_tuple : 39 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 7)}, 'free': {(4,)}}}
+state, object_tuple : 21 (5,)
+New Effects {0: {'carry': {(11, 5)}}, 1: {'at': {(11, 1)}, 'free': {(5,)}}}
+state, object_tuple : 97 (4,)
+New Effects {0: {'carry': {(8, 4)}}, 1: {'at': {(8, 7)}, 'free': {(4,)}}}
+state, object_tuple : 39 (5,)
+New Effects {0: {'carry': {(10, 5)}}, 1: {'at': {(10, 7)}, 'free': {(5,)}}}
+state, object_tuple : 251 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 12)}, 'free': {(4,)}}}
+state, object_tuple : 256 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 12)}, 'free': {(4,)}}}
+state, object_tuple : 265 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 1)}, 'free': {(4,)}}}
+state, object_tuple : 186 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 13)}, 'free': {(4,)}}}
+state, object_tuple : 135 (6,)
+New Effects {0: {'carry': {(8, 6)}}, 1: {'at': {(8, 13)}, 'free': {(6,)}}}
+state, object_tuple : 239 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 12)}, 'free': {(4,)}}}
+state, object_tuple : 212 (6,)
+New Effects {0: {'carry': {(8, 6)}}, 1: {'at': {(8, 1)}, 'free': {(6,)}}}
+state, object_tuple : 213 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 1)}, 'free': {(4,)}}}
+state, object_tuple : 285 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 13)}, 'free': {(5,)}}}
+state, object_tuple : 247 (6,)
+New Effects {0: {'carry': {(11, 6)}}, 1: {'at': {(11, 1)}, 'free': {(6,)}}}
+state, object_tuple : 177 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 1)}, 'free': {(4,)}}}
+state, object_tuple : 184 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 1)}, 'free': {(5,)}}}
+state, object_tuple : 55 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 7)}, 'free': {(5,)}}}
+state, object_tuple : 156 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 1)}, 'free': {(4,)}}}
+state, object_tuple : 13 (6,)
+New Effects {0: {'carry': {(2, 6)}}, 1: {'at': {(2, 7)}, 'free': {(6,)}}}
+state, object_tuple : 239 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 12)}, 'free': {(6,)}}}
+state, object_tuple : 176 (5,)
+New Effects {0: {'carry': {(8, 5)}}, 1: {'at': {(8, 1)}, 'free': {(5,)}}}
+state, object_tuple : 284 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 12)}, 'free': {(6,)}}}
+state, object_tuple : 281 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 12)}, 'free': {(5,)}}}
+state, object_tuple : 5 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 7)}, 'free': {(4,)}}}
+state, object_tuple : 41 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 7)}, 'free': {(6,)}}}
+state, object_tuple : 275 (4,)
+New Effects {0: {'carry': {(9, 4)}}, 1: {'at': {(9, 1)}, 'free': {(4,)}}}
+state, object_tuple : 163 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 13)}, 'free': {(4,)}}}
+state, object_tuple : 6 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 7)}, 'free': {(4,)}}}
+state, object_tuple : 204 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 13)}, 'free': {(4,)}}}
+state, object_tuple : 105 (4,)
+New Effects {0: {'carry': {(9, 4)}}, 1: {'at': {(9, 12)}, 'free': {(4,)}}}
+state, object_tuple : 219 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 13)}, 'free': {(4,)}}}
+state, object_tuple : 44 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 12)}, 'free': {(4,)}}}
+state, object_tuple : 100 (4,)
+New Effects {0: {'carry': {(8, 4)}}, 1: {'at': {(8, 1)}, 'free': {(4,)}}}
+state, object_tuple : 122 (5,)
+New Effects {0: {'carry': {(8, 5)}}, 1: {'at': {(8, 1)}, 'free': {(5,)}}}
+state, object_tuple : 246 (6,)
+New Effects {0: {'carry': {(9, 6)}}, 1: {'at': {(9, 1)}, 'free': {(6,)}}}
+state, object_tuple : 130 (5,)
+New Effects {0: {'carry': {(11, 5)}}, 1: {'at': {(11, 13)}, 'free': {(5,)}}}
+state, object_tuple : 191 (5,)
+New Effects {0: {'carry': {(3, 5)}}, 1: {'at': {(3, 13)}, 'free': {(5,)}}}
+state, object_tuple : 289 (4,)
+New Effects {0: {'carry': {(8, 4)}}, 1: {'at': {(8, 1)}, 'free': {(4,)}}}
+state, object_tuple : 210 (5,)
+New Effects {0: {'carry': {(9, 5)}}, 1: {'at': {(9, 1)}, 'free': {(5,)}}}
+state, object_tuple : 119 (5,)
+New Effects {0: {'carry': {(8, 5)}}, 1: {'at': {(8, 12)}, 'free': {(5,)}}}
+state, object_tuple : 206 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 12)}, 'free': {(4,)}}}
+state, object_tuple : 67 (5,)
+New Effects {0: {'carry': {(2, 5)}}, 1: {'at': {(2, 1)}, 'free': {(5,)}}}
+state, object_tuple : 53 (4,)
+New Effects {0: {'carry': {(10, 4)}}, 1: {'at': {(10, 12)}, 'free': {(4,)}}}
+state, object_tuple : 145 (5,)
+New Effects {0: {'carry': {(11, 5)}}, 1: {'at': {(11, 1)}, 'free': {(5,)}}}
+state, object_tuple : 87 (6,)
+New Effects {0: {'carry': {(0, 6)}}, 1: {'at': {(0, 13)}, 'free': {(6,)}}}
+state, object_tuple : 141 (6,)
+New Effects {0: {'carry': {(11, 6)}}, 1: {'at': {(11, 13)}, 'free': {(6,)}}}
+state, object_tuple : 140 (6,)
+New Effects {0: {'carry': {(11, 6)}}, 1: {'at': {(11, 12)}, 'free': {(6,)}}}
+state, object_tuple : 66 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 7)}, 'free': {(6,)}}}
+state, object_tuple : 172 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 1)}, 'free': {(4,)}}}
+state, object_tuple : 298 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 1)}, 'free': {(6,)}}}
+state, object_tuple : 51 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 7)}, 'free': {(6,)}}}
+state, object_tuple : 84 (5,)
+New Effects {0: {'carry': {(10, 5)}}, 1: {'at': {(10, 7)}, 'free': {(5,)}}}
+state, object_tuple : 114 (4,)
+New Effects {0: {'carry': {(11, 4)}}, 1: {'at': {(11, 1)}, 'free': {(4,)}}}
+state, object_tuple : 38 (5,)
+New Effects {0: {'carry': {(3, 5)}}, 1: {'at': {(3, 7)}, 'free': {(5,)}}}
+state, object_tuple : 169 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 1)}, 'free': {(6,)}}}
+state, object_tuple : 235 (6,)
+New Effects {0: {'carry': {(2, 6)}}, 1: {'at': {(2, 1)}, 'free': {(6,)}}}
+state, object_tuple : 185 (5,)
+New Effects {0: {'carry': {(0, 5)}}, 1: {'at': {(0, 12)}, 'free': {(5,)}}}
+state, object_tuple : 145 (5,)
+New Effects {0: {'carry': {(11, 5)}}, 1: {'at': {(11, 1)}, 'free': {(5,)}}}
+state, object_tuple : 116 (6,)
+New Effects {0: {'carry': {(8, 6)}}, 1: {'at': {(8, 1)}, 'free': {(6,)}}}
+state, object_tuple : 10 (5,)
+New Effects {0: {'carry': {(3, 5)}}, 1: {'at': {(3, 7)}, 'free': {(5,)}}}
+state, object_tuple : 171 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 13)}, 'free': {(4,)}}}
+state, object_tuple : 224 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 13)}, 'free': {(4,)}}}
+state, object_tuple : 173 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 12)}, 'free': {(4,)}}}
+state, object_tuple : 72 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 7)}, 'free': {(6,)}}}
+state, object_tuple : 14 (6,)
+New Effects {0: {'carry': {(3, 6)}}, 1: {'at': {(3, 7)}, 'free': {(6,)}}}
+state, object_tuple : 220 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 7)}, 'free': {(4,)}}}
+state, object_tuple : 109 (4,)
+New Effects {0: {'carry': {(9, 4)}}, 1: {'at': {(9, 1)}, 'free': {(4,)}}}
+state, object_tuple : 101 (4,)
+New Effects {0: {'carry': {(8, 4)}}, 1: {'at': {(8, 1)}, 'free': {(4,)}}}
+state, object_tuple : 206 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 12)}, 'free': {(6,)}}}
+state, object_tuple : 234 (6,)
+New Effects {0: {'carry': {(0, 6)}}, 1: {'at': {(0, 13)}, 'free': {(6,)}}}
+state, object_tuple : 4 (4,)
+New Effects {0: {'carry': {(0, 4)}}, 1: {'at': {(0, 7)}, 'free': {(4,)}}}
+state, object_tuple : 292 (6,)
+New Effects {0: {'carry': {(8, 6)}}, 1: {'at': {(8, 1)}, 'free': {(6,)}}}
+state, object_tuple : 70 (6,)
+New Effects {0: {'carry': {(0, 6)}}, 1: {'at': {(0, 7)}, 'free': {(6,)}}}
+state, object_tuple : 181 (6,)
+New Effects {0: {'carry': {(11, 6)}}, 1: {'at': {(11, 1)}, 'free': {(6,)}}}
+state, object_tuple : 117 (4,)
+New Effects {0: {'carry': {(11, 4)}}, 1: {'at': {(11, 1)}, 'free': {(4,)}}}
+state, object_tuple : 30 (5,)
+New Effects {0: {'carry': {(10, 5)}}, 1: {'at': {(10, 7)}, 'free': {(5,)}}}
+state, object_tuple : 112 (4,)
+New Effects {0: {'carry': {(11, 4)}}, 1: {'at': {(11, 12)}, 'free': {(4,)}}}
+state, object_tuple : 83 (6,)
+New Effects {0: {'carry': {(2, 6)}}, 1: {'at': {(2, 7)}, 'free': {(6,)}}}
+state, object_tuple : 35 (4,)
+New Effects {0: {'carry': {(2, 4)}}, 1: {'at': {(2, 12)}, 'free': {(4,)}}}
+state, object_tuple : 15 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 7)}, 'free': {(6,)}}}
+state, object_tuple : 17 (4,)
+New Effects {0: {'carry': {(9, 4)}}, 1: {'at': {(9, 1)}, 'free': {(4,)}}}
+state, object_tuple : 44 (4,)
+New Effects {0: {'carry': {(3, 4)}}, 1: {'at': {(3, 12)}, 'free': {(4,)}}}
+state, object_tuple : 188 (6,)
+New Effects {0: {'carry': {(10, 6)}}, 1: {'at': {(10, 7)}, 'free': {(6,)}}}
+current_action:  pick
+state, object_tuple : 205 (0, 4)
+Failed here2
+raise5
+state, object_tuple : 284 (2, 4)
+state, object_tuple : 204 (0, 4)
+Failed here2
+raise5
+state, object_tuple : 140 (9, 6)
+Failed here2
+raise5
+state, object_tuple : 89 (2, 6)
+add1
+state, object_tuple : 43 (10, 6)
+state, object_tuple : 101 (8, 4)
+add1
+state, object_tuple : 109 (3, 6)
+Failed here2
+raise5
+state, object_tuple : 242 (0, 4)
+Failed here2
+raise5
+state, object_tuple : 74 (10, 4)
+state, object_tuple : 147 (0, 4)
+add1
+state, object_tuple : 263 (10, 5)
+add1
+state, object_tuple : 280 (9, 5)
+Failed here2
+raise5
+state, object_tuple : 196 (3, 5)
+Failed here2
+raise5
+state, object_tuple : 158 (8, 5)
+Failed here2
+raise5
+state, object_tuple : 291 (3, 5)
+Failed here2
+raise5
+state, object_tuple : 177 (3, 4)
+Failed here2
+raise5
+state, object_tuple : 115 (9, 6)
+add1
+state, object_tuple : 113 (3, 4)
+Failed here2
+raise5
+state, object_tuple : 110 (10, 6)
+Failed here2
+raise5
+state, object_tuple : 34 (0, 4)
+Failed here2
+raise5
+state, object_tuple : 230 (9, 4)
+Failed here2
+raise5
+state, object_tuple : 230 (8, 5)
+Failed here2
+raise5
+state, object_tuple : 297 (11, 4)
+state, object_tuple : 292 (0, 5)
+Failed here2
+raise5
+state, object_tuple : 93 (0, 6)
+Failed here2
+raise5
+state, object_tuple : 47 (9, 5)
+Failed here2
+raise5
+state, object_tuple : 184 (0, 5)
+add1
+state, object_tuple : 37 (0, 4)
+add1
+state, object_tuple : 282 (8, 5)
+Failed here2
+raise5
+state, object_tuple : 80 (0, 4)
+state, object_tuple : 24 (0, 5)
+state, object_tuple : 277 (3, 4)
+state, object_tuple : 54 (3, 5)
+state, object_tuple : 253 (3, 4)
+Failed here2
+raise5
+state, object_tuple : 280 (11, 5)
+Failed here2
+raise5
+state, object_tuple : 120 (9, 6)
+state, object_tuple : 153 (11, 6)
+state, object_tuple : 141 (10, 5)
+state, object_tuple : 154 (11, 4)
+Failed here2
+raise5
+state, object_tuple : 243 (2, 4)
+Failed here2
+raise5
+state, object_tuple : 22 (11, 6)
+Failed here2
+raise5
+state, object_tuple : 254 (9, 6)
+Failed here2
+raise5
+state, object_tuple : 112 (8, 6)
+state, object_tuple : 114 (11, 5)
+add1
+state, object_tuple : 16 (0, 4)
+Failed here2
+raise5
+state, object_tuple : 128 (9, 6)
+state, object_tuple : 123 (10, 5)
+Failed here2
+raise5
+state, object_tuple : 5 (10, 4)
+Failed here2
+raise5
+state, object_tuple : 153 (2, 5)
+add1
+state, object_tuple : 12 (2, 6)
+Failed here2
+raise5
+state, object_tuple : 28 (2, 4)
+add1
+state, object_tuple : 51 (0, 6)
+Failed here2
+raise5
+state, object_tuple : 9 (9, 4)
+state, object_tuple : 114 (8, 5)
+add1
+state, object_tuple : 253 (9, 4)
+Failed here2
+raise5
+state, object_tuple : 131 (11, 4)
+add1
+state, object_tuple : 245 (11, 4)
+Failed here2
+raise5
+state, object_tuple : 34 (0, 4)
+Failed here2
+raise5
+state, object_tuple : 23 (10, 6)
+Failed here2
+raise5
+state, object_tuple : 49 (3, 5)
+add1
+state, object_tuple : 53 (3, 5)
+state, object_tuple : 222 (2, 4)
+add1
+state, object_tuple : 179 (8, 4)
+add1
+state, object_tuple : 184 (0, 4)
+add1
+state, object_tuple : 146 (9, 4)
+Failed here2
+raise5
+state, object_tuple : 163 (2, 5)
+Failed here2
+raise5
+state, object_tuple : 289 (10, 5)
+Failed here2
+raise5
+state, object_tuple : 96 (2, 6)
+Failed here2
+raise5
+state, object_tuple : 91 (2, 5)
+state, object_tuple : 111 (9, 5)
+state, object_tuple : 251 (9, 4)
+Failed here2
+raise5
+state, object_tuple : 54 (3, 5)
+state, object_tuple : 243 (9, 6)
+add1
+state, object_tuple : 18 (3, 6)
+state, object_tuple : 207 (0, 6)
+Failed here2
+raise5
+state, object_tuple : 214 (2, 4)
+Failed here2
+raise5
+state, object_tuple : 160 (8, 4)
+Failed here2
+raise5
+state, object_tuple : 182 (10, 6)
+state, object_tuple : 277 (3, 6)
+Failed here2
+raise5
+state, object_tuple : 93 (11, 4)
+state, object_tuple : 33 (10, 6)
+add1
+state, object_tuple : 283 (8, 5)
+Failed here2
+raise5
+state, object_tuple : 35 (8, 4)
+Failed here2
+raise5
+state, object_tuple : 187 (2, 6)
+add1
+state, object_tuple : 85 (10, 5)
+state, object_tuple : 273 (8, 4)
+Failed here2
+raise5
+state, object_tuple : 286 (8, 5)
+Failed here2
+raise5
+state, object_tuple : 299 (8, 4)
+state, object_tuple : 32 (0, 5)
+add1
+state, object_tuple : 43 (3, 5)
+add1
+state, object_tuple : 30 (9, 5)
+Failed here2
+raise5
+state, object_tuple : 217 (0, 6)
+add1
+state, object_tuple : 194 (8, 4)
+Failed here2
+raise5
+state, object_tuple : 19 (10, 5)
+Failed here2
+raise5
+state, object_tuple : 76 (2, 5)
+Failed here2
+raise5
+state, object_tuple : 26 (11, 6)
+state, object_tuple : 24 (0, 4)
+state, object_tuple : 56 (2, 6)
+add1
+state, object_tuple : 239 (9, 6)
+Failed here2
+raise5
+state, object_tuple : 9 (8, 4)
+state, object_tuple : 216 (8, 4)
+state, object_tuple : 183 (3, 5)
+state, object_tuple : 3 (0, 6)
+state, object_tuple : 211 (8, 5)
+Failed here2
+raise5
+state, object_tuple : 125 (11, 4)
+state, object_tuple : 10 (8, 5)
+Failed here2
+raise5
+state, object_tuple : 9 (11, 6)
+state, object_tuple : 122 (8, 6)
+add1
+state, object_tuple : 270 (9, 6)
+Failed here2
+raise5
+state, object_tuple : 274 (8, 4)
+add1
+state, object_tuple : 256 (9, 4)
+Failed here2
+raise5
+state, object_tuple : 48 (8, 6)
+state, object_tuple : 269 (3, 5)
+state, object_tuple : 255 (8, 4)
+Failed here2
+raise5
+state, object_tuple : 99 (9, 5)
+state, object_tuple : 67 (11, 5)
+Failed here2
+raise5
+state, object_tuple : 295 (2, 5)
+add1
+state, object_tuple : 262 (2, 6)
+state, object_tuple : 290 (3, 6)
+state, object_tuple : 0 (9, 4)
+state, object_tuple : 285 (11, 5)
+Failed here2
+raise5
+state, object_tuple : 129 (9, 5)
+Failed here2
+raise5
+state, object_tuple : 254 (10, 6)
+add1
+state, object_tuple : 205 (3, 6)
+Failed here2
+raise5
+state, object_tuple : 225 (2, 5)
+add1
+state, object_tuple : 88 (10, 4)
+state, object_tuple : 288 (3, 4)
+state, object_tuple : 23 (8, 6)
+Failed here2
+raise5
+state, object_tuple : 9 (9, 6)
+state, object_tuple : 203 (9, 5)
+state, object_tuple : 200 (2, 4)
+add1
+state, object_tuple : 228 (9, 4)
+Failed here2
+raise5
+state, object_tuple : 248 (9, 5)
+state, object_tuple : 280 (10, 5)
+Failed here2
+raise5
+state, object_tuple : 292 (0, 6)
+Failed here2
+raise5
+state, object_tuple : 121 (11, 5)
+Failed here2
+raise5
+state, object_tuple : 244 (10, 5)
+add1
+state, object_tuple : 276 (8, 5)
+Failed here2
+raise5
+state, object_tuple : 154 (8, 6)
+Failed here2
+raise5
+state, object_tuple : 82 (8, 4)
+state, object_tuple : 120 (10, 4)
+state, object_tuple : 139 (8, 4)
+state, object_tuple : 51 (3, 5)
+add1
+state, object_tuple : 45 (9, 4)
+Failed here2
+raise5
+state, object_tuple : 219 (9, 6)
+state, object_tuple : 107 (10, 4)
+Failed here2
+raise5
+state, object_tuple : 98 (2, 5)
+state, object_tuple : 22 (8, 4)
+add1
+state, object_tuple : 54 (9, 5)
+state, object_tuple : 217 (0, 5)
+add1
+state, object_tuple : 85 (3, 6)
+Failed here2
+raise5
+state, object_tuple : 255 (0, 6)
+state, object_tuple : 295 (9, 6)
+Failed here2
+raise5
+state, object_tuple : 143 (8, 4)
+add1
+state, object_tuple : 2 (8, 6)
+state, object_tuple : 248 (9, 4)
+state, object_tuple : 16 (0, 6)
+state, object_tuple : 91 (2, 5)
+state, object_tuple : 158 (9, 5)
+Failed here2
+raise5
+state, object_tuple : 19 (0, 4)
+state, object_tuple : 294 (3, 4)
+state, object_tuple : 175 (10, 5)
+state, object_tuple : 144 (2, 6)
+state, object_tuple : 26 (9, 6)
+state, object_tuple : 230 (0, 4)
+add1
+state, object_tuple : 119 (0, 4)
+state, object_tuple : 29 (11, 5)
+Failed here2
+raise5
+state, object_tuple : 37 (8, 6)
+state, object_tuple : 285 (3, 6)
+add1
+state, object_tuple : 80 (11, 5)
+Failed here2
+raise5
+state, object_tuple : 158 (10, 6)
+state, object_tuple : 71 (3, 5)
+add1
+state, object_tuple : 117 (10, 5)
+state, object_tuple : 44 (10, 6)
+state, object_tuple : 94 (10, 6)
+add1
+state, object_tuple : 178 (11, 4)
+add1
+state, object_tuple : 285 (9, 5)
+Failed here2
+raise5
+state, object_tuple : 87 (2, 4)
+state, object_tuple : 274 (2, 5)
+Failed here2
+raise5
+state, object_tuple : 28 (8, 4)
+Failed here2
+raise5
+state, object_tuple : 207 (9, 4)
+Failed here2
+raise5
+state, object_tuple : 181 (10, 5)
+state, object_tuple : 111 (0, 4)
+Failed here2
+raise5
+state, object_tuple : 125 (10, 5)
+Failed here2
+raise5
+state, object_tuple : 50 (11, 5)
+state, object_tuple : 89 (0, 4)
+state, object_tuple : 25 (3, 6)
+state, object_tuple : 61 (0, 5)
+add1
+state, object_tuple : 296 (2, 5)
+add1
+state, object_tuple : 130 (11, 5)
+add1
+state, object_tuple : 63 (0, 5)
+add1
+state, object_tuple : 41 (11, 4)
+Failed here2
+raise5
+state, object_tuple : 246 (9, 6)
+add1
+state, object_tuple : 168 (8, 4)
+Failed here2
+raise5
+state, object_tuple : 138 (2, 4)
+state, object_tuple : 4 (9, 6)
+state, object_tuple : 45 (9, 6)
+state, object_tuple : 196 (9, 6)
+state, object_tuple : 105 (3, 4)
+Failed here2
+raise5
+current_action:  drop
+state, object_tuple : 29 (6,)
+add1
+state, object_tuple : 20 (6,)
+add1
+state, object_tuple : 3 (4,)
+add1
+state, object_tuple : 18 (5,)
+add1
+state, object_tuple : 90 (5,)
+add1
+state, object_tuple : 7 (6,)
+add1
+state, object_tuple : 96 (4,)
+add1
+state, object_tuple : 101 (6,)
+add1
+state, object_tuple : 285 (4,)
+add1
+state, object_tuple : 15 (5,)
+add1
+state, object_tuple : 75 (4,)
+add1
+state, object_tuple : 257 (6,)
+add1
+state, object_tuple : 218 (6,)
+add1
+state, object_tuple : 139 (5,)
+add1
+state, object_tuple : 186 (6,)
+add1
+state, object_tuple : 289 (6,)
+add1
+state, object_tuple : 63 (6,)
+add1
+state, object_tuple : 189 (6,)
+add1
+state, object_tuple : 75 (6,)
+add1
+state, object_tuple : 204 (5,)
+add1
+state, object_tuple : 179 (5,)
+add1
+state, object_tuple : 62 (6,)
+add1
+state, object_tuple : 106 (6,)
+add1
+state, object_tuple : 27 (5,)
+add1
+state, object_tuple : 65 (4,)
+add1
+state, object_tuple : 265 (5,)
+add1
+state, object_tuple : 101 (6,)
+add1
+state, object_tuple : 269 (5,)
+add1
+state, object_tuple : 244 (6,)
+add1
+state, object_tuple : 136 (5,)
+add1
+state, object_tuple : 50 (5,)
+add1
+state, object_tuple : 152 (6,)
+add1
+state, object_tuple : 74 (4,)
+add1
+state, object_tuple : 92 (4,)
+add1
+state, object_tuple : 227 (6,)
+add1
+state, object_tuple : 235 (5,)
+add1
+state, object_tuple : 69 (6,)
+add1
+state, object_tuple : 293 (4,)
+add1
+state, object_tuple : 233 (5,)
+add1
+state, object_tuple : 60 (5,)
+add1
+state, object_tuple : 87 (4,)
+add1
+state, object_tuple : 255 (6,)
+add1
+state, object_tuple : 35 (5,)
+add1
+state, object_tuple : 285 (4,)
+add1
+state, object_tuple : 127 (4,)
+add1
+state, object_tuple : 76 (4,)
+add1
+state, object_tuple : 128 (4,)
+add1
+state, object_tuple : 2 (5,)
+add1
+state, object_tuple : 223 (6,)
+add1
+state, object_tuple : 298 (4,)
+add1
+state, object_tuple : 141 (5,)
+add1
+state, object_tuple : 203 (5,)
+add1
+state, object_tuple : 173 (5,)
+add1
+state, object_tuple : 58 (5,)
+add1
+state, object_tuple : 222 (6,)
+add1
+state, object_tuple : 7 (5,)
+add1
+state, object_tuple : 210 (6,)
+add1
+state, object_tuple : 149 (4,)
+add1
+state, object_tuple : 64 (4,)
+add1
+state, object_tuple : 251 (6,)
+add1
+state, object_tuple : 292 (4,)
+add1
+state, object_tuple : 219 (6,)
+add1
+state, object_tuple : 89 (4,)
+add1
+state, object_tuple : 232 (5,)
+add1
+state, object_tuple : 251 (6,)
+add1
+state, object_tuple : 175 (4,)
+add1
+state, object_tuple : 42 (5,)
+add1
+state, object_tuple : 50 (5,)
+add1
+state, object_tuple : 115 (6,)
+add1
+state, object_tuple : 45 (5,)
+add1
+state, object_tuple : 199 (5,)
+add1
+state, object_tuple : 243 (6,)
+add1
+state, object_tuple : 285 (4,)
+add1
+state, object_tuple : 284 (4,)
+add1
+state, object_tuple : 300 (4,)
+add1
+state, object_tuple : 129 (4,)
+add1
+state, object_tuple : 279 (4,)
+add1
+state, object_tuple : 150 (6,)
+add1
+state, object_tuple : 173 (5,)
+add1
+state, object_tuple : 233 (5,)
+add1
+state, object_tuple : 97 (5,)
+add1
+state, object_tuple : 124 (6,)
+add1
+state, object_tuple : 300 (4,)
+add1
+state, object_tuple : 4 (5,)
+add1
+state, object_tuple : 214 (5,)
+add1
+state, object_tuple : 251 (6,)
+add1
+state, object_tuple : 113 (5,)
+add1
+state, object_tuple : 62 (4,)
+add1
+state, object_tuple : 121 (4,)
+add1
+state, object_tuple : 294 (4,)
+add1
+state, object_tuple : 250 (6,)
+add1
+state, object_tuple : 271 (5,)
+add1
+state, object_tuple : 10 (4,)
+add1
+state, object_tuple : 73 (6,)
+add1
+state, object_tuple : 148 (5,)
+add1
+state, object_tuple : 283 (4,)
+add1
+state, object_tuple : 94 (5,)
+add1
+state, object_tuple : 83 (4,)
+add1
+state, object_tuple : 38 (6,)
+add1
+state, object_tuple : 208 (5,)
+add1
+state, object_tuple : 85 (5,)
+add1
+state, object_tuple : 235 (5,)
+add1
+state, object_tuple : 275 (6,)
+add1
+state, object_tuple : 68 (6,)
+add1
+state, object_tuple : 75 (6,)
+add1
+state, object_tuple : 25 (6,)
+add1
+state, object_tuple : 116 (5,)
+add1
+state, object_tuple : 99 (6,)
+add1
+state, object_tuple : 250 (6,)
+add1
+state, object_tuple : 6 (6,)
+add1
+state, object_tuple : 281 (4,)
+add1
+state, object_tuple : 101 (6,)
+add1
+state, object_tuple : 191 (6,)
+add1
+state, object_tuple : 252 (6,)
+add1
+state, object_tuple : 238 (5,)
+add1
+state, object_tuple : 297 (4,)
+add1
+state, object_tuple : 89 (4,)
+add1
+state, object_tuple : 8 (4,)
+add1
+state, object_tuple : 275 (6,)
+add1
+state, object_tuple : 287 (4,)
+add1
+state, object_tuple : 262 (6,)
+add1
+state, object_tuple : 266 (5,)
+add1
+state, object_tuple : 290 (6,)
+add1
+state, object_tuple : 216 (5,)
+add1
+state, object_tuple : 236 (5,)
+add1
+state, object_tuple : 199 (5,)
+add1
+state, object_tuple : 168 (5,)
+add1
+state, object_tuple : 202 (5,)
+add1
+state, object_tuple : 113 (6,)
+add1
+state, object_tuple : 57 (6,)
+add1
+state, object_tuple : 233 (5,)
+add1
+state, object_tuple : 255 (6,)
+add1
+state, object_tuple : 74 (4,)
+add1
+state, object_tuple : 138 (4,)
+add1
+state, object_tuple : 238 (5,)
+add1
+state, object_tuple : 205 (5,)
+add1
+state, object_tuple : 66 (4,)
+add1
+state, object_tuple : 287 (4,)
+add1
+state, object_tuple : 11 (6,)
+add1
+state, object_tuple : 183 (5,)
+add1
+state, object_tuple : 13 (5,)
+add1
+state, object_tuple : 67 (6,)
+add1
+state, object_tuple : 1 (6,)
+add1
+state, object_tuple : 98 (6,)
+add1
+state, object_tuple : 78 (4,)
+add1
+state, object_tuple : 37 (6,)
+add1
+state, object_tuple : 282 (4,)
+add1
+state, object_tuple : 283 (4,)
+add1
+state, object_tuple : 48 (6,)
+add1
+state, object_tuple : 178 (6,)
+add1
+state, object_tuple : 183 (6,)
+add1
+state, object_tuple : 266 (5,)
+add1
+state, object_tuple : 247 (5,)
+add1
+state, object_tuple : 142 (5,)
+add1
+state, object_tuple : 206 (5,)
+add1
+state, object_tuple : 180 (5,)
+add1
+state, object_tuple : 73 (6,)
+add1
+state, object_tuple : 213 (5,)
+add1
+state, object_tuple : 283 (4,)
+add1
+state, object_tuple : 274 (6,)
+add1
+state, object_tuple : 152 (6,)
+add1
+state, object_tuple : 138 (4,)
+add1
+state, object_tuple : 189 (6,)
+add1
+state, object_tuple : 196 (6,)
+add1
+state, object_tuple : 103 (5,)
+add1
+state, object_tuple : 67 (6,)
+add1
+state, object_tuple : 14 (4,)
+add1
+state, object_tuple : 32 (5,)
+add1
+state, object_tuple : 124 (6,)
+add1
+state, object_tuple : 91 (5,)
+add1
+state, object_tuple : 189 (6,)
+add1
+state, object_tuple : 228 (6,)
+add1
+state, object_tuple : 216 (4,)
+add1
+state, object_tuple : 101 (6,)
+add1
+state, object_tuple : 219 (6,)
+add1
+state, object_tuple : 244 (6,)
+add1
+state, object_tuple : 151 (6,)
+add1
+state, object_tuple : 145 (6,)
+add1
+state, object_tuple : 266 (5,)
+add1
+state, object_tuple : 6 (5,)
+add1
+state, object_tuple : 64 (4,)
+add1
+state, object_tuple : 145 (6,)
+add1
+state, object_tuple : 0 (4,)
+add1
+state, object_tuple : 149 (6,)
+add1
+state, object_tuple : 166 (5,)
+add1
+state, object_tuple : 77 (4,)
+add1
+state, object_tuple : 74 (4,)
+add1
+state, object_tuple : 20 (4,)
+add1
+state, object_tuple : 79 (4,)
+add1
+state, object_tuple : 39 (6,)
+add1
+state, object_tuple : 40 (5,)
+add1
+state, object_tuple : 237 (5,)
+add1
+state, object_tuple : 176 (6,)
+add1
+state, object_tuple : 119 (6,)
+add1
+state, object_tuple : 144 (6,)
+add1
+state, object_tuple : 4 (6,)
+add1
+state, object_tuple : 54 (6,)
+add1
+state, object_tuple : 88 (4,)
+add1
+state, object_tuple : 293 (4,)
+add1
+state, object_tuple : 288 (4,)
+add1
+current_action:  move
+state, object_tuple : 17 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 127 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 274 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 262 (1,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 188 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 270 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 58 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 225 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 96 (1,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 189 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 38 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 236 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 56 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 258 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 87 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 36 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 25 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 276 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 285 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 69 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 184 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 111 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 195 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 184 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 65 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 12 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 223 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 223 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 195 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 218 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 61 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 9 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 26 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 299 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 85 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 139 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 164 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 290 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 256 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 168 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 131 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 158 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 187 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 97 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 217 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 291 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 21 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 59 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 281 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 116 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 67 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 23 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 93 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 131 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 4 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 56 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 19 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 169 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 163 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 178 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 92 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 47 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 217 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 48 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 96 (1,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 5 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 187 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 265 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 26 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 3 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 102 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 286 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 167 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 228 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 143 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 48 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 277 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 163 (1,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 286 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 234 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 71 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 169 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 26 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 101 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 211 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 127 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 217 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 179 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 156 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 285 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 16 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 193 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 163 (1,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 63 (1,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 36 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 178 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 292 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 61 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 172 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 86 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 148 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 11 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 121 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 253 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 234 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 283 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 79 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 189 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 239 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 145 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 140 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 65 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 195 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 2 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 225 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 248 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 254 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 67 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 177 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 42 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 157 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 17 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 266 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 153 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 202 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 251 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 158 (1,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 99 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 33 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 127 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 218 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 254 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 267 (1,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 175 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 162 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 62 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 143 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 152 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 249 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 259 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 64 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 210 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 51 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 202 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 252 (1,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 153 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 19 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 19 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 130 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 159 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 163 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 95 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 261 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 194 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 94 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 252 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 251 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 113 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 117 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 135 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 9 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 194 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 202 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 232 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 65 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 287 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 227 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 252 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 131 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 287 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 193 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 268 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 172 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 99 (1,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 26 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 149 (1,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 261 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 23 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 281 (7,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 278 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 16 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 143 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 38 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 6 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 179 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 213 (13,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 51 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 122 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 169 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 39 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+state, object_tuple : 54 (7,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 151 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 177 (12,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 294 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 141 (12,)
+New Effects {0: {'at-robby': {(13,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 123 (13,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 83 (12,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(12,)}}}
+state, object_tuple : 17 (7,)
+New Effects {0: {'at-robby': {(1,)}}, 1: {'at-robby': {(7,)}}}
+state, object_tuple : 272 (13,)
+New Effects {0: {'at-robby': {(12,)}}, 1: {'at-robby': {(13,)}}}
+state, object_tuple : 226 (1,)
+New Effects {0: {'at-robby': {(7,)}}, 1: {'at-robby': {(1,)}}}
+106.98 s
+%%%%%%   Adding Querries   %%%%
+pick
+move
+drop
+
+ %%%%%% Unique quries %%%%%%
+pick
+move
+drop

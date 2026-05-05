@@ -1,0 +1,57 @@
+--------------------- Slurm Task Prolog ------------------------
+Job ID: 2317109
+Job name: synth
+Host: cn-102
+Date: Do 30. Apr 12:25:46 CEST 2026
+User: niklas.jansen
+Slurm account: rleap
+Slurm partition: rleap_cpu
+Work dir: 
+------------------
+Node usage:
+JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+2317106_22 rleap_cpu    synth niklas.j  R       0:00      1 cn-102
+2317106_23 rleap_cpu    synth niklas.j  R       0:00      1 cn-102
+2314207_0 rleap_cpu train_ac martin.f  R    1:57:23      1 cn-102
+------------------
+Show launch script with:
+sacct -B -j 
+------------------
+--------------------- Slurm Task Prolog ------------------------
+Thu Apr 30 12:25:50 CEST 2026
+[8, 4, 8, 0, 0, '4.59 s', 1000, 13, '107.56 s', 1200, 14]
+Process started at: Thu Apr 30 12:25:50 CEST 2026
+Process ended at: Thu Apr 30 12:27:50 CEST 2026
+Runtime: 120 Seconds.
+Resource usage:
+	Command being timed: "python3.12 /graph-separator/test.py -si -d pddl_files/gripper/gripper.pddl -i pddl_files/gripper/gripper-6-4-3.pddl -v pddl_files/gripper/gripper-7-4-3.pddl -s 1000 -vs 20000 -n sgripper --run 2"
+	User time (seconds): 107.78
+	System time (seconds): 0.15
+	Percent of CPU this job got: 90%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:59.21
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 83788
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 155
+	Minor (reclaiming a frame) page faults: 24109
+	Voluntary context switches: 3495
+	Involuntary context switches: 268
+	Swaps: 0
+	File system inputs: 216
+	File system outputs: 200
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+--------------------- Slurm Task Epilog ------------------------
+Job ID: 2317109
+Time: Do 30. Apr 12:27:50 CEST 2026
+Elapsed Time: 00:02:04
+Billing per second for TRES: billing=200,cpu=2,mem=40G,node=1
+Show resource usage with e.g.:
+sacct -j 2317109 -o Elapsed,TotalCPU,UserCPU,SystemCPU,MaxRSS,ReqTRES%60,MaxDiskRead,MaxDiskWrite
+--------------------- Slurm Task Epilog ------------------------

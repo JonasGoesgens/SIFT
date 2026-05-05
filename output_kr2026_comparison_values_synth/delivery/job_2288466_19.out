@@ -1,0 +1,56 @@
+--------------------- Slurm Task Prolog ------------------------
+Job ID: 2288466
+Job name: synth
+Host: cn-427
+Date: Di 28. Apr 10:47:11 CEST 2026
+User: niklas.jansen
+Slurm account: rleap
+Slurm partition: rleap_cpu_modern
+Work dir: 
+------------------
+Node usage:
+JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+2288466_10 rleap_cpu    synth niklas.j  R       0:00      1 cn-427
+2288466_11 rleap_cpu    synth niklas.j  R       0:00      1 cn-427
+2288466_12 rleap_cpu    synth niklas.j  R       0:00      1 cn-427
+2288466_13 rleap_cpu    synth niklas.j  R       0:00      1 cn-427
+2288466_14 rleap_cpu    synth niklas.j  R       0:00      1 cn-427
+2288466_15 rleap_cpu    synth niklas.j  R       0:00      1 cn-427
+2288466_16 rleap_cpu    synth niklas.j  R       0:00      1 cn-427
+2288466_17 rleap_cpu    synth niklas.j  R       0:00      1 cn-427
+2288466_18 rleap_cpu    synth niklas.j  R       0:00      1 cn-427
+2288466_19 rleap_cpu    synth niklas.j  R       0:00      1 cn-427
+------------------
+Show launch script with:
+sacct -B -j 
+------------------
+--------------------- Slurm Task Prolog ------------------------
+Tue Apr 28 10:47:11 CEST 2026
+[12, 1, 12, 0, 0, '278.91 s', 5000, 19, '344.93 s', 2400, 29]
+Process started at: Tue Apr 28 10:47:11 CEST 2026
+Process ended at: Tue Apr 28 10:52:56 CEST 2026
+Runtime: 345 Seconds.
+Resource usage:
+	Command being timed: "python3.12 /graph-separator/test.py -si -d pddl_files/sdelivery/sdelivery.pddl -i pddl_files/sdelivery/sdelivery-4-4.pddl -v pddl_files/sdelivery/sdelivery-5-5.pddl -s 5000 -vs 20000 -n sdelivery --run 9"
+	User time (seconds): 328.87
+	System time (seconds): 16.23
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 5:45.31
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 18835812
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 155
+	Minor (reclaiming a frame) page faults: 20651437
+	Voluntary context switches: 3458
+	Involuntary context switches: 1844
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 360
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
