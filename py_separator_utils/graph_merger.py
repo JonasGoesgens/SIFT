@@ -448,7 +448,7 @@ class Graph_Holder:
             return self.final_merged_graphs[grounding]
         else:
             warnings.warn(
-                "Used backup cration for final graph.\n For best results create all graphs together.",
+                "Used backup creation for final graph.\n For best results create all graphs together.",
                 UserWarning
             )
             #make a deep copy as we need the old graph intact as intermediate result.
